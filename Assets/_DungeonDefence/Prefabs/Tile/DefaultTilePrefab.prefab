@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5882616492723004582}
   - component: {fileID: 3788150720335711813}
   - component: {fileID: 3651476903381158594}
-  - component: {fileID: 897096017981504090}
+  - component: {fileID: 6280755013731997778}
   m_Layer: 6
   m_Name: DefaultTilePrefab
   m_TagString: Untagged
@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3c24b59646fae5e4fbb3eb2a3d534a65, type: 2}
+  - {fileID: 2100000, guid: 217da2946b793f64d8461ca21836e027, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -106,7 +106,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &897096017981504090
+--- !u!114 &6280755013731997778
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,8 +115,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4933445558535422339}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172d201fd32e8d44c96b02cad9f663a8, type: 3}
+  m_Script: {fileID: 11500000, guid: 5b926fbb1035a134da3a8c02168fc6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 0}
   meshRenderer: {fileID: 3788150720335711813}

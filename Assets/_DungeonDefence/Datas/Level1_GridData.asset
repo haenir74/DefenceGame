@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f85735197ff40ca49ba047931e60393f, type: 3}
+  m_Name: Level1_GridData
+  m_EditorClassIdentifier: 
+  width: 3
+  height: 7
+  cellSize: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  spawnNodePos: {x: 1, y: 0}
+  coreNodePos: {x: 1, y: 6}
+  defaultTilePrefab: {fileID: 4933445558535422339, guid: 55bde1fd0b7097741b4750f89d55495f, type: 3}
+  defaultTileData: {fileID: 11400000, guid: d919807776477b14d86d6b148860a454, type: 2}
