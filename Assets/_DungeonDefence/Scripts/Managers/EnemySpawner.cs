@@ -30,6 +30,13 @@ public class EnemySpawner : MonoBehaviour
     {
         if (GameManager.Instance == null) return;
         
+        if (enemyPrefab == null)
+        {
+            Debug.LogError("Enemy Prefab is missing or destroyed! Please assign a Prefab from the Project window, not a Scene Object.", this);
+            enabled = false; // Disable spawner to prevent spamming errors
+            return;
+        }
+
         MapContext map = GameManager.Instance.Context.map;
         if (map == null || map.SpawnNode == null)
         {
