@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile : MonoBehaviour
+public class TileView : MonoBehaviour
 {
     public Node Node { get; private set; }
     public TileData Data { get; private set; }
@@ -31,7 +31,6 @@ public class Tile : MonoBehaviour
     public void SetHighlight(bool isActive)
     {
         if (meshRenderer == null) return;
-        Debug.Log("Hover on Tile");
         meshRenderer.material.color = isActive ? originalColor * 0.7f : originalColor;
     }
 }

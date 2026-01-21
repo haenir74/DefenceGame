@@ -8,20 +8,27 @@ public class Node
     [SerializeField] private int _x;
     [SerializeField] private int _y;
     [SerializeField] private Vector3 _worldPosition;
-    [SerializeField] private Tile _currentTile;
-    [SerializeField] public GameObject Structure;
+    [SerializeField] private TileView _view;
+
+    private Tile _tileEffect;
 
     public int X => _x;
     public int Y => _y;
     public Vector3 WorldPosition => _worldPosition;
 
-    public Tile CurrentTile
+    public TileView CurrentTile
     {
-        get => _currentTile;
-        set => _currentTile = value;
+        get => _view;
+        set => _view = value;
     }
 
-    public bool IsWalkable => Structure == null;
+    public Tile TileEffect
+    {
+        get => _tileEffect;
+        set => _tileEffect = value;
+    }
+
+    public bool IsEmpty => _tileEffect == null;
 
     public Node(int x, int y, Vector3 worldPosition)
     {

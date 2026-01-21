@@ -33,10 +33,10 @@ public class GridManager : MonoBehaviour
         foreach (var node in Map.Nodes)
         {
             GameObject tileObj = Instantiate(gridData.defaultTilePrefab, node.WorldPosition, Quaternion.identity, TileCotntainer);
-            Tile tile = tileObj.GetComponent<Tile>();
-            if (tile != null)
+            TileView tileView = tileObj.GetComponent<TileView>();
+            if (tileView != null)
             {
-                tile.Setup(node, gridData.defaultTileData);
+                tileView.Setup(node, gridData.defaultTileData);
             }
         }
     }

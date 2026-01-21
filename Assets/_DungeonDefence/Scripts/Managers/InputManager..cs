@@ -38,7 +38,6 @@ public class InputManager : MonoBehaviour
         {
             if (currentNode != null)
             {
-                Debug.Log($"[Input] Clicked Node: {currentNode.X}, {currentNode.Y}");
                 OnClickNode?.Invoke(currentNode);
             }
         }

@@ -33,7 +33,7 @@ public class BuildManager : MonoBehaviour
 
     private void BuildStructure(Node node)
     {
-        if (node.Structure != null)
+        if (node.TileEffect != null)
         {
             Debug.Log("이미 건물이 있습니다.");
             return;
@@ -47,9 +47,16 @@ public class BuildManager : MonoBehaviour
         }
 
         gameContext.playerGold -= buildCost;
-        GameObject newBuilding = Instantiate(buildingPrefab, node.WorldPosition, Quaternion.identity);
-        node.Structure = newBuilding;
-
-        Debug.Log($"건설 완료! 남은 골드: {gameContext.playerGold}");
+        GameObject newBuildingObj = Instantiate(buildingPrefab, node.WorldPosition, Quaternion.identity);
+        Tile newTileLogic = newBuildingObj.GetComponent<Tile>();
+        if (newTileLogic != null)
+        {
+            node.TileEffect = newTileLogic;
+        }
+        else
+        {
+            Destroy(newBuildingObj);
+            gameContext.playerGold += buildCost; 
+        }
     }
 }
