@@ -9,6 +9,7 @@ public class Node
     [SerializeField] private int _y;
     [SerializeField] private Vector3 _worldPosition;
     [SerializeField] private Tile _currentTile;
+    [SerializeField] public GameObject Structure;
 
     public int X => _x;
     public int Y => _y;
@@ -19,6 +20,8 @@ public class Node
         get => _currentTile;
         set => _currentTile = value;
     }
+
+    public bool IsWalkable => Structure == null;
 
     public Node(int x, int y, Vector3 worldPosition)
     {

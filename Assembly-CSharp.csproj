@@ -59,7 +59,7 @@
     <UnityVersion>2022.3.62f3</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Users\haeni\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Users\haeni\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.1\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
@@ -74,6 +74,7 @@
     <Compile Include="Assets\_DungeonDefence\Scripts\Objects\Tile\TileData.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Managers\GameManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Systems\Input\InputSystem.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Managers\BuildManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Objects\Tile\Tile.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Views\GridView.cs" />
   </ItemGroup>
