@@ -9,8 +9,7 @@ public class EnemyUnit : Unit
     protected override void Start()
     {
         base.Start();
-        gridSystem = new GridSystem(); // In a real architecture, inject this or use a singleton wrapper
-        
+        gridSystem = new GridSystem(); 
         Invoke(nameof(StartPathfinding), 0.1f);
     }
 
@@ -20,8 +19,7 @@ public class EnemyUnit : Unit
         if (gameManager == null) return;
 
         MapContext map = gameManager.Context.map;
-        GridData gridData = GridManager.Instance.Data;
-
+        
         if (currentNode == null)
         {
             currentNode = map.SpawnNode;
@@ -43,12 +41,36 @@ public class EnemyUnit : Unit
     protected override void OnPathComplete()
     {
         Debug.Log("Enemy reached the Core!");
-        
-        // 데이터가 있다면 데미지 수치 적용, 없으면 기본값 10
-        float damage = data != null ? data.attackDamage : 10f;
-
-        // TODO: GameManager.Instance.DamagePlayer(damage);
-
+        // TODO: Player Damage Logic
         Die(); 
+    }
+
+    protected override bool DetectTarget(out Unit target)
+    {
+        // 적 유닛은 아군 유닛을 공격할 수도 있고, 무시하고 코어로 갈 수도 있음.
+        // 여기서는 "Attack Move" 로직을 따르므로, 경로 상의 아군 유닛을 공격한다고 가정.
+
+        target = null;
+        if (data == null) return false;
+
+        AllyUnit[] allies = FindObjectsOfType<AllyUnit>();
+        
+        float minDst = float.MaxValue;
+        float range = data.attackRange; // 적 유닛 데이터의 사거리 사용
+
+        foreach (var ally in allies)
+        {
+            if (ally.IsDead) continue;
+
+            float dst = Vector3.Distance(transform.position, ally.transform.position);
+            
+            if (dst <= range && dst < minDst)
+            {
+                minDst = dst;
+                target = ally;
+            }
+        }
+
+        return target != null;
     }
 }

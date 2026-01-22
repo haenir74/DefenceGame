@@ -4,55 +4,34 @@ using UnityEngine;
 
 public class AllyUnit : Unit
 {
-    private float lastAttackTime;
+    // 기존 Update 로직은 부모(Unit.cs)의 상태머신으로 대체되므로 제거
 
-    protected override void Update()
+    protected override bool DetectTarget(out Unit target)
     {
-        base.Update();
-        
-        if (data == null) return;
+        target = null;
+        if (data == null) return false;
 
-        if (Time.time >= lastAttackTime + data.attackCooldown)
-        {
-            TryAttack();
-        }
-    }
-
-    private void TryAttack()
-    {
-        EnemyUnit target = FindNearestEnemy();
-        if (target != null)
-        {
-            Attack(target);
-            lastAttackTime = Time.time;
-        }
-    }
-
-    private EnemyUnit FindNearestEnemy()
-    {
+        // 최적화를 위해 Physics.OverlapSphere 또는 별도의 UnitManager 리스트를 사용하는 것이 좋지만,
+        // 현재는 Scene의 모든 EnemyUnit을 검색 (프로토타입용)
         EnemyUnit[] enemies = FindObjectsOfType<EnemyUnit>();
         
-        EnemyUnit nearest = null;
         float minDst = float.MaxValue;
+        float range = data.attackRange;
 
         foreach (var enemy in enemies)
         {
             if (enemy.IsDead) continue;
 
             float dst = Vector3.Distance(transform.position, enemy.transform.position);
-            if (dst <= data.attackRange && dst < minDst)
+            
+            // 사거리 내에 있고, 가장 가까운 적 선택
+            if (dst <= range && dst < minDst)
             {
                 minDst = dst;
-                nearest = enemy;
+                target = enemy;
             }
         }
 
-        return nearest;
-    }
-
-    private void Attack(Unit target)
-    {
-        Debug.Log($"{name} attacks {target.name}!");
-        target.TakeDamage(data.attackDamage);
+        return target != null;
     }
 }

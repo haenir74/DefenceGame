@@ -65,11 +65,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_DungeonDefence\Scripts\Entities\Units\EnemyUnit.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\FSM\IState.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\ScriptableObjects\Effects\BuffEffectSO.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Models\GameContext.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Systems\InputSystem.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Entities\Tiles\TileEffectSO.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Models\GridData.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\FSM\StateMachine.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\ScriptableObjects\UnitDataSO.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Models\Node.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Managers\GridManager.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="Assets\_DungeonDefence\Scripts\Entities\Tiles\Tile.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Views\TileView.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Managers\GameManager.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Entities\Units\UnitStates.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Managers\BuildManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Models\MapContext.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Models\TileData.cs" />
