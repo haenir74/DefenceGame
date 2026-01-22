@@ -48,8 +48,6 @@ public class GridSystem
         return new Vector3(x * cellSize, 0, y * cellSize);
     }
 
-    #region Pathfinding (A*)
-
     public List<Node> FindPath(MapContext map, Node startNode, Node targetNode)
     {
         if (startNode == null || targetNode == null) return null;
@@ -148,6 +146,4 @@ public class GridSystem
         int dstY = Mathf.Abs(nodeA.Y - nodeB.Y);
         return dstX + dstY; // Manhattan distance for grid
     }
-
-    #endregion
 }
