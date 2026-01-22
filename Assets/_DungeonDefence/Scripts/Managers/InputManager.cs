@@ -15,6 +15,7 @@ public class InputManager : MonoBehaviour
     private Node lastHoveredNode;
 
     public event Action<Node> OnClickNode;
+    public event Action<Node> OnRightClickNode;
     public event Action<Node, Node> OnHoverNodeChanged;
 
     void Awake()
@@ -39,6 +40,14 @@ public class InputManager : MonoBehaviour
             if (currentNode != null)
             {
                 OnClickNode?.Invoke(currentNode);
+            }
+        }
+        
+        if (Input.GetMouseButtonDown(1)) // Right Click
+        {
+            if (currentNode != null)
+            {
+                OnRightClickNode?.Invoke(currentNode);
             }
         }
     }

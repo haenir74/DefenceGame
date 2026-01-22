@@ -11,7 +11,6 @@ public class EnemyUnit : Unit
         base.Start();
         gridSystem = new GridSystem(); // In a real architecture, inject this or use a singleton wrapper
         
-        // 잠시 대기 후 이동 시작 (생성 직후 바로 경로 탐색이 안될 수도 있으므로)
         Invoke(nameof(StartPathfinding), 0.1f);
     }
 
@@ -21,16 +20,14 @@ public class EnemyUnit : Unit
         if (gameManager == null) return;
 
         MapContext map = gameManager.Context.map;
-        GridData data = GridManager.Instance.Data;
+        GridData gridData = GridManager.Instance.Data;
 
-        // 현재 노드가 없으면 스폰 노드로 가정 (혹은 외부에서 SetNode로 초기화 필요)
         if (currentNode == null)
         {
             currentNode = map.SpawnNode;
             transform.position = currentNode.WorldPosition;
         }
 
-        // 경로 계산: 현재 위치 -> 플레이어 코어
         List<Node> path = gridSystem.FindPath(map, currentNode, map.CoreNode);
         
         if (path != null)
@@ -45,13 +42,13 @@ public class EnemyUnit : Unit
 
     protected override void OnPathComplete()
     {
-        // 코어 도달!
         Debug.Log("Enemy reached the Core!");
         
-        // TODO: 플레이어 체력 감소 로직
-        // GameManager.Instance.DamagePlayer(damageAmount);
+        // 데이터가 있다면 데미지 수치 적용, 없으면 기본값 10
+        float damage = data != null ? data.attackDamage : 10f;
 
-        // 자폭
+        // TODO: GameManager.Instance.DamagePlayer(damage);
+
         Die(); 
     }
 }

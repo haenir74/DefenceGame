@@ -120,7 +120,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ae2c11bf66425141b77a7b14aaaafe7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 100
-  moveSpeed: 2
+  data: {fileID: 11400000, guid: d85e440c2835494418864f9e8a5354b1, type: 2}
   currentHp: 0
-  team: 1
