@@ -8,6 +8,13 @@ public enum Team
     Enemy
 }
 
+public enum UnitState
+{
+    Idle,
+    Moving,
+    Attacking
+}
+
 public abstract class Unit : MonoBehaviour
 {
     [Header("Data")]
@@ -15,6 +22,7 @@ public abstract class Unit : MonoBehaviour
 
     [Header("Current Stats")]
     [SerializeField] protected float currentHp;
+    [SerializeField] protected UnitState state; // Debug/Inspector view
 
     // FSM
     protected StateMachine stateMachine;
@@ -153,6 +161,17 @@ public abstract class Unit : MonoBehaviour
     {
         this.data = newData;
         InitializeStats();
+    }
+    
+    // Debug/Visualization only
+    public void SetStateEnum(UnitState newState)
+    {
+        state = newState;
+    }
+    
+    public void TriggerPathComplete()
+    {
+        OnPathComplete();
     }
 
     #endregion

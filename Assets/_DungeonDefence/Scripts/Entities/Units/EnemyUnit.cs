@@ -45,7 +45,7 @@ public class EnemyUnit : Unit
         Die(); 
     }
 
-    protected override bool DetectTarget(out Unit target)
+    public override bool DetectTarget(out Unit target)
     {
         // 적 유닛은 아군 유닛을 공격할 수도 있고, 무시하고 코어로 갈 수도 있음.
         // 여기서는 "Attack Move" 로직을 따르므로, 경로 상의 아군 유닛을 공격한다고 가정.

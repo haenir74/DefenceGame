@@ -6,7 +6,7 @@ public class AllyUnit : Unit
 {
     // 기존 Update 로직은 부모(Unit.cs)의 상태머신으로 대체되므로 제거
 
-    protected override bool DetectTarget(out Unit target)
+    public override bool DetectTarget(out Unit target)
     {
         target = null;
         if (data == null) return false;
