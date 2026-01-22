@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_DungeonDefence\Scripts\Entities\Units\EnemyUnit.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Managers\CameraController.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\FSM\IState.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\ScriptableObjects\Effects\BuffEffectSO.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Models\GameContext.cs" />

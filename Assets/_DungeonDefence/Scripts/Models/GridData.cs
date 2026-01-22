@@ -8,7 +8,9 @@ public class GridData : ScriptableObject
     [Header("Settings")]
     public int width = 3;
     public int height = 5;
-    public float cellSize = 1.0f;
+    
+    // 이 값은 이제 Inspector에서 설정하지 않고, Prefab 크기에 따라 자동 계산됩니다.
+    [HideInInspector] public float cellSize = 1.0f; 
     public LayerMask groundLayer;
 
     [Header("Key Nodes")]
