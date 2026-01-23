@@ -21,6 +21,7 @@ public class UnitDataSO : ScriptableObject
     [Header("Combat Stats")]
     public float attackDamage = 10f;
     public float attackSpeed = 1f;
+    public float attackRange = 0.8f;
     public float critRate = 0f;
     public float critDamage = 50f;
     public float armor = 0f;

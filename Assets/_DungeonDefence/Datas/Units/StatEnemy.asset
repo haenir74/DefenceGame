@@ -19,6 +19,8 @@ MonoBehaviour:
     BaseValue: 5
   - Key: AttackSpeed
     BaseValue: 2
+  - Key: AttackRange
+    BaseValue: 0.2
   - Key: MoveSpeed
     BaseValue: 5
   - Key: Mp

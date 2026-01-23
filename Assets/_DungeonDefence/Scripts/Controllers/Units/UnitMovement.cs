@@ -29,18 +29,26 @@ public class UnitMovement
     public UnitMovement(Unit unit)
     {
         this.unit = unit;
-        if (GridManager.Instance != null)
-            this.gridSystem = GridManager.Instance.GridSystem;
-        
-        this.statController = unit.GetComponent<StatController>();
     }
 
     public void Initialize()
     {
+        if (GridManager.Instance != null)
+        {
+            gridSystem = GridManager.Instance.GridSystem;
+        }
+
+        statController = unit.GetComponent<StatController>();
         if (statController != null)
         {
             moveSpeedStat = statController.GetStat(StatKeys.MoveSpeed);
         }
+    }
+
+    public void ResetPath()
+    {
+        nextNode = null;
+        phase = MovePhase.ToEdge;
     }
 
     public void SetNode(Node node)
@@ -57,6 +65,8 @@ public class UnitMovement
     public void DecideNextMove()
     {
         if (gridSystem == null || currentNode == null) return;
+        if (nextNode != null) return;
+
         nextNode = (unit.MyTeam == Team.Ally) ? CalculateAllyPath() : CalculateEnemyPath();
 
         if (nextNode != null)
@@ -69,8 +79,9 @@ public class UnitMovement
     private Node CalculateEnemyPath()
     {
         var map = GameManager.Instance.Context.map;
+        if (map == null || map.CoreNode == null) return null;
+
         Vector3 corePos = map.CoreNode.WorldPosition;
-        
         Node bestNode = null;
         float bestScore = float.MinValue;
 
@@ -154,7 +165,6 @@ public class UnitMovement
         if (nextNode == null) return true;
 
         float currentMoveSpeed = moveSpeedStat != null ? moveSpeedStat.Value : 2.0f;
-        
         float cellSize = GridManager.Instance.Data.cellSize;
         Vector3 flowDir = (nextNode.WorldPosition - currentNode.WorldPosition).normalized;
         Vector3 targetPos = unit.transform.position;
@@ -168,6 +178,7 @@ public class UnitMovement
                 targetPos = gridSystem.GetStancePosition(nextNode, unit.MyTeam, flowDir, cellSize);
                 break;
             case MovePhase.AtStance:
+                nextNode = null;
                 return true;
         }
 
@@ -221,12 +232,19 @@ public class UnitMovement
     {
         foreach (var other in node.UnitsOnNode)
         {
-            if (other != unit && other.MyTeam != unit.MyTeam && !other.IsDead)
+            if (other == unit || other.IsDead || other.MyTeam == unit.MyTeam) continue;
+
+            if (!(unit.CurrentState is UnitBattleState))
             {
                 unit.ChangeState(new UnitBattleState(unit, other));
-                other.ChangeState(new UnitBattleState(other, unit));
-                return;
             }
+
+            if (!(other.CurrentState is UnitBattleState))
+            {
+                other.ChangeState(new UnitBattleState(other, unit));
+            }
+
+            return;
         }
     }
 

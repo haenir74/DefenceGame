@@ -15,11 +15,14 @@ MonoBehaviour:
   unitName: AllyTemp
   team: 0
   cost: 30
-  aiType: 1
   isCore: 0
   prefab: {fileID: 8302592700147644995, guid: d6b98baa1127a134c87f1187fc10e9e9, type: 3}
   maxHp: 200
+  mp: 0
   moveSpeed: 2
-  attackRange: 3
   attackDamage: 10
-  attackCooldown: 1
+  attackSpeed: 1
+  attackRange: 0.8
+  critRate: 0
+  critDamage: 50
+  armor: 0

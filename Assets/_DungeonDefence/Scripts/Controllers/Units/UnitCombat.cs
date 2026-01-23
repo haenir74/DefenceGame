@@ -13,6 +13,7 @@ public static class StatKeys
     public const string AttackDamage = "AttackDamage";
     public const string MoveSpeed = "MoveSpeed";
     public const string AttackSpeed = "AttackSpeed";
+    public const string AttackRange = "AttackRange";
     public const string CritRate = "CritRate";
     public const string CritDamage = "CritDamage";
     public const string Armor = "Armor";
@@ -27,6 +28,7 @@ public class UnitCombat
     private Stat hpStat;
     private Stat damageStat;
     private Stat attackSpeedStat;
+    private Stat attackRangeStat;
     private Stat critRateStat;
     private Stat critDamageStat;
     private Stat armorStat;
@@ -39,35 +41,43 @@ public class UnitCombat
 
     public void Initialize()
     {
-        if (statController == null) return;
-        hpStat = statController.GetStat(StatKeys.MaxHP);
-        damageStat = statController.GetStat(StatKeys.AttackDamage);
-        attackSpeedStat = statController.GetStat(StatKeys.AttackSpeed);
-        critRateStat = statController.GetStat(StatKeys.CritRate);
-        critDamageStat = statController.GetStat(StatKeys.CritDamage);
-        armorStat = statController.GetStat(StatKeys.Armor);
+        if (statController != null)
+        {
+            statController.InitializeStats();
+        }
     }
 
     public void SyncStats(UnitDataSO data)
     {
-        if (statController == null || data == null) return;
-        if (hpStat != null) hpStat.BaseValue = data.maxHp;
-        if (damageStat != null) damageStat.BaseValue = data.attackDamage;
-        if (attackSpeedStat != null) attackSpeedStat.BaseValue = data.attackSpeed;
-        if (critRateStat != null) critRateStat.BaseValue = data.critRate;
-        if (critDamageStat != null) critDamageStat.BaseValue = data.critDamage;
-        if (armorStat != null) armorStat.BaseValue = data.armor;
-        var moveSpeedStat = statController.GetStat(StatKeys.MoveSpeed);
-        if (moveSpeedStat != null) moveSpeedStat.BaseValue = data.moveSpeed;
+        SetBaseValue("MaxHP", data.maxHp);
+        SetBaseValue("AttackDamage", data.attackDamage);
+        SetBaseValue("MoveSpeed", data.moveSpeed);
+        SetBaseValue("AttackSpeed", data.attackSpeed);
+        SetBaseValue("AttackRange", data.attackRange);
+        SetBaseValue("CritDamage", data.critDamage);
+        SetBaseValue("Armor", data.armor);
     }
 
-    public float MaxHP => hpStat?.Value ?? 100f;
-    public float Damage => damageStat?.Value ?? 10f;
-    public float AttackSpeed => attackSpeedStat?.Value ?? 1f;
-    public float CritRate => critRateStat?.Value ?? 0f;
-    public float CritDamage => critDamageStat?.Value ?? 50f;
-    public float Armor => armorStat?.Value ?? 0f;
-    public float MoveSpeed => statController.GetValue(StatKeys.MoveSpeed);
+    private void SetBaseValue(string key, float value)
+    {
+        if (statController == null) return;
+        var stat = statController.GetStat(key);
+        if (stat != null) stat.BaseValue = value;
+    }
+
+    private float GetValue(string key, float defaultValue)
+    {
+        return statController != null ? statController.GetValue(key) : defaultValue;
+    }
+
+    public float MaxHP => GetValue("MaxHP", 100f);
+    public float Damage => GetValue("AttackDamage", 10f);
+    public float MoveSpeed => GetValue("MoveSpeed", 2f);
+    public float AttackRange => GetValue("AttackRange", 0.8f);
+    public float AttackSpeed => GetValue("AttackSpeed", 1f);
+    public float CritRate => GetValue("CritRate", 0f);
+    public float CritDamage => GetValue("CritDamage", 50f);
+    public float Armor => GetValue("Armor", 0f);
 
     public void TryAttack(Unit target)
     {

@@ -19,6 +19,7 @@ public class Unit : MonoBehaviour
     public Team MyTeam => data != null ? data.team : Team.Enemy;
     public Node CurrentNode => movement?.CurrentNode;
     public bool IsDead => currentHp <= 0;
+    public float AttackRange => combat.AttackRange;
 
     public Unit TargetUnit { get; set; }
     public IState CurrentState => fsm.CurrentState;

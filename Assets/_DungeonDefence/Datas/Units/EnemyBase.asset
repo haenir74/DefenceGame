@@ -15,11 +15,14 @@ MonoBehaviour:
   unitName: EnemyTemp
   team: 1
   cost: 30
-  aiType: 2
   isCore: 0
   prefab: {fileID: 6117380593175443770, guid: e6c2ee7a0a28d29468b3afb78bfb3263, type: 3}
   maxHp: 30
+  mp: 0
   moveSpeed: 2
-  attackRange: 3
   attackDamage: 10
-  attackCooldown: 1
+  attackSpeed: 1
+  attackRange: 0.2
+  critRate: 0
+  critDamage: 50
+  armor: 0
