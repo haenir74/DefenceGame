@@ -4,44 +4,44 @@ using UnityEngine;
 
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
-    private static T _instance;
-    private static object _lock = new object();
-    private static bool _applicationIsQuitting = false;
+    private static T instance;
+    private static readonly object lockObject = new object();
+    private static bool applicationIsQuitting = false;
 
     public static T Instance
     {
         get
         {
-            if (_applicationIsQuitting)
+            if (applicationIsQuitting)
             {
                 return null; 
             }
 
-            lock (_lock)
+            lock (lockObject)
             {
-                if (_instance == null)
+                if (instance == null)
                 {
-                    _instance = FindObjectOfType<T>();
+                    instance = FindObjectOfType<T>();
 
-                    if (_instance == null)
+                    if (instance == null)
                     {
                         GameObject obj = new GameObject(typeof(T).Name);
-                        _instance = obj.AddComponent<T>();
+                        instance = obj.AddComponent<T>();
                     }
                 }
-                return _instance;
+                return instance;
             }
         }
     }
 
     protected virtual void Awake()
     {
-        if (_instance == null)
+        if (instance == null)
         {
-            _instance = this as T;
+            instance = this as T;
             DontDestroyOnLoad(gameObject);
         }
-        else if (_instance != this)
+        else if (instance != this)
         {
             Destroy(gameObject);
         }
@@ -49,14 +49,14 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void OnApplicationQuit()
     {
-        _applicationIsQuitting = true;
+        applicationIsQuitting = true;
     }
     
     protected virtual void OnDestroy()
     {
-        if (_instance == this)
+        if (instance == this)
         {
-            _applicationIsQuitting = true;
+            applicationIsQuitting = true;
         }
     }
 }

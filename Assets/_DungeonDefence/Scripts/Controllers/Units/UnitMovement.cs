@@ -1,67 +1,68 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 using Panex.Stat.Controller;
 using Panex.Stat.Model;
 
 public class UnitMovement
 {
-    private readonly Unit _unit;
-    private GridSystem _gridSystem;
-    private StatController _statController;
-    private Stat _moveSpeedStat;
+    private readonly Unit unit;
+    private GridSystem gridSystem;
+    private StatController statController;
+    private Stat moveSpeedStat;
 
-    private Node _currentNode;
-    private Node _nextNode;
-    private Node _allyDestination;
+    private Node currentNode;
+    private Node nextNode;
+    private Node allyDestination;
 
-    private readonly List<Node> _visitedNodes = new List<Node>();
+    private readonly List<Node> visitedNodes = new List<Node>();
     private const int MAX_HISTORY = 10;
 
     private enum MovePhase { ToEdge, ToStance, AtStance }
-    private MovePhase _phase = MovePhase.ToEdge;
+    private MovePhase phase = MovePhase.ToEdge;
 
-    public Node CurrentNode => _currentNode;
-    public bool HasPendingMove => _nextNode != null;
+    public Node CurrentNode => currentNode;
+    public bool HasPendingMove => nextNode != null;
 
     public UnitMovement(Unit unit)
     {
-        _unit = unit;
+        this.unit = unit;
         if (GridManager.Instance != null)
-            _gridSystem = GridManager.Instance.GridSystem;
+            this.gridSystem = GridManager.Instance.GridSystem;
         
-        _statController = unit.GetComponent<StatController>();
+        this.statController = unit.GetComponent<StatController>();
     }
 
     public void Initialize()
     {
-        if (_statController != null)
+        if (statController != null)
         {
-            _moveSpeedStat = _statController.GetStat(StatKeys.MoveSpeed);
+            moveSpeedStat = statController.GetStat(StatKeys.MoveSpeed);
         }
     }
 
     public void SetNode(Node node)
     {
-        HandleNodeExit(_currentNode);
-        _currentNode = node;
-        HandleNodeEnter(_currentNode);
+        HandleNodeExit(currentNode);
+        currentNode = node;
+        HandleNodeEnter(currentNode);
 
-        _phase = MovePhase.ToEdge;
-        _visitedNodes.Clear();
-        _visitedNodes.Add(node);
+        phase = MovePhase.ToEdge;
+        visitedNodes.Clear();
+        visitedNodes.Add(node);
     }
 
     public void DecideNextMove()
     {
-        if (_gridSystem == null || _currentNode == null) return;
-        _nextNode = (_unit.MyTeam == Team.Ally) ? CalculateAllyPath() : CalculateEnemyPath();
+        if (gridSystem == null || currentNode == null) return;
+        nextNode = (unit.MyTeam == Team.Ally) ? CalculateAllyPath() : CalculateEnemyPath();
 
-        if (_nextNode != null)
+        if (nextNode != null)
         {
-            AddToHistory(_nextNode);
-            _phase = MovePhase.ToEdge;
+            AddToHistory(nextNode);
+            phase = MovePhase.ToEdge;
         }
     }
 
@@ -73,11 +74,11 @@ public class UnitMovement
         Node bestNode = null;
         float bestScore = float.MinValue;
 
-        foreach (var neighbor in _gridSystem.GetNeighbors(map, _currentNode))
+        foreach (var neighbor in gridSystem.GetNeighbors(map, currentNode))
         {
             float dist = Vector3.Distance(neighbor.WorldPosition, corePos);
             int attractiveness = neighbor.GetAttractiveness();
-            float penalty = _visitedNodes.Contains(neighbor) ? 1000f : 0f;
+            float penalty = visitedNodes.Contains(neighbor) ? 1000f : 0f;
 
             float score = (-dist * 2.0f) + attractiveness - penalty;
 
@@ -92,15 +93,15 @@ public class UnitMovement
 
     private Node CalculateAllyPath()
     {
-        if (_allyDestination == null) return null;
+        if (allyDestination == null) return null;
 
         var map = GameManager.Instance.Context.map;
         Node bestNode = null;
         float minDist = float.MaxValue;
 
-        foreach (var neighbor in _gridSystem.GetNeighbors(map, _currentNode))
+        foreach (var neighbor in gridSystem.GetNeighbors(map, currentNode))
         {
-            float d = Vector3.Distance(neighbor.WorldPosition, _allyDestination.WorldPosition);
+            float d = Vector3.Distance(neighbor.WorldPosition, allyDestination.WorldPosition);
             if (d < minDist)
             {
                 minDist = d;
@@ -112,37 +113,37 @@ public class UnitMovement
 
     private void AddToHistory(Node node)
     {
-        _visitedNodes.Add(node);
-        if (_visitedNodes.Count > MAX_HISTORY) _visitedNodes.RemoveAt(0);
+        visitedNodes.Add(node);
+        if (visitedNodes.Count > MAX_HISTORY) visitedNodes.RemoveAt(0);
     }
 
     public bool Tick()
     {
-        if (_nextNode == null) return true;
+        if (nextNode == null) return true;
 
-        float currentMoveSpeed = _moveSpeedStat != null ? _moveSpeedStat.Value : 2.0f;
+        float currentMoveSpeed = moveSpeedStat != null ? moveSpeedStat.Value : 2.0f;
         
         float cellSize = GridManager.Instance.Data.cellSize;
-        Vector3 flowDir = (_nextNode.WorldPosition - _currentNode.WorldPosition).normalized;
-        Vector3 targetPos = _unit.transform.position;
+        Vector3 flowDir = (nextNode.WorldPosition - currentNode.WorldPosition).normalized;
+        Vector3 targetPos = unit.transform.position;
 
-        switch (_phase)
+        switch (phase)
         {
             case MovePhase.ToEdge:
-                targetPos = _gridSystem.GetEdgePosition(_currentNode, _nextNode);
+                targetPos = gridSystem.GetEdgePosition(currentNode, nextNode);
                 break;
             case MovePhase.ToStance:
-                targetPos = _gridSystem.GetStancePosition(_nextNode, _unit.MyTeam, flowDir, cellSize);
+                targetPos = gridSystem.GetStancePosition(nextNode, unit.MyTeam, flowDir, cellSize);
                 break;
             case MovePhase.AtStance:
                 return true;
         }
 
-        targetPos.y = _unit.transform.position.y;
+        targetPos.y = unit.transform.position.y;
         
-        _unit.transform.position = Vector3.MoveTowards(_unit.transform.position, targetPos, currentMoveSpeed * Time.deltaTime);
+        unit.transform.position = Vector3.MoveTowards(unit.transform.position, targetPos, currentMoveSpeed * Time.deltaTime);
 
-        if (Vector3.SqrMagnitude(_unit.transform.position - targetPos) < 0.0025f)
+        if (Vector3.SqrMagnitude(unit.transform.position - targetPos) < 0.0025f)
         {
             AdvancePhase();
         }
@@ -152,16 +153,16 @@ public class UnitMovement
 
     private void AdvancePhase()
     {
-        if (_phase == MovePhase.ToEdge)
+        if (phase == MovePhase.ToEdge)
         {
-            HandleNodeExit(_currentNode);
-            _currentNode = _nextNode;
-            HandleNodeEnter(_currentNode);
-            _phase = MovePhase.ToStance;
+            HandleNodeExit(currentNode);
+            currentNode = nextNode;
+            HandleNodeEnter(currentNode);
+            phase = MovePhase.ToStance;
         }
-        else if (_phase == MovePhase.ToStance)
+        else if (phase == MovePhase.ToStance)
         {
-            _phase = MovePhase.AtStance;
+            phase = MovePhase.AtStance;
         }
     }
 
@@ -169,8 +170,8 @@ public class UnitMovement
     {
         if (node != null)
         {
-            node.TileEffect?.OnUnitExit(_unit);
-            node.UnitsOnNode.Remove(_unit);
+            node.TileEffect?.OnUnitExit(unit);
+            node.UnitsOnNode.Remove(unit);
         }
     }
 
@@ -178,8 +179,8 @@ public class UnitMovement
     {
         if (node != null)
         {
-            node.TileEffect?.OnUnitEnter(_unit);
-            if (!node.UnitsOnNode.Contains(_unit)) node.UnitsOnNode.Add(_unit);
+            node.TileEffect?.OnUnitEnter(unit);
+            if (!node.UnitsOnNode.Contains(unit)) node.UnitsOnNode.Add(unit);
             CheckForBattle(node);
         }
     }
@@ -188,14 +189,14 @@ public class UnitMovement
     {
         foreach (var other in node.UnitsOnNode)
         {
-            if (other != _unit && other.MyTeam != _unit.MyTeam && !other.IsDead)
+            if (other != unit && other.MyTeam != unit.MyTeam && !other.IsDead)
             {
-                _unit.ChangeState(new UnitBattleState(_unit, other));
-                other.ChangeState(new UnitBattleState(other, _unit));
+                unit.ChangeState(new UnitBattleState(unit, other));
+                other.ChangeState(new UnitBattleState(other, unit));
                 return;
             }
         }
     }
 
-    public void SetAllyDestination(Node dest) => _allyDestination = dest;
+    public void SetAllyDestination(Node dest) => allyDestination = dest;
 }

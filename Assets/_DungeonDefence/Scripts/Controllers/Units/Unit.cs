@@ -7,81 +7,81 @@ using Panex.Stat.Controller;
 
 public class Unit : MonoBehaviour
 {
-    [SerializeField] private UnitDataSO _data;
-    [SerializeField] private UnitState _currentState;
+    [SerializeField] private UnitDataSO data;
+    [SerializeField] private UnitState currentState;
 
-    private UnitMovement _movement;
-    private UnitCombat _combat;
-    private StateMachine _fsm;
-    private float _currentHp;
+    private UnitMovement movement;
+    private UnitCombat combat;
+    private StateMachine fsm;
+    private float currentHp;
 
-    public UnitDataSO Data => _data;
-    public Team MyTeam => _data != null ? _data.team : Team.Enemy;
-    public Node CurrentNode => _movement?.CurrentNode;
-    public bool IsDead => _currentHp <= 0;
+    public UnitDataSO Data => data;
+    public Team MyTeam => data != null ? data.team : Team.Enemy;
+    public Node CurrentNode => movement?.CurrentNode;
+    public bool IsDead => currentHp <= 0;
 
     public Unit TargetUnit { get; set; }
-    public IState CurrentState => _fsm.CurrentState;
+    public IState CurrentState => fsm.CurrentState;
 
     private void Awake()
     {
-        _movement = new UnitMovement(this);
-        _combat = new UnitCombat(this);
-        _fsm = new StateMachine();
+        movement = new UnitMovement(this);
+        combat = new UnitCombat(this);
+        fsm = new StateMachine();
     }
 
     private void Start()
     {
-        _combat.Initialize();
-        _movement.Initialize();
+        combat.Initialize();
+        movement.Initialize();
 
-        if (_data != null)
+        if (data != null)
         {
-            InitializeUnit(_data);
+            InitializeUnit(data);
         }
 
-        _fsm.ChangeState(new UnitIdleState(this));
+        fsm.ChangeState(new UnitIdleState(this));
     }
 
     private void Update()
     {
         if (IsDead) return;
-        _fsm.Update();
+        fsm.Update();
     }
 
     public void InitializeUnit(UnitDataSO data)
     {
-        _data = data;
-        _combat.SyncStats(data);
-        _currentHp = _combat.MaxHP;
+        this.data = data;
+        combat.SyncStats(data);
+        currentHp = combat.MaxHP;
     }
 
-    public void ChangeState(IState newState) => _fsm.ChangeState(newState);
-    public void SetStateEnum(UnitState s) => _currentState = s;
+    public void ChangeState(IState newState) => fsm.ChangeState(newState);
+    public void SetStateEnum(UnitState s) => currentState = s;
 
-    public bool MoveTick() => _movement.Tick();
-    public bool HasPathRemaining() => _movement.HasPendingMove;
-    public void DecideNextMove() => _movement.DecideNextMove();
-    public void SetNode(Node node) => _movement.SetNode(node);
-    public void SetAllyDestination(Node dest) => _movement.SetAllyDestination(dest);
+    public bool MoveTick() => movement.Tick();
+    public bool HasPathRemaining() => movement.HasPendingMove;
+    public void DecideNextMove() => movement.DecideNextMove();
+    public void SetNode(Node node) => movement.SetNode(node);
+    public void SetAllyDestination(Node dest) => movement.SetAllyDestination(dest);
 
-    public void TryAttack(Unit target) => _combat.TryAttack(target);
-    public bool DetectTarget(out Unit target) => _combat.DetectTarget(out target);
+    public void TryAttack(Unit target) => combat.TryAttack(target);
+    public bool DetectTarget(out Unit target) => combat.DetectTarget(out target);
     
     public void ReduceHealth(float amount)
     {
-        _currentHp -= amount;
-        if (_currentHp <= 0) Die();
+        currentHp -= amount;
+        if (currentHp <= 0) Die();
     }
 
-    public void TakeDamage(float amount, bool isCrit) => _combat.TakeDamage(amount, isCrit);
+    public void TakeDamage(float amount, bool isCrit) => combat.TakeDamage(amount, isCrit);
     public void TakeDamage(float amount) => TakeDamage(amount, false);
 
     private void Die()
     {
-        _movement.SetNode(null);
+        movement.SetNode(null);
 
-        if (_data != null && _data.isCore)
+        if (data != null && data.isCore)
         {
             GameManager.Instance.GameOver();
         }

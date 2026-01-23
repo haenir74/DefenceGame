@@ -5,44 +5,44 @@ using UnityEngine;
 [System.Serializable]
 public class Node
 {
-    [SerializeField] private int _x;
-    [SerializeField] private int _y;
-    [SerializeField] private Vector3 _worldPosition;
-    [SerializeField] private TileView _view;
+    [SerializeField] private int x;
+    [SerializeField] private int y;
+    [SerializeField] private Vector3 worldPosition;
+    [SerializeField] private TileView view;
 
-    private Tile _tileEffect;
-    private List<Unit> _unitsOnNode = new List<Unit>();
+    private Tile tileEffect;
+    private List<Unit> unitsOnNode = new List<Unit>();
 
-    public int X => _x;
-    public int Y => _y;
-    public Vector3 WorldPosition => _worldPosition;
+    public int X => x;
+    public int Y => y;
+    public Vector3 WorldPosition => worldPosition;
 
     public TileView CurrentTile
     {
-        get => _view;
-        set => _view = value;
+        get => view;
+        set => view = value;
     }
 
     public Tile TileEffect
     {
-        get => _tileEffect;
-        set => _tileEffect = value;
+        get => tileEffect;
+        set => tileEffect = value;
     }
 
-    public bool IsEmpty => _tileEffect == null;
+    public bool IsEmpty => tileEffect == null;
     
-    public List<Unit> UnitsOnNode => _unitsOnNode;
+    public List<Unit> UnitsOnNode => unitsOnNode;
 
     public Node(int x, int y, Vector3 worldPosition)
     {
-        _x = x;
-        _y = y;
-        _worldPosition = worldPosition;
-        _unitsOnNode = new List<Unit>();
+        this.x = x;
+        this.y = y;
+        this.worldPosition = worldPosition;
+        this.unitsOnNode = new List<Unit>();
     }
 
     public int GetAttractiveness()
     {
-        return _tileEffect != null ? _tileEffect.GetTotalAttractiveness() : 0;
+        return tileEffect != null ? tileEffect.GetTotalAttractiveness() : 0;
     }
 }

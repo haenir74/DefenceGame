@@ -20,54 +20,54 @@ public static class StatKeys
 
 public class UnitCombat
 {
-    private Unit _unit;
-    private StatController _statController;
-    private float _lastAttackTime;
+    private Unit unit;
+    private StatController statController;
+    private float lastAttackTime;
 
-    private Stat _hpStat;
-    private Stat _damageStat;
-    private Stat _attackSpeedStat;
-    private Stat _critRateStat;
-    private Stat _critDamageStat;
-    private Stat _armorStat;
+    private Stat hpStat;
+    private Stat damageStat;
+    private Stat attackSpeedStat;
+    private Stat critRateStat;
+    private Stat critDamageStat;
+    private Stat armorStat;
 
     public UnitCombat(Unit unit)
     {
-        _unit = unit;
-        _statController = unit.GetComponent<StatController>();
+        this.unit = unit;
+        this.statController = unit.GetComponent<StatController>();
     }
 
     public void Initialize()
     {
-        if (_statController == null) return;
-        _hpStat = _statController.GetStat(StatKeys.MaxHP);
-        _damageStat = _statController.GetStat(StatKeys.AttackDamage);
-        _attackSpeedStat = _statController.GetStat(StatKeys.AttackSpeed);
-        _critRateStat = _statController.GetStat(StatKeys.CritRate);
-        _critDamageStat = _statController.GetStat(StatKeys.CritDamage);
-        _armorStat = _statController.GetStat(StatKeys.Armor);
+        if (statController == null) return;
+        hpStat = statController.GetStat(StatKeys.MaxHP);
+        damageStat = statController.GetStat(StatKeys.AttackDamage);
+        attackSpeedStat = statController.GetStat(StatKeys.AttackSpeed);
+        critRateStat = statController.GetStat(StatKeys.CritRate);
+        critDamageStat = statController.GetStat(StatKeys.CritDamage);
+        armorStat = statController.GetStat(StatKeys.Armor);
     }
 
     public void SyncStats(UnitDataSO data)
     {
-        if (_statController == null || data == null) return;
-        if (_hpStat != null) _hpStat.BaseValue = data.maxHp;
-        if (_damageStat != null) _damageStat.BaseValue = data.attackDamage;
-        if (_attackSpeedStat != null) _attackSpeedStat.BaseValue = data.attackSpeed;
-        if (_critRateStat != null) _critRateStat.BaseValue = data.critRate;
-        if (_critDamageStat != null) _critDamageStat.BaseValue = data.critDamage;
-        if (_armorStat != null) _armorStat.BaseValue = data.armor;
-        var moveSpeedStat = _statController.GetStat(StatKeys.MoveSpeed);
+        if (statController == null || data == null) return;
+        if (hpStat != null) hpStat.BaseValue = data.maxHp;
+        if (damageStat != null) damageStat.BaseValue = data.attackDamage;
+        if (attackSpeedStat != null) attackSpeedStat.BaseValue = data.attackSpeed;
+        if (critRateStat != null) critRateStat.BaseValue = data.critRate;
+        if (critDamageStat != null) critDamageStat.BaseValue = data.critDamage;
+        if (armorStat != null) armorStat.BaseValue = data.armor;
+        var moveSpeedStat = statController.GetStat(StatKeys.MoveSpeed);
         if (moveSpeedStat != null) moveSpeedStat.BaseValue = data.moveSpeed;
     }
 
-    public float MaxHP => _hpStat?.Value ?? 100f;
-    public float Damage => _damageStat?.Value ?? 10f;
-    public float AttackSpeed => _attackSpeedStat?.Value ?? 1f;
-    public float CritRate => _critRateStat?.Value ?? 0f;
-    public float CritDamage => _critDamageStat?.Value ?? 50f;
-    public float Armor => _armorStat?.Value ?? 0f;
-    public float MoveSpeed => _statController.GetValue(StatKeys.MoveSpeed);
+    public float MaxHP => hpStat?.Value ?? 100f;
+    public float Damage => damageStat?.Value ?? 10f;
+    public float AttackSpeed => attackSpeedStat?.Value ?? 1f;
+    public float CritRate => critRateStat?.Value ?? 0f;
+    public float CritDamage => critDamageStat?.Value ?? 50f;
+    public float Armor => armorStat?.Value ?? 0f;
+    public float MoveSpeed => statController.GetValue(StatKeys.MoveSpeed);
 
     public void TryAttack(Unit target)
     {
@@ -76,10 +76,10 @@ public class UnitCombat
         float speed = Mathf.Max(AttackSpeed, 0.1f);
         float cooldown = 1f / speed;
 
-        if (Time.time >= _lastAttackTime + cooldown)
+        if (Time.time >= lastAttackTime + cooldown)
         {
             PerformAttack(target);
-            _lastAttackTime = Time.time;
+            lastAttackTime = Time.time;
         }
     }
 
@@ -102,22 +102,22 @@ public class UnitCombat
         float mitigation = 100f / (100f + Mathf.Max(0, currentArmor));
         float finalDmg = rawDmg * mitigation;
 
-        _unit.ReduceHealth(finalDmg);
+        unit.ReduceHealth(finalDmg);
 
-        FloatingTextController.Instance?.Show(Mathf.RoundToInt(finalDmg).ToString(), _unit.transform.position, isCrit);
+        FloatingTextController.Instance?.Show(Mathf.RoundToInt(finalDmg).ToString(), unit.transform.position, isCrit);
     }
 
     public bool DetectTarget(out Unit target)
     {
         target = null;
-        Node currentNode = _unit.CurrentNode;
+        Node currentNode = unit.CurrentNode;
         if (currentNode == null) return false;
 
-        Team targetTeam = (_unit.MyTeam == Team.Ally) ? Team.Enemy : Team.Ally;
+        Team targetTeam = (unit.MyTeam == Team.Ally) ? Team.Enemy : Team.Ally;
 
         foreach (var u in currentNode.UnitsOnNode)
         {
-            if (u == _unit || u.IsDead) continue;
+            if (u == unit || u.IsDead) continue;
             if (u.MyTeam == targetTeam)
             {
                 target = u;

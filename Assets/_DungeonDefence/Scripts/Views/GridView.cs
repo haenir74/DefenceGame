@@ -4,24 +4,24 @@ using UnityEngine;
 
 public class GridView : MonoBehaviour
 {
-    private MapContext _context;
-    private GridData _data;
+    private MapContext context;
+    private GridData data;
 
     public void Setup(MapContext context, GridData data)
     {
-        _context = context;
-        _data = data;
+        this.context = context;
+        this.data = data;
     }
 
     private void OnDrawGizmos()
     {
-        if (_data == null) return;
+        if (data == null) return;
 
         Gizmos.color = Color.green;
         
-        int w = (_context != null) ? _context.Width : _data.width;
-        int h = (_context != null) ? _context.Height : _data.height;
-        float size = _data.cellSize;
+        int w = (context != null) ? context.Width : data.width;
+        int h = (context != null) ? context.Height : data.height;
+        float size = data.cellSize;
 
         for (int x = 0; x < w; x++)
         {
@@ -33,11 +33,11 @@ public class GridView : MonoBehaviour
         }
         
         Gizmos.color = Color.blue;
-        Vector3 spawnPos = new Vector3(_data.spawnNodePos.x * size, 0, _data.spawnNodePos.y * size);
+        Vector3 spawnPos = new Vector3(data.spawnNodePos.x * size, 0, data.spawnNodePos.y * size);
         Gizmos.DrawWireSphere(spawnPos, size * 0.3f);
 
         Gizmos.color = Color.red;
-        Vector3 corePos = new Vector3(_data.coreNodePos.x * size, 0, _data.coreNodePos.y * size);
+        Vector3 corePos = new Vector3(data.coreNodePos.x * size, 0, data.coreNodePos.y * size);
         Gizmos.DrawWireSphere(corePos, size * 0.3f);
     }
 }
