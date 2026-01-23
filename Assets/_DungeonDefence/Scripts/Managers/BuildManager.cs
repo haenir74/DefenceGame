@@ -41,6 +41,80 @@ public class BuildManager : Singleton<BuildManager>
         }
     }
 
+    public bool TryPlaceItem(Node node, BaseItemSO item)
+    {
+        if (node == null || item == null) return false;
+
+        var gameContext = GameManager.Instance.Context;
+        if (gameContext.playerGold < item.GoldCost)
+        {
+            Debug.Log("골드가 부족합니다.");
+            return false;
+        }
+
+        bool success = false;
+
+        if (item is StructureItemSO structureItem)
+        {
+            if (!node.IsEmpty) return false;
+
+            GameObject obj = Instantiate(structureItem.buildingPrefab, node.WorldPosition, Quaternion.identity);
+            Tile tile = obj.GetComponent<Tile>();
+            if (tile != null)
+            {
+                node.TileEffect = tile;
+                success = true;
+            }
+            else Destroy(obj);
+        }
+        else if (item is UnitItemSO unitItem)
+        {
+            success = SpawnUnit(node, unitItem.unitData);
+        }
+
+        if (success)
+        {
+            gameContext.playerGold -= item.GoldCost;
+        }
+
+        return success;
+    }
+
+    public bool SpawnUnit(Node node, UnitDataSO data)
+    {
+        if (node == null || data == null || data.prefab == null) return false;
+
+        Vector3 spawnPos = node.WorldPosition;
+        var map = GameManager.Instance.Context.map;
+        float cellSize = GridManager.Instance.Data.cellSize;
+
+        if (map != null && map.SpawnNode != null)
+        {
+            spawnPos = GridManager.Instance.GridSystem.GetPlacementPosition(
+                node, 
+                map.SpawnNode,
+                Team.Ally, 
+                cellSize
+            );
+        }
+
+        GameObject unitObj = Instantiate(data.prefab, spawnPos, Quaternion.identity);
+        Unit unitScript = unitObj.GetComponent<Unit>();
+
+        if (unitScript != null)
+        {
+            unitScript.InitializeUnit(data);
+            unitScript.SetNode(node);
+            return true;
+        }
+        else
+        {
+            Debug.LogError($"생성된 유닛 프리팹({data.unitName})에 Unit 컴포넌트가 없습니다.");
+            Destroy(unitObj);
+            return false;
+        }
+    }
+
     private void BuildStructure(Node node)
     {
         if (node == null) return;
@@ -79,53 +153,20 @@ public class BuildManager : Singleton<BuildManager>
     private void PlaceUnit(Node node)
     {
         if (node == null) return;
-        if (unitLibrary == null || unitLibrary.Count == 0)return;
+        if (unitLibrary == null || unitLibrary.Count == 0) return;
         
         UnitDataSO selectedUnitData = unitLibrary[selectedUnitIndex];
-
         var gameContext = GameManager.Instance?.Context;
-        if (gameContext == null) return;
-
+        
         if (gameContext.playerGold < selectedUnitData.cost)
         {
             Debug.Log($"골드가 부족합니다. (현재: {gameContext.playerGold}, 필요: {selectedUnitData.cost})");
             return;
         }
 
-        if (selectedUnitData.prefab == null)
+        if (SpawnUnit(node, selectedUnitData))
         {
-            Debug.LogWarning($"Prefab is missing for unit: {selectedUnitData.unitName}");
-            return;
-        }
-
-        Vector3 spawnPos = node.WorldPosition;
-        var map = GameManager.Instance.Context.map;
-        float cellSize = GridManager.Instance.Data.cellSize;
-
-        if (map != null && map.SpawnNode != null)
-        {
-            spawnPos = GridManager.Instance.GridSystem.GetPlacementPosition(
-                node, 
-                map.SpawnNode,
-                Team.Ally, 
-                cellSize
-            );
-        }
-
-        gameContext.playerGold -= selectedUnitData.cost;
-        GameObject unitObj = Instantiate(selectedUnitData.prefab, spawnPos, Quaternion.identity);
-        
-        Unit unitScript = unitObj.GetComponent<Unit>();
-        if (unitScript != null)
-        {
-            unitScript.InitializeUnit(selectedUnitData);
-            unitScript.SetNode(node);
-        }
-        else
-        {
-            Debug.LogError("생성된 유닛 프리팹에 Unit 컴포넌트가 없습니다.");
-            Destroy(unitObj);
-            gameContext.playerGold += selectedUnitData.cost;
+            gameContext.playerGold -= selectedUnitData.cost;
         }
     }
 }
