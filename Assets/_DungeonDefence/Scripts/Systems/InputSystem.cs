@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class InputSystem
 {
-    public Node RaycastNode(Camera camera, Vector3 mousePos, LayerMask layerMask)
+    public Vector3? GetMouseWorldPosition(Camera camera, Vector3 mousePos, LayerMask layerMask)
     {
+        if (camera == null) return null;
+        
         Ray ray = camera.ScreenPointToRay(mousePos);
         
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
         {
-            return GridManager.Instance.GetNode(hit.point);
+            return hit.point;
         }
         
         return null;

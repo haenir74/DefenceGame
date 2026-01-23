@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8daf6edf7373264f9d89659444b259a, type: 3}
+  m_Name: StatCore
+  m_EditorClassIdentifier: 
+  Definitions:
+  - Key: Hp
+    BaseValue: 100
+  - Key: AttackDamage
+    BaseValue: 2
+  - Key: AttackSpeed
+    BaseValue: 5
+  - Key: MoveSpeed
+    BaseValue: 0
+  - Key: Mp
+    BaseValue: 0
+  - Key: CritRate
+    BaseValue: 10
+  - Key: CritDamage
+    BaseValue: 120
+  - Key: Armor
+    BaseValue: 100

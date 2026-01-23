@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "com.panex.floatingtext": "https://github.com/haenir74/panex.git?path=/Packages/com.panex.floatingtext",
+    "com.panex.inventory": "https://github.com/haenir74/panex.git?path=/Packages/com.panex.inventory",
+    "com.panex.stat": "https://github.com/haenir74/panex.git?path=/Packages/com.panex.stat",
     "com.unity.collab-proxy": "2.11.2",
     "com.unity.feature.development": "1.0.1",
     "com.unity.textmeshpro": "3.0.7",

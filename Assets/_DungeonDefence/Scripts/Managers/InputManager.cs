@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class InputManager : MonoBehaviour
+public class InputManager : Singleton<InputManager>
 {
-    public static InputManager Instance { get; private set; }
-
     [Header("Settings")]
     [SerializeField] private LayerMask groundLayer;
 
@@ -18,16 +16,28 @@ public class InputManager : MonoBehaviour
     public event Action<Node> OnRightClickNode;
     public event Action<Node, Node> OnHoverNodeChanged;
 
-    void Awake()
+    protected override void Awake()
     {
-        Instance = this;
+        base.Awake();
         inputSystem = new InputSystem();
         mainCamera = Camera.main;
     }
 
     void Update()
     {
-        Node currentNode = inputSystem.RaycastNode(mainCamera, Input.mousePosition, groundLayer);
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+            if (mainCamera == null) return;
+        }
+
+        Vector3? hitPoint = inputSystem.GetMouseWorldPosition(mainCamera, Input.mousePosition, groundLayer);
+        Node currentNode = null;
+
+        if (hitPoint.HasValue && GridManager.Instance != null)
+        {
+            currentNode = GridManager.Instance.GetNode(hitPoint.Value);
+        }
 
         if (currentNode != lastHoveredNode)
         {
@@ -43,7 +53,7 @@ public class InputManager : MonoBehaviour
             }
         }
         
-        if (Input.GetMouseButtonDown(1)) // Right Click
+        if (Input.GetMouseButtonDown(1)) 
         {
             if (currentNode != null)
             {

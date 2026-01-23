@@ -19,4 +19,18 @@ public class MapContext
         Height = height;
         Nodes = new Node[width, height];
     }
+
+    public Node GetNode(int x, int y)
+    {
+        if (IsValid(x, y))
+        {
+            return Nodes[x, y];
+        }
+        return null;
+    }
+
+    public bool IsValid(int x, int y)
+    {
+        return x >= 0 && x < Width && y >= 0 && y < Height;
+    }
 }

@@ -4,12 +4,7 @@ using UnityEngine;
 
 public class GridSystem
 {
-    private PathFinder pathFinder;
-
-    public GridSystem()
-    {
-        pathFinder = new PathFinder(this);
-    }
+    private const float STANCE_OFFSET_RATIO = 0.15f;
 
     public void Generate(MapContext map, GridData data)
     {
@@ -21,9 +16,8 @@ public class GridSystem
             {
                 Vector3 worldPos = GetWorldPosition(x, y, data.cellSize);
                 Node newNode = new Node(x, y, worldPos);
-                
-                map.Nodes[x, y] = newNode;
 
+                map.Nodes[x, y] = newNode;
                 if (x == data.spawnNodePos.x && y == data.spawnNodePos.y)
                     map.SpawnNode = newNode;
                 if (x == data.coreNodePos.x && y == data.coreNodePos.y)
@@ -34,19 +28,13 @@ public class GridSystem
 
     public Node GetNode(MapContext map, GridData data, Vector3 worldPosition)
     {
-        int x = Mathf.FloorToInt((worldPosition.x + data.cellSize * 0.5f) / data.cellSize);
-        int y = Mathf.FloorToInt((worldPosition.z + data.cellSize * 0.5f) / data.cellSize);
+        if (map == null || data == null) return null;
 
-        if (x >= 0 && x < map.Width && y >= 0 && y < map.Height)
-        {
-            return map.Nodes[x, y];
-        }
-        return null;
-    }
-    
-    public bool IsValid(MapContext map, int x, int y)
-    {
-        return x >= 0 && x < map.Width && y >= 0 && y < map.Height;
+        float halfCell = data.cellSize * 0.5f;
+        int x = Mathf.FloorToInt((worldPosition.x + halfCell) / data.cellSize);
+        int y = Mathf.FloorToInt((worldPosition.z + halfCell) / data.cellSize);
+
+        return map.GetNode(x, y);
     }
 
     public Vector3 GetWorldPosition(int x, int y, float cellSize)
@@ -54,8 +42,37 @@ public class GridSystem
         return new Vector3(x * cellSize, 0, y * cellSize);
     }
 
-    public List<Node> FindPath(MapContext map, Node startNode, Node targetNode)
+    public Vector3 GetEdgePosition(Node a, Node b)
     {
-        return pathFinder.FindPath(map, startNode, targetNode);
+        return (a.WorldPosition + b.WorldPosition) * 0.5f;
+    }
+
+    public Vector3 GetStancePosition(Node node, Team team, Vector3 flowDirection, float cellSize)
+    {
+        float offsetFactor = (team == Team.Enemy) ? -STANCE_OFFSET_RATIO : STANCE_OFFSET_RATIO;
+        return node.WorldPosition + (flowDirection * offsetFactor * cellSize);
+    }
+
+    public List<Node> GetNeighbors(MapContext map, Node node)
+    {
+        List<Node> neighbors = new List<Node>();
+        
+        int[] dx = { 0, 0, -1, 1 };
+        int[] dy = { 1, -1, 0, 0 };
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = node.X + dx[i];
+            int ny = node.Y + dy[i];
+
+            Node neighbor = map.GetNode(nx, ny);
+            if (neighbor != null)
+            {
+                neighbors.Add(neighbor);
+            }
+        }
+
+        return neighbors;
     }
 }
+

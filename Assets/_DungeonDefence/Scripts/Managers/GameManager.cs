@@ -2,17 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    public static GameManager Instance { get; private set; }
-
     [SerializeField] private GameContext context;
     public GameContext Context => context;
 
-    void Awake()
+    protected override void Awake()
     {
-        Instance = this;
-        context = new GameContext();
+        base.Awake();
+        
+        if (context == null)
+        {
+            context = new GameContext();
+        }
     }
 
     void Start()
@@ -20,17 +22,26 @@ public class GameManager : MonoBehaviour
         if (InputManager.Instance != null && GridManager.Instance != null)
         {
             InputManager.Instance.OnHoverNodeChanged += GridManager.Instance.OnHoverChanged;
-            
-            // 나중에 건설 매니저가 생기면?
-            // InputManager.Instance.OnClickNode += BuildManager.Instance.HandleClick;
         }
     }
 
-    void OnDestroy()
+    protected override void OnDestroy()
     {
-        if (InputManager.Instance != null && GridManager.Instance != null)
+        base.OnDestroy();
+
+        var inputMgr = InputManager.Instance;
+        var gridMgr = GridManager.Instance;
+
+        // 둘 중 하나라도 없으면 해제할 필요(또는 수단)가 없음
+        if (inputMgr != null && gridMgr != null)
         {
-            InputManager.Instance.OnHoverNodeChanged -= GridManager.Instance.OnHoverChanged;
+            inputMgr.OnHoverNodeChanged -= gridMgr.OnHoverChanged;
         }
+    }
+
+    public void GameOver()
+    {
+        Debug.Log("Game Over!");
+        Time.timeScale = 0; 
     }
 }

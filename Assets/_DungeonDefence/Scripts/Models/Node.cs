@@ -11,6 +11,7 @@ public class Node
     [SerializeField] private TileView _view;
 
     private Tile _tileEffect;
+    private List<Unit> _unitsOnNode = new List<Unit>();
 
     public int X => _x;
     public int Y => _y;
@@ -29,11 +30,19 @@ public class Node
     }
 
     public bool IsEmpty => _tileEffect == null;
+    
+    public List<Unit> UnitsOnNode => _unitsOnNode;
 
     public Node(int x, int y, Vector3 worldPosition)
     {
         _x = x;
         _y = y;
         _worldPosition = worldPosition;
+        _unitsOnNode = new List<Unit>();
+    }
+
+    public int GetAttractiveness()
+    {
+        return _tileEffect != null ? _tileEffect.GetTotalAttractiveness() : 0;
     }
 }

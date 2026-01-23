@@ -6,18 +6,18 @@ using UnityEngine;
 public class GridData : ScriptableObject
 {
     [Header("Settings")]
-    public int width = 3;
-    public int height = 5;
-    
-    // 이 값은 이제 Inspector에서 설정하지 않고, Prefab 크기에 따라 자동 계산됩니다.
-    [HideInInspector] public float cellSize = 1.0f; 
+    public int width = 5;
+    public int height = 8;
+    public float cellSize = 1.0f; 
+
     public LayerMask groundLayer;
 
     [Header("Key Nodes")]
-    public Vector2Int spawnNodePos = new Vector2Int(0, 0);
-    public Vector2Int coreNodePos = new Vector2Int(2, 4);
+    public Vector2Int spawnNodePos = new Vector2Int(2, 0);
+    public Vector2Int coreNodePos = new Vector2Int(2, 7);
 
-    [Header("Prefabs")]
+    [Header("Default Datas")]
     public GameObject defaultTilePrefab;
+    public GameObject coreUnitPrefab;
     public TileData defaultTileData;
 }
