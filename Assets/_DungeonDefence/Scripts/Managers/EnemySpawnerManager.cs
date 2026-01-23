@@ -52,7 +52,20 @@ public class EnemySpawnerManager : Singleton<EnemySpawnerManager>
         UnitDataSO enemyData = enemySpawnList[Random.Range(0, enemySpawnList.Count)];
         if (enemyData == null || enemyData.prefab == null) return;
 
-        Vector3 spawnPos = Map.SpawnNode.WorldPosition;
+        MapContext map = GameManager.Instance.Context.map;
+        float cellSize = GridManager.Instance.Data.cellSize;
+        Vector3 spawnPos = map.SpawnNode.WorldPosition;
+
+        if (map.CoreNode != null)
+        {
+            spawnPos = GridManager.Instance.GridSystem.GetPlacementPosition(
+                map.SpawnNode,
+                map.CoreNode,
+                Team.Enemy,
+                cellSize
+            );
+        }
+
         GameObject enemyObj = Instantiate(enemyData.prefab, spawnPos, Quaternion.identity);
 
         Unit enemyScript = enemyObj.GetComponent<Unit>();

@@ -21,10 +21,6 @@ public class UnitIdleState : IState
         if (unit.DetectTarget(out Unit target))
         {
             unit.ChangeState(new UnitBattleState(unit, target));
-            if (target.CurrentState is UnitIdleState || target.CurrentState is UnitMoveState)
-            {
-                target.ChangeState(new UnitBattleState(target, unit));
-            }
             return;
         }
 
@@ -36,6 +32,7 @@ public class UnitIdleState : IState
                 unit.ChangeState(new UnitMoveState(unit));
             }
         }
+        unit.UpdateStance();
     }
 
     public void Exit()
@@ -97,7 +94,17 @@ public class UnitBattleState : IState
             unit.ChangeState(new UnitIdleState(unit));
             return;
         }
-        unit.TryAttack(target);
+        float distance = Vector3.Distance(unit.transform.position, target.transform.position);
+        float range = 0.8f;
+
+        if (distance > range)
+        {
+            unit.MoveTowards(target.transform.position);
+        }
+        else
+        {
+            unit.TryAttack(target);
+        }
     }
 
     public void Exit()

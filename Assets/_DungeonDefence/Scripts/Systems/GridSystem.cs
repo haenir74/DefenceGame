@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GridSystem
 {
-    private const float STANCE_OFFSET_RATIO = 0.15f;
+    private const float STANCE_OFFSET_RATIO = 0.2f;
 
     public void Generate(MapContext map, GridData data)
     {
@@ -29,11 +29,9 @@ public class GridSystem
     public Node GetNode(MapContext map, GridData data, Vector3 worldPosition)
     {
         if (map == null || data == null) return null;
-
         float halfCell = data.cellSize * 0.5f;
         int x = Mathf.FloorToInt((worldPosition.x + halfCell) / data.cellSize);
         int y = Mathf.FloorToInt((worldPosition.z + halfCell) / data.cellSize);
-
         return map.GetNode(x, y);
     }
 
@@ -49,14 +47,21 @@ public class GridSystem
 
     public Vector3 GetStancePosition(Node node, Team team, Vector3 flowDirection, float cellSize)
     {
-        float offsetFactor = (team == Team.Enemy) ? -STANCE_OFFSET_RATIO : STANCE_OFFSET_RATIO;
+        float offsetFactor = (team == Team.Enemy) ? STANCE_OFFSET_RATIO : -STANCE_OFFSET_RATIO;
         return node.WorldPosition + (flowDirection * offsetFactor * cellSize);
+    }
+
+    public Vector3 GetPlacementPosition(Node currentNode, Node targetNode, Team team, float cellSize)
+    {
+        if (targetNode == null || currentNode == targetNode) 
+            return currentNode.WorldPosition;
+        Vector3 flowDir = (targetNode.WorldPosition - currentNode.WorldPosition).normalized;
+        return GetStancePosition(currentNode, team, flowDir, cellSize);
     }
 
     public List<Node> GetNeighbors(MapContext map, Node node)
     {
         List<Node> neighbors = new List<Node>();
-        
         int[] dx = { 0, 0, -1, 1 };
         int[] dy = { 1, -1, 0, 0 };
 
@@ -64,14 +69,9 @@ public class GridSystem
         {
             int nx = node.X + dx[i];
             int ny = node.Y + dy[i];
-
             Node neighbor = map.GetNode(nx, ny);
-            if (neighbor != null)
-            {
-                neighbors.Add(neighbor);
-            }
+            if (neighbor != null) neighbors.Add(neighbor);
         }
-
         return neighbors;
     }
 }

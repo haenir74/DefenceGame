@@ -117,6 +117,38 @@ public class UnitMovement
         if (visitedNodes.Count > MAX_HISTORY) visitedNodes.RemoveAt(0);
     }
 
+    public void MoveTowards(Vector3 targetPos)
+    {
+        float speed = unit.GetComponent<Panex.Stat.Controller.StatController>().GetValue("MoveSpeed");
+        targetPos.y = unit.transform.position.y;
+        unit.transform.position = Vector3.MoveTowards(unit.transform.position, targetPos, speed * Time.deltaTime);
+    }
+
+    public void UpdateStance()
+    {
+        if (currentNode == null || gridSystem == null) return;
+        Vector3 flowDir = Vector3.forward;
+        var map = GameManager.Instance.Context.map;
+
+        if (nextNode != null)
+        {
+            flowDir = (nextNode.WorldPosition - currentNode.WorldPosition).normalized;
+        }
+        else
+        {
+            Node target = (unit.MyTeam == Team.Enemy) ? map.CoreNode : map.SpawnNode;
+            if (target != null && target != currentNode)
+            {
+                flowDir = (target.WorldPosition - currentNode.WorldPosition).normalized;
+            }
+        }
+
+        float cellSize = GridManager.Instance.Data.cellSize;
+        Vector3 stancePos = gridSystem.GetStancePosition(currentNode, unit.MyTeam, flowDir, cellSize);
+        
+        MoveTowards(stancePos);
+    }
+
     public bool Tick()
     {
         if (nextNode == null) return true;

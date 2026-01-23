@@ -64,6 +64,8 @@ public class Unit : MonoBehaviour
     public void DecideNextMove() => movement.DecideNextMove();
     public void SetNode(Node node) => movement.SetNode(node);
     public void SetAllyDestination(Node dest) => movement.SetAllyDestination(dest);
+    public void MoveTowards(Vector3 pos) => movement.MoveTowards(pos);
+    public void UpdateStance() => movement.UpdateStance();
 
     public void TryAttack(Unit target) => combat.TryAttack(target);
     public bool DetectTarget(out Unit target) => combat.DetectTarget(out target);

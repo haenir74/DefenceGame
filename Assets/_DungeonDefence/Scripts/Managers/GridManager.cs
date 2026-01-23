@@ -36,24 +36,16 @@ public class GridManager : Singleton<GridManager>
 
     private void CalculateCellSize()
     {
-        if (gridData.defaultTilePrefab == null)
-        {
-            Debug.LogError("Default Tile Prefab is missing in GridData!");
-            return;
-        }
+        if (gridData.defaultTilePrefab == null)return;
 
         Renderer rend = gridData.defaultTilePrefab.GetComponentInChildren<Renderer>();
         if (rend != null)
         {
-
             gridData.cellSize = rend.bounds.size.x;
-            Debug.Log($"Auto-calculated Cell Size: {gridData.cellSize}");
         }
         else
         {
-            
             gridData.cellSize = gridData.defaultTilePrefab.transform.localScale.x;
-            Debug.LogWarning("No Renderer found on Tile Prefab. Using Transform Scale X as Cell Size.");
         }
     }
 

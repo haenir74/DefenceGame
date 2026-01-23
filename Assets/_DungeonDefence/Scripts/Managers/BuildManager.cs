@@ -79,12 +79,7 @@ public class BuildManager : Singleton<BuildManager>
     private void PlaceUnit(Node node)
     {
         if (node == null) return;
-
-        if (unitLibrary == null || unitLibrary.Count == 0)
-        {
-            Debug.LogWarning("Unit Library is empty!");
-            return;
-        }
+        if (unitLibrary == null || unitLibrary.Count == 0)return;
         
         UnitDataSO selectedUnitData = unitLibrary[selectedUnitIndex];
 
@@ -103,8 +98,22 @@ public class BuildManager : Singleton<BuildManager>
             return;
         }
 
+        Vector3 spawnPos = node.WorldPosition;
+        var map = GameManager.Instance.Context.map;
+        float cellSize = GridManager.Instance.Data.cellSize;
+
+        if (map != null && map.SpawnNode != null)
+        {
+            spawnPos = GridManager.Instance.GridSystem.GetPlacementPosition(
+                node, 
+                map.SpawnNode,
+                Team.Ally, 
+                cellSize
+            );
+        }
+
         gameContext.playerGold -= selectedUnitData.cost;
-        GameObject unitObj = Instantiate(selectedUnitData.prefab, node.WorldPosition, Quaternion.identity);
+        GameObject unitObj = Instantiate(selectedUnitData.prefab, spawnPos, Quaternion.identity);
         
         Unit unitScript = unitObj.GetComponent<Unit>();
         if (unitScript != null)
