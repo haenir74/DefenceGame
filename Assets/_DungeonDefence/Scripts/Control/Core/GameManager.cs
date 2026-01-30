@@ -7,6 +7,7 @@ public class GameManager : Singleton<GameManager>
     [Header("Controllers")]
     [SerializeField] private GridController gridController;
     [SerializeField] private InputController inputController;
+    [SerializeField] private UnitController unitController;
 
     //FSM
     private StateMachine<GameManager> stateMachine;
@@ -24,12 +25,22 @@ public class GameManager : Singleton<GameManager>
         {
             GridManager.Instance.Initialize(gridController);
         }
+        else Debug.LogError("GridController 누락됨!");
+
+        if (unitController != null)
+        {
+            UnitManager.Instance.Initialize(unitController);
+        }
+        else Debug.LogError("UnitController 누락됨!");
 
         if (InputManager.Instance != null)
         {
             InputManager.Instance.OnClickNode += HandleNodeClick;
             InputManager.Instance.OnRightClickNode += HandleRightClick;
         }
+
+        ChangeState(new NormalState());
+        Debug.Log("[GameManager] 초기화 완료.");
     }
 
     public void ChangeState(BaseState<GameManager> newState)

@@ -6,26 +6,17 @@ public class CameraController : MonoBehaviour
 {
     public static CameraController Instance { get; private set; }
 
-    [Header("Isometric Settings")]
-    [SerializeField] private float angleX = 30f; 
-    [SerializeField] private float angleY = 45f;
-
     [Header("Zoom Settings")]
     [SerializeField] private float zoomSpeed = 2f;
     [SerializeField] private float minZoom = 2f;
-    [SerializeField] private float maxZoom = 15f;
+    [SerializeField] private float maxZoom = 20f;
 
     [Header("Pan Settings")]
     [SerializeField] private float panSpeed = 0.5f;
-    [SerializeField] private bool invertPan = true;
-
-    [Header("Limits")]
-    [SerializeField] private Vector2 mapLimitPadding = new Vector2(5f, 5f);
+    [SerializeField] private Vector2 panLimit = new Vector2(10f, 15f);
 
     private Camera cam;
-
-    private float minX, maxX, minZ, maxZ;
-    private bool hasBounds = false;
+    private Vector3 initialPos;
 
     private void Awake()
     {
@@ -39,6 +30,11 @@ public class CameraController : MonoBehaviour
         cam = GetComponent<Camera>();
         if (cam == null) cam = Camera.main;
     }
+
+    private void Start()
+    {
+        initialPos = transform.position;
+    }
     
     private void Update()
     {
@@ -46,30 +42,6 @@ public class CameraController : MonoBehaviour
 
         HandleZoom();
         HandlePan();
-    }
-
-    public void SetupCamera(int width, int height, float cellSize)
-    {
-        if (cam == null) return;
-
-        cam.orthographic = true;
-        transform.rotation = Quaternion.Euler(angleX, angleY, 0);
-
-        float mapWorldWidth = width * cellSize;
-        float mapWorldHeight = height * cellSize;
-        float midX = (mapWorldWidth * 0.5f) - (cellSize * 0.5f);
-        float midZ = (mapWorldHeight * 0.5f) - (cellSize * 0.5f);
-        
-        Vector3 centerPos = new Vector3(midX, 0, midZ);
-        float distance = 100f;
-        transform.position = centerPos - transform.forward * distance;
-
-        minX = transform.position.x - (mapWorldWidth / 2f) - mapLimitPadding.x;
-        maxX = transform.position.x + (mapWorldWidth / 2f) + mapLimitPadding.x;
-        minZ = transform.position.z - (mapWorldHeight / 2f) - mapLimitPadding.y;
-        maxZ = transform.position.z + (mapWorldHeight / 2f) + mapLimitPadding.y;
-
-        hasBounds = true;
     }
 
     private void HandleZoom()
@@ -91,19 +63,18 @@ public class CameraController : MonoBehaviour
 
             Vector3 right = transform.right;
             Vector3 forwardOnPlane = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
-            Vector3 moveDir = (right * mouseX + forwardOnPlane * mouseY);
+            Vector3 moveDir = -(right * mouseX + forwardOnPlane * mouseY);
 
-            float direction = invertPan ? -1f : 1f;
-            
-            Vector3 targetPos = transform.position + moveDir * direction * panSpeed;
-
-            if (hasBounds)
-            {
-                targetPos.x = Mathf.Clamp(targetPos.x, minX, maxX);
-                targetPos.z = Mathf.Clamp(targetPos.z, minZ, maxZ);
-            }
-
-            transform.position = targetPos;
+            Vector3 targetPos = transform.position + moveDir * panSpeed;
+            transform.position = GetPanLimit(targetPos);
         }
+    }
+
+    private Vector3 GetPanLimit(Vector3 targetPos)
+    {
+        targetPos.x = Mathf.Clamp(targetPos.x, initialPos.x - panLimit.x, initialPos.x + panLimit.x);
+        targetPos.z = Mathf.Clamp(targetPos.z, initialPos.z - panLimit.y, initialPos.z + panLimit.y);
+
+        return targetPos;
     }
 }
