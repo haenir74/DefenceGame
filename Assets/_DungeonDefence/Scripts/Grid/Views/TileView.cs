@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// 개별 타일의 시각적 표현 담당
 public class TileView : MonoBehaviour
 {
-    public Node Node { get; private set; }
-    public TileData Data { get; private set; }
+    public GridNode Node { get; private set; }
+    public TileDataSO Data { get; private set; }
 
     [Header("Visuals")]
     [SerializeField] private MeshRenderer meshRenderer;
@@ -18,7 +19,7 @@ public class TileView : MonoBehaviour
             meshRenderer = GetComponent<MeshRenderer>();
     }
 
-    public void Setup(Node node, TileData data)
+    public void Setup(GridNode node, TileDataSO data)
     {
         this.Node = node;
         this.Data = data;
@@ -26,16 +27,12 @@ public class TileView : MonoBehaviour
         if (this.Node != null)
         {
             this.Node.CurrentTile = this;
+            gameObject.name = $"Tile_{node.X}_{node.Y}";
         }
 
         if (meshRenderer != null) 
         {
             originalColor = meshRenderer.material.color; 
-        }
-        
-        if (node != null)
-        {
-            gameObject.name = $"Tile_{node.X}_{node.Y}";
         }
     }
 

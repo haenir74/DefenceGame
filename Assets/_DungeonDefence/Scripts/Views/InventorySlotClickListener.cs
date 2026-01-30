@@ -35,19 +35,19 @@ public class InventorySlotClickListener : MonoBehaviour
 
     private void HandleClick(int index)
     {
-        if (controller == null)
-        {
-            Debug.LogWarning("InventoryController를 찾을 수 없습니다.");
-            return;
-        }
+        if (controller == null) return;
 
         var slotData = controller.GetSlot(index);
-        if (slotData == null || slotData.IsEmpty) return;
-        if (slotData.ItemData is BaseItemSO gameItem)
+        
+        if (slotData != null && !slotData.IsEmpty)
         {
-            Debug.Log($"[Inventory Click] Selected Item: {gameItem.ID}");
-            GameManager.Instance.ChangeState(new PlacementState(gameItem));
-            controller.CloseInventory(); 
+            if (slotData.ItemData is BaseItemSO gameItem)
+            {
+                Debug.Log($"[Click] Selected: {gameItem.Name} (ID: {gameItem.ID})");
+                
+                // [수정] 컨트롤러와 인덱스 정보를 함께 전달!
+                GameManager.Instance.ChangeState(new PlacementState(gameItem, controller, index));
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GridData", menuName = "Game/Grid/GridData")]
-public class GridData : ScriptableObject
+public class GridDataSO : ScriptableObject
 {
     [Header("Settings")]
     public int width = 5;
@@ -19,5 +19,5 @@ public class GridData : ScriptableObject
     [Header("Default Datas")]
     public GameObject defaultTilePrefab;
     public GameObject coreUnitPrefab;
-    public TileData defaultTileData;
+    public TileDataSO defaultTileData;
 }

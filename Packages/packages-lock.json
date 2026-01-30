@@ -1,28 +1,5 @@
 {
   "dependencies": {
-    "com.panex.floatingtext": {
-      "version": "https://github.com/haenir74/panex.git?path=/Packages/com.panex.floatingtext",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.textmeshpro": "3.0.6"
-      },
-      "hash": "cf5241d6d4010e0810555913c624f02e76ee062f"
-    },
-    "com.panex.inventory": {
-      "version": "https://github.com/haenir74/panex.git?path=/Packages/com.panex.inventory",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "119adc85dec38b716da7f600266d671dd60409cd"
-    },
-    "com.panex.stat": {
-      "version": "https://github.com/haenir74/panex.git?path=/Packages/com.panex.stat",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "05fc7f91e6ee899f140e226a8fa5ff1726f3d7a8"
-    },
     "com.unity.collab-proxy": {
       "version": "2.11.2",
       "depth": 0,

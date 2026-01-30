@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// 맵 전체 데이터를 담는 컨테이너
 [System.Serializable]
-public class MapContext
+public class GridMap
 {
-    public Node[,] Nodes { get; private set; }
+    public GridNode[,] Nodes { get; private set; }
     
-    public Node SpawnNode { get; set; }
-    public Node CoreNode { get; set; }
+    public GridNode SpawnNode { get; set; }
+    public GridNode CoreNode { get; set; }
 
     public int Width { get; private set; }
     public int Height { get; private set; }
@@ -17,10 +18,10 @@ public class MapContext
     {
         Width = width;
         Height = height;
-        Nodes = new Node[width, height];
+        Nodes = new GridNode[width, height];
     }
 
-    public Node GetNode(int x, int y)
+    public GridNode GetNode(int x, int y)
     {
         if (IsValid(x, y))
         {

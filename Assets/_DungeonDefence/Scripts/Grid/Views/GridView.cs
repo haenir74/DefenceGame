@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class GridView : MonoBehaviour
 {
-    private MapContext context;
-    private GridData data;
+    private GridMap map;
+    private GridDataSO data;
 
-    public void Setup(MapContext context, GridData data)
+    public void Setup(GridMap map, GridDataSO data)
     {
-        this.context = context;
+        this.map = map;
         this.data = data;
     }
 
@@ -19,8 +19,8 @@ public class GridView : MonoBehaviour
 
         Gizmos.color = Color.green;
         
-        int w = (context != null) ? context.Width : data.width;
-        int h = (context != null) ? context.Height : data.height;
+        int w = (map != null) ? map.Width : data.width;
+        int h = (map != null) ? map.Height : data.height;
         float size = data.cellSize;
 
         for (int x = 0; x < w; x++)

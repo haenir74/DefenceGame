@@ -8,7 +8,6 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private GameContext context;
     public GameContext Context => context;
 
-
     //FSM
     private StateMachine stateMachine;
     public IGameState CurrentGameState => stateMachine.CurrentState as IGameState;
@@ -53,18 +52,6 @@ public class GameManager : Singleton<GameManager>
     void Update()
     {
         stateMachine.Update();
-    }
-
-    public void ConsumeInventoryItem(BaseItemSO item)
-    {        
-        if (item is StructureItemSO && structureInventory != null)
-        {
-            structureInventory.RemoveItem(item, 1);
-        }
-        else if (item is UnitItemSO && unitInventory != null)
-        {
-            unitInventory.RemoveItem(item, 1);
-        }
     }
 
     protected override void OnDestroy()

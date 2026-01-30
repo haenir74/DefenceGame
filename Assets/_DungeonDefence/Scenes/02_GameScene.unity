@@ -122,6 +122,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &124579376
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 124579378}
+  - component: {fileID: 124579377}
+  m_Layer: 0
+  m_Name: Tester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &124579377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124579376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d876b494365669a41bdeeb1dc241ba8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testItems:
+  - {fileID: 11400000, guid: c38b29065ea00144181c2ccafb647e8f, type: 2}
+--- !u!4 &124579378
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124579376}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.3016322, y: -1.1892933, z: 16.289513}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &693353377
 GameObject:
   m_ObjectHideFlags: 0
@@ -170,6 +216,8 @@ MonoBehaviour:
   context:
     currentTurn: 1
     playerGold: 300
+  structureInventory: {fileID: 2093472241558556071, guid: 1c937793ff2db7342aa033860ce50840, type: 3}
+  unitInventory: {fileID: 2093472241558556071, guid: 1c937793ff2db7342aa033860ce50840, type: 3}
 --- !u!114 &693353384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,3 +719,4 @@ SceneRoots:
   - {fileID: 2010049399}
   - {fileID: 1204140671}
   - {fileID: 1822619636}
+  - {fileID: 124579378}
