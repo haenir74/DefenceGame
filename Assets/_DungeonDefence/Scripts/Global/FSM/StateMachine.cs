@@ -2,39 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StateMachine
+public class StateMachine<T> where T : class
 {
-    public IState CurrentState { get; private set; }
-    public IState PreviousState { get; private set; }
+    public T Owner { get; private set; }
+    public BaseState<T> CurrentState { get; private set; }
+    public BaseState<T> PreviousState { get; private set; }
 
-    public bool DebugMode { get; set; } = false;
-    private string ownerName;
-
-    public StateMachine(string ownerName = "Unknown")
+    public StateMachine(T owner, BaseState<T> initialState = null)
     {
-        this.ownerName = ownerName;
+        Owner = owner;
+        if (initialState != null)
+        {
+            ChangeState(initialState);
+        }
     }
 
-    public void ChangeState(IState newState)
+    public void ChangeState(BaseState<T> newState)
     {
-        if (CurrentState != null)
-        {
-            if (DebugMode) Debug.Log($"[{ownerName}] Exit: {CurrentState.GetType().Name}");
-            CurrentState.Exit();
-            PreviousState = CurrentState;
-        }
+        if (CurrentState == newState) return;
 
+        CurrentState?.Exit();
+
+        PreviousState = CurrentState;
         CurrentState = newState;
 
         if (CurrentState != null)
         {
-            if (DebugMode) Debug.Log($"[{ownerName}] Enter: {CurrentState.GetType().Name}");
+            CurrentState.Initialize(Owner, this);
             CurrentState.Enter();
         }
     }
 
     public void Update()
     {
-        CurrentState?.Execute();
+        CurrentState?.Update();
+    }
+
+    public void PhysicsUpdate()
+    {
+        CurrentState?.PhysicsUpdate();
+    }
+
+    public void RevertState()
+    {
+        if (PreviousState != null)
+        {
+            ChangeState(PreviousState);
+        }
     }
 }

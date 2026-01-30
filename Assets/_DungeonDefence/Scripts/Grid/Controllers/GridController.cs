@@ -10,11 +10,6 @@ public class GridController : MonoBehaviour
 
     public GridDataSO Data => gridData;
 
-    private void Awake()
-    {
-        Grid.Instance.Initialize(this);
-    }
-
     public void BuildView(GridMap map)
     {
         CalculateCellSize();

@@ -8,6 +8,8 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     private static readonly object lockObject = new object();
     private static bool applicationIsQuitting = false;
 
+    protected virtual bool DontDestroy => false;
+
     public static T Instance
     {
         get
@@ -39,7 +41,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         if (instance == null)
         {
             instance = this as T;
-            DontDestroyOnLoad(gameObject);
+            if (DontDestroy) DontDestroyOnLoad(gameObject);
         }
         else if (instance != this)
         {
