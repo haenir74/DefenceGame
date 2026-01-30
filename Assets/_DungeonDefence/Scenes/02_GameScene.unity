@@ -182,8 +182,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8722db9e0d0d9764d920a949a72fc038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerUnitData: {fileID: 11400000, guid: 1b538cb044b5f234b8e8b1a07c09badf, type: 2}
-  enemyUnitData: {fileID: 11400000, guid: d85e440c2835494418864f9e8a5354b1, type: 2}
+  playerUnitData: {fileID: 11400000, guid: 608d9cf33afcf6745afabfca315fee75, type: 2}
+  enemyUnitData: {fileID: 11400000, guid: ecc7c7c9d706ab241a93be6da125b55e, type: 2}
 --- !u!4 &641602920
 Transform:
   m_ObjectHideFlags: 0
@@ -429,11 +429,11 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.1
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -458,7 +458,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0.23911765, y: -0.3696438, z: 0.09904577, w: 0.89239913}
-  m_LocalPosition: {x: 7.77, y: 5, z: -3.77}
+  m_LocalPosition: {x: 30, y: 15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -476,14 +476,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00ebc8a3dd794794b93f82e18c38b8c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  angleX: 30
-  angleY: -45
   zoomSpeed: 2
-  minZoom: 2
-  maxZoom: 15
+  minZoom: 5
+  maxZoom: 20
   panSpeed: 0.5
-  invertPan: 1
-  mapLimitPadding: {x: 5, y: 5}
+  panLimit: {x: 10, y: 15}
 --- !u!1 &988465436
 GameObject:
   m_ObjectHideFlags: 0
