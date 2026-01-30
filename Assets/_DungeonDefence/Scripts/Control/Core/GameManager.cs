@@ -30,6 +30,8 @@ public class GameManager : Singleton<GameManager>
             InputManager.Instance.OnClickNode += HandleNodeClick;
             InputManager.Instance.OnRightClickNode += HandleRightClick;
         }
+
+        ChangeState(new NormalState());
     }
 
     public void ChangeState(BaseState<GameManager> newState)
