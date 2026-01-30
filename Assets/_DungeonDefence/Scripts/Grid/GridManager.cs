@@ -33,6 +33,12 @@ public class GridManager : Singleton<GridManager>
         return _system.GetNode(_map, _controller.Data, worldPos);
     }
 
+    public GridNode GetNode(int x, int y)
+    {
+        if (_map == null) return null;
+        return _map.GetNode(x, y);
+    }
+
     public Vector3 GetWorldPosition(int x, int y)
     {
         if (_controller == null || _system == null) return Vector3.zero;

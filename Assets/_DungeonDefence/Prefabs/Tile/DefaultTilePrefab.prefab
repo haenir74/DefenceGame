@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3788150720335711813}
   - component: {fileID: 3651476903381158594}
   - component: {fileID: 6280755013731997778}
+  - component: {fileID: 3881164903325729549}
   m_Layer: 6
   m_Name: DefaultTilePrefab
   m_TagString: Untagged
@@ -119,3 +120,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 3788150720335711813}
+--- !u!114 &3881164903325729549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4933445558535422339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162082a04f0681148b942cf8200dcc22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: df0293d380b76a444865db9d102026df, type: 2}

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "GridData", menuName = "Game/Grid/GridData")]
+[CreateAssetMenu(fileName = "GridData", menuName = "DungeonDefence/Grid/GridData")]
 public class GridDataSO : ScriptableObject
 {
     [Header("Settings")]
