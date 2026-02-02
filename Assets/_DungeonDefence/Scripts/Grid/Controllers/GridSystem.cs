@@ -14,16 +14,20 @@ public class GridSystem
             {
                 Vector3 worldPos = GetWorldPosition(x, y, data.cellSize);
                 GridNode newNode = new GridNode(x, y, worldPos);
-
                 map.Nodes[x, y] = newNode;
 
                 if (x == data.spawnNodePos.x && y == data.spawnNodePos.y)
                     map.SpawnNode = newNode;
-                
                 if (x == data.coreNodePos.x && y == data.coreNodePos.y)
                     map.CoreNode = newNode;
             }
         }
+    }
+
+    private GridNode GetNode(GridMap map, GridDataSO data, int x, int y)
+    {
+        if (map == null || !map.IsValid(x, y)) return null;
+        return map.Nodes[x, y];
     }
 
     public GridNode GetNode(GridMap map, GridDataSO data, Vector3 worldPosition)

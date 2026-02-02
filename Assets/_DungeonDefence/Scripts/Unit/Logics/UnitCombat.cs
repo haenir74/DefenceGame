@@ -11,11 +11,18 @@ public class UnitCombat : MonoBehaviour
     public float MaxHp { get; private set; }
     public bool IsDead => CurrentHp <= 0;
 
+    public float CurrentMana { get; private set; }
+    public float MaxMana { get; private set; }
+
     private float _lastAttackTime;
 
+    private const float MANA_PER_ATTACK = 10f;
+
     public event Action<float> OnHealthChanged; // float: 비율(0~1)
+    public event Action<float> OnManaChanged;
     public event Action OnDeath;
     public event Action OnAttack;
+    public event Action OnSkillCast;
 
     public void Setup(Unit unit, UnitDataSO data)
     {
@@ -24,6 +31,9 @@ public class UnitCombat : MonoBehaviour
 
         MaxHp = data.maxHp;
         CurrentHp = MaxHp;
+        MaxMana = data.maxMp;
+        CurrentMana = data.startMp;
+
         _lastAttackTime = -999f;
     }
 
@@ -36,10 +46,22 @@ public class UnitCombat : MonoBehaviour
 
         OnHealthChanged?.Invoke(CurrentHp / MaxHp);
 
+        AddMana(5f);
+
         if (CurrentHp <= 0)
         {
             Die();
         }
+    }
+
+    public void AddMana(float amount)
+    {
+        if (MaxMana <= 0) return;
+
+        CurrentMana += amount;
+        CurrentMana = Mathf.Clamp(CurrentMana, 0, MaxMana);
+        
+        OnManaChanged?.Invoke(CurrentMana / MaxMana);
     }
 
     public bool TryAttack(Unit target)
@@ -48,10 +70,15 @@ public class UnitCombat : MonoBehaviour
 
         if (Time.time < _lastAttackTime + _data.attackInterval) return false;
 
-        float distance = Vector3.Distance(transform.position, target.transform.position);
-        if (distance > _data.attackRange) return false;
+        if (CurrentMana >= MaxMana && _data.skill != null)
+        {
+            PerformSkill(target);
+        }
+        else
+        {
+            PerformAttack(target);
+        }
 
-        PerformAttack(target);
         return true;
     }
 
@@ -60,7 +87,25 @@ public class UnitCombat : MonoBehaviour
         _lastAttackTime = Time.time;
         OnAttack?.Invoke();
 
-        target.Combat.TakeDamage(_data.attackDamage);
+        target.Combat.TakeDamage(_data.basePower);
+        AddMana(MANA_PER_ATTACK);
+    }
+
+    private void PerformSkill(Unit target)
+    {
+        _lastAttackTime = Time.time; 
+        
+        CurrentMana = 0f;
+        OnManaChanged?.Invoke(0f);
+        
+        OnSkillCast?.Invoke();
+
+        if (_data.skill != null)
+        {
+            _data.skill.Cast(_unit, target);
+        }
+        
+        Debug.Log($"{_unit.name} used Skill: {_data.skill.skillName}!");
     }
 
     private void Die()
