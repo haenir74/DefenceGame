@@ -65,6 +65,7 @@ public class UnitCombatState : BaseState<Unit>
     public override void Enter()
     {
         _lastAttackTime = Time.time;
+        FindTarget();
     }
 
     public override void Update()

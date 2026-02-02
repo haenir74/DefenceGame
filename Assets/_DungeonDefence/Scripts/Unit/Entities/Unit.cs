@@ -24,7 +24,12 @@ public class Unit : MonoBehaviour
         this.data = data;
 
         if (movement != null) movement.Setup(this);
-        if (combat != null) combat.Setup(this, data);
+        if (combat != null) {
+            combat.Setup(this, data);
+
+            combat.OnDeath -= HandleDeath;
+            combat.OnDeath += HandleDeath;
+        }
 
         var pathfinder = GetComponent<EnemyPathfinder>();
         if (pathfinder == null) pathfinder = gameObject.AddComponent<EnemyPathfinder>();
@@ -70,6 +75,19 @@ public class Unit : MonoBehaviour
             stateMachine.ChangeState(new UnitIdleState());
         else
             stateMachine.ChangeState(new EnemyTurnState());
+    }
+
+    private void HandleDeath()
+    {
+        if (data.category == UnitCategory.Core)
+        {
+            Debug.Log($"<color=red>🚨 [Unit] CORE DESTROYED! GAME OVER! 🚨</color>");
+            
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.GameOver();
+            }
+        }
     }
 
     private void Update()

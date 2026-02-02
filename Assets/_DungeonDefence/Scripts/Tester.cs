@@ -1,216 +1,130 @@
+//
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
-public class IntegrationTester : MonoBehaviour
+public class DataTester : MonoBehaviour
 {
-    [Header("Test Data")]
-    [SerializeField] private UnitDataSO playerUnitData;
-    [SerializeField] private UnitDataSO enemyUnitData;
+    [Header("⚔️ Unit Test Data")]
+    [Tooltip("좌클릭 시 소환할 아군 (예: 고블린, 힐러)")]
+    public UnitDataSO allyUnitData;  
+    
+    [Tooltip("우클릭 시 소환할 적군 (예: 전사, 궁수)")]
+    public UnitDataSO enemyUnitData; 
 
-    [Header("Test Tiles")]
-    [SerializeField] private TileDataSO roadTileData;
+    [Tooltip("C키를 누르면 소환할 코어 유닛 (패배 조건)")]
+    public UnitDataSO coreUnitData; // [추가]
 
-    // 현재 선택된 유닛 (마지막으로 소환하거나 클릭한 유닛)
-    private Unit _selectedUnit;
+    [Header("🗺️ Tile Test Data")]
+    [Tooltip("T키를 누르면 마우스 위치 타일을 이걸로 변경 (예: 도로)")]
+    public TileDataSO changeTileData; 
 
     private void Start()
     {
-        StartCoroutine(SetupTest());
-    }
-
-    private IEnumerator SetupTest()
-    {
-        // 시스템 초기화 대기 (안전장치)
-        yield return new WaitForSeconds(0.5f);
-
         if (InputManager.Instance != null)
         {
-            // InputManager 이벤트 구독
             InputManager.Instance.OnClickNode += HandleLeftClick;
             InputManager.Instance.OnRightClickNode += HandleRightClick;
-            
-            Debug.Log("=== [Integration Test Controls] ===");
-            Debug.Log("[L-Click]: 빈 땅이면 아군 소환 / 유닛 있으면 선택");
-            Debug.Log("[R-Click]: 선택된 유닛이 있다면 그곳으로 '이동' / 없다면 적군 소환");
-            Debug.Log("[Space]: 모든 유닛 랜덤 이동");
-            Debug.Log("[K Key]: 모든 유닛 데미지 (Kill Test)");
-            Debug.Log("[A Key]: 공격 시도 로그 (Attack Test)");
-        }
-        else
-        {
-            Debug.LogError("[IntegrationTester] InputManager를 찾을 수 없습니다.");
-        }
-    }
-
-    // 좌클릭 핸들러: 유닛 선택 또는 아군 소환
-    private void HandleLeftClick(GridNode node)
-    {
-        if (node == null) return;
-
-        // 1. 해당 타일에 유닛이 있는지 확인
-        Unit foundUnit = FindUnitOnNode(node);
-
-        if (foundUnit != null)
-        {
-            _selectedUnit = foundUnit;
-            Debug.Log($"[Tester] 유닛 선택됨: {_selectedUnit.name} ({node.X}, {node.Y})");
-        }
-        else
-        {
-            // 빈 땅이면 아군 소환
-            if (playerUnitData != null)
-            {
-                _selectedUnit = UnitManager.Instance.SpawnUnit(playerUnitData, node);
-                Debug.Log($"[Tester] 아군 소환 및 선택: {_selectedUnit.name} at ({node.X}, {node.Y})");
-            }
-        }
-    }
-
-    // 우클릭 핸들러: 유닛 이동 또는 적군 소환
-    private void HandleRightClick(GridNode node)
-    {
-        if (node == null) return;
-
-        // 선택된 유닛이 있고 살아있다면 -> 이동 명령
-        if (_selectedUnit != null && _selectedUnit.Combat != null && !_selectedUnit.Combat.IsDead)
-        {
-            Debug.Log($"[Tester] {_selectedUnit.name}에게 ({node.X}, {node.Y})로 이동 명령");
-            
-            // FSM을 사용하는 경우:
-            // _selectedUnit.FSM.ChangeState(new UnitMoveState(node)); 
-            
-            // Movement 컴포넌트 직접 사용:
-            _selectedUnit.Movement.MoveTo(node, () => Debug.Log($"{_selectedUnit.name} 이동 완료!")); 
-        }
-        else
-        {
-            // 선택된 유닛이 없으면 -> 적군 소환
-            if (enemyUnitData != null)
-            {
-                UnitManager.Instance.SpawnUnit(enemyUnitData, node);
-                Debug.Log($"[Tester] 적군 소환: Enemy at ({node.X}, {node.Y})");
-            }
+            Debug.Log("<color=cyan>[Tester] Ready! (L:Ally / R:Enemy / C:Core / Space:Mana / T:Tile)</color>");
         }
     }
 
     private void Update()
     {
-        // [Space] 모든 유닛 랜덤 이동
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            MoveAllUnitsRandomly();
-        }
+        // [Space] 마나 충전
+        if (Input.GetKeyDown(KeyCode.Space)) ChargeAllMana();
 
-        // [K] Kill Test (데미지 10)
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            DamageAllUnits();
-        }
+        // [T] 타일 변경
+        if (Input.GetKeyDown(KeyCode.T)) ChangeTileUnderMouse();
         
-        // [A] Attack Test (로그 출력)
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            ForceAttackTest();
-        }
+        // [K] 유닛 처치 (코어 파괴 테스트용)
+        if (Input.GetKeyDown(KeyCode.K)) DamageAllUnits(50);
 
-        if (Input.GetKeyDown(KeyCode.T))
+        // [C] 코어 소환 (마우스 위치)
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            ChangeTileToRoad();
+            SpawnUnitUnderMouse(coreUnitData);
         }
     }
 
-    // --- Helper Methods ---
-
-    private void ChangeTileToRoad()
+    // 마우스 위치에 특정 유닛 소환 (공용 메서드)
+    private void SpawnUnitUnderMouse(UnitDataSO data)
     {
-        if (roadTileData == null) return;
+        if (data == null) return;
 
-        // 마우스 위치의 노드 가져오기 (InputLogic 활용 또는 직접 레이캐스트)
-        // 여기서는 간단히 InputController가 사용하는 방식 참고
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
             GridNode node = GridManager.Instance.GetNode(hit.point);
-            if (node != null && node.Tile != null)
+            if (node != null)
             {
-                Debug.Log($"[Tester] 타일 변경: {node.X},{node.Y} -> Road (+{roadTileData.attractivenessBonus})");
-                
-                // 1. 데이터 교체
-                node.Tile.Setup(roadTileData);
-                
-                // 2. 비주얼(스프라이트/색상) 교체 (TileView 기능 필요, 일단은 데이터만 바뀜)
-                // node.CurrentTile.UpdateVisual(...) 
-                
-                // 3. 경로 재계산
+                Unit spawned = UnitManager.Instance.SpawnUnit(data, node);
+                if (spawned != null) 
+                    Debug.Log($"[Spawn] {spawned.name} 소환 완료!");
             }
         }
     }
 
-    // 노드 위에 있는 유닛 찾기 (임시 검색 로직)
-    private Unit FindUnitOnNode(GridNode node)
+    private void HandleLeftClick(GridNode node)
     {
-        var allUnits = UnitManager.Instance.GetAllUnits();
-        foreach (var unit in allUnits)
-        {
-            // 1. 논리적 노드 비교
-            if (unit.CurrentNode == node) return unit;
-            
-            // 2. (보정) 물리적 거리 비교 (0.5f 이내)
-            if (Vector3.Distance(unit.transform.position, node.WorldPosition) < 0.5f) return unit;
-        }
-        return null;
+        if (allyUnitData != null) UnitManager.Instance.SpawnUnit(allyUnitData, node);
     }
 
-    private void MoveAllUnitsRandomly()
+    private void HandleRightClick(GridNode node)
     {
-        Debug.Log("[Tester] 모든 유닛 랜덤 이동 시작");
+        if (enemyUnitData != null) UnitManager.Instance.SpawnUnit(enemyUnitData, node);
+    }
+
+    // ... (ChangeTileUnderMouse, ChargeAllMana, DamageAllUnits, OnGUI는 기존과 동일) ...
+    private void ChangeTileUnderMouse()
+    {
+        if (changeTileData == null) return;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            GridNode node = GridManager.Instance.GetNode(hit.point);
+            if (node != null && node.Tile != null) node.Tile.Setup(changeTileData);
+        }
+    }
+
+    private void ChargeAllMana()
+    {
+        foreach (var unit in UnitManager.Instance.GetAllUnits())
+            if (unit.Combat != null && !unit.Combat.IsDead) unit.Combat.AddMana(100f);
+    }
+
+    private void DamageAllUnits(float amount)
+    {
+        foreach (var unit in new List<Unit>(UnitManager.Instance.GetAllUnits()))
+            if (unit.Combat != null && !unit.Combat.IsDead) unit.Combat.TakeDamage(amount);
+    }
+
+    private void OnGUI()
+    {
+        // ... (기존 OnGUI 코드 유지) ...
         var units = UnitManager.Instance.GetAllUnits();
-        foreach (var unit in units)
-        {
-            GridNode current = unit.CurrentNode;
-            if (current == null) continue;
-            
-            // 랜덤 인접 타일 계산
-            int rx = current.X + Random.Range(-1, 2);
-            int ry = current.Y + Random.Range(-1, 2);
-            
-            // GridManager에 오버로딩된 GetNode(int, int) 사용
-            GridNode target = GridManager.Instance.GetNode(rx, ry);
-            
-            if (target != null && target != current)
-            {
-                unit.Movement.MoveTo(target);
-            }
-        }
-    }
+        Camera cam = Camera.main;
+        if (cam == null) return;
 
-    private void DamageAllUnits()
-    {
-        Debug.Log("[Tester] 모든 유닛에게 데미지 10 적용");
-        // 리스트를 복사해서 순회 (사망 시 리스트 변경 가능성 대비)
-        var units = new List<Unit>(UnitManager.Instance.GetAllUnits());
-        
         foreach (var unit in units)
         {
-            if (unit.Combat != null)
-            {
-                unit.Combat.TakeDamage(10);
-                Debug.Log($"Unit {unit.name} HP: {unit.Combat.CurrentHp}/{unit.Combat.MaxHp}");
-            }
-        }
-    }
+            if (unit == null || unit.Combat.IsDead) continue;
+            Vector3 screenPos = cam.WorldToScreenPoint(unit.transform.position + Vector3.up * 2f);
+            if (screenPos.z < 0) continue;
 
-    private void ForceAttackTest()
-    {
-        Debug.Log("[Tester] 공격 상태 확인");
-        var units = UnitManager.Instance.GetAllUnits();
-        foreach (var unit in units)
-        {
-            if (unit.Combat != null)
-            {
-                Debug.Log($"{unit.name} - Attack Interval: {unit.Data.attackInterval}, Damage: {unit.Data.attackDamage}");
-            }
+            string info = $"{unit.Data.unitName}\n" +
+                          $"<color=#ff4444>HP {unit.Combat.CurrentHp:F0}</color> / " +
+                          $"<color=#4444ff>MP {unit.Combat.CurrentMana:F0}</color>";
+
+            GUIStyle style = new GUIStyle();
+            style.richText = true;
+            style.alignment = TextAnchor.MiddleCenter;
+            style.fontSize = 14;
+            style.fontStyle = FontStyle.Bold;
+            
+            GUI.color = Color.black;
+            GUI.Label(new Rect(screenPos.x - 51, Screen.height - screenPos.y - 51, 100, 60), info, style);
+            GUI.color = Color.white;
+            GUI.Label(new Rect(screenPos.x - 50, Screen.height - screenPos.y - 50, 100, 60), info, style);
         }
     }
 }
