@@ -24,7 +24,17 @@ public class GridManager : Singleton<GridManager>
         if (_controller == null || _controller.Data == null) return;
 
         _system.Generate(_map, _controller.Data);
+        _system.CalculateAttractiveness(_map, _controller.Data);
         _controller.BuildView(_map);
+    }
+    
+    // 매력도 재계산 (타일 설치 시 호출)
+    public void RecalculateAttractiveness()
+    {
+        if (_system != null && _map != null && _controller != null)
+        {
+            _system.CalculateAttractiveness(_map, _controller.Data);
+        }
     }
 
     public GridNode GetNode(Vector3 worldPos)

@@ -7,7 +7,7 @@ public abstract class BaseState<T> where T : class
     protected T Controller { get; private set; }
     protected StateMachine<T> Machine { get; private set; }
 
-    public void Initialize(T controller, StateMachine<T> machine)
+    public virtual void Initialize(T controller, StateMachine<T> machine)
     {
         Controller = controller;
         Machine = machine;

@@ -42,7 +42,29 @@ public class Unit : MonoBehaviour
 
     public void SetNode(GridNode newNode)
     {
+        if (CurrentNode != null) CurrentNode.OnUnitExit(this);
         CurrentNode = newNode;
+        if (CurrentNode != null) CurrentNode.OnUnitEnter(this);
+    }
+
+    public void StartCombat()
+    {
+        if (FSM.CurrentState is UnitCombatState) return;
+        FSM.ChangeState(new UnitCombatState());
+    }
+
+    public void EndCombat()
+    {
+        if (!(FSM.CurrentState is UnitCombatState)) return;
+        
+        if (!IsPlayerTeam)
+        {
+            FSM.ChangeState(new EnemyTurnState());
+        }
+        else
+        {
+            FSM.ChangeState(new UnitIdleState());
+        }
     }
 
     private void Update()
