@@ -12,7 +12,6 @@ public class GridNode
 
     public TileView CurrentTile { get; set; }
     public GridTile Tile { get; set; }
-
     public int Attractive { get; set; } = -9999;
     private List<Unit> _unitsOnTile = new List<Unit>();
 

@@ -58,23 +58,18 @@ public class EnemyTurnState : BaseState<Unit>
 public class UnitCombatState : BaseState<Unit>
 {
     private Unit _target;
-    private float _checkTargetInterval = 0.5f;
-    private float _lastCheckTime;
+    private float _lastAttackTime;
 
     public override void Enter()
     {
-        FindTarget();
+        _lastAttackTime = Time.time;
     }
 
     public override void Update()
     {
         if (_target == null || _target.Combat.IsDead)
         {
-            if (Time.time > _lastCheckTime + _checkTargetInterval)
-            {
-                FindTarget();
-                _lastCheckTime = Time.time;
-            }
+            FindTarget();
             return;
         }
         Controller.Combat.TryAttack(_target);

@@ -14,8 +14,7 @@ public class EnemyPathfinder : MonoBehaviour
     {
         _unit = unit;
         _visitedNodes.Clear();
-        if (_unit.CurrentNode != null) 
-            RecordVisit(_unit.CurrentNode);
+        if (_unit.CurrentNode != null) _visitedNodes.Add(_unit.CurrentNode);
     }
 
     public void RecordVisit(GridNode node)
@@ -39,13 +38,10 @@ public class EnemyPathfinder : MonoBehaviour
             GridNode neighbor = GridManager.Instance.GetNode(current.X + dx[i], current.Y + dy[i]);
 
             if (neighbor == null || neighbor.Attractive <= -9000) continue;
+
             int score = neighbor.Attractive;
-            
-            if (_visitedNodes.Contains(neighbor))
-            {
-                score -= visitedPenalty;
-            }
-            
+            if (_visitedNodes.Contains(neighbor)) score -= visitedPenalty;
+
             if (score > maxScore)
             {
                 maxScore = score;
