@@ -14,48 +14,12 @@ public class GridSystem
             {
                 Vector3 worldPos = GetWorldPosition(x, y, data.cellSize);
                 GridNode newNode = new GridNode(x, y, worldPos);
-
                 map.Nodes[x, y] = newNode;
 
                 if (x == data.spawnNodePos.x && y == data.spawnNodePos.y)
                     map.SpawnNode = newNode;
-                
                 if (x == data.coreNodePos.x && y == data.coreNodePos.y)
                     map.CoreNode = newNode;
-            }
-        }
-    }
-
-    public void CalculateAttractiveness(GridMap map, GridDataSO data)
-    {
-        if (map.CoreNode == null) return;
-
-        foreach (var node in map.Nodes)
-        {
-            node.Attractive = -9999;
-        }
-
-        // BFS 탐색
-        Queue<GridNode> queue = new Queue<GridNode>();
-
-        map.CoreNode.Attractive = 1000; 
-        queue.Enqueue(map.CoreNode);
-
-        int[] dx = { 0, 0, -1, 1 };
-        int[] dy = { 1, -1, 0, 0 };
-
-        while (queue.Count > 0)
-        {
-            GridNode current = queue.Dequeue();
-
-            for (int i = 0; i < 4; i++)
-            {
-                GridNode neighbor = GetNode(map, data, current.X + dx[i], current.Y + dy[i]);
-                if (neighbor == null || neighbor.Attractive != -9999) continue;
-                // if (!neighbor.IsWalkable) continue;
-                neighbor.Attractive = current.Attractive - 1;
-                
-                queue.Enqueue(neighbor);
             }
         }
     }

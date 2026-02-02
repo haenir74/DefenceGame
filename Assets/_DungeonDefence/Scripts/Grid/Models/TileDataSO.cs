@@ -7,4 +7,6 @@ public class TileDataSO : ScriptableObject
 {
     public string tileName;
     public Sprite tileSprite;
+
+    public int attractivenessBonus = 0;
 }

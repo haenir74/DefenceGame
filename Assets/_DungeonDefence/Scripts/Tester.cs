@@ -8,6 +8,9 @@ public class IntegrationTester : MonoBehaviour
     [SerializeField] private UnitDataSO playerUnitData;
     [SerializeField] private UnitDataSO enemyUnitData;
 
+    [Header("Test Tiles")]
+    [SerializeField] private TileDataSO roadTileData;
+
     // 현재 선택된 유닛 (마지막으로 소환하거나 클릭한 유닛)
     private Unit _selectedUnit;
 
@@ -110,9 +113,39 @@ public class IntegrationTester : MonoBehaviour
         {
             ForceAttackTest();
         }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            ChangeTileToRoad();
+        }
     }
 
     // --- Helper Methods ---
+
+    private void ChangeTileToRoad()
+    {
+        if (roadTileData == null) return;
+
+        // 마우스 위치의 노드 가져오기 (InputLogic 활용 또는 직접 레이캐스트)
+        // 여기서는 간단히 InputController가 사용하는 방식 참고
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+        {
+            GridNode node = GridManager.Instance.GetNode(hit.point);
+            if (node != null && node.Tile != null)
+            {
+                Debug.Log($"[Tester] 타일 변경: {node.X},{node.Y} -> Road (+{roadTileData.attractivenessBonus})");
+                
+                // 1. 데이터 교체
+                node.Tile.Setup(roadTileData);
+                
+                // 2. 비주얼(스프라이트/색상) 교체 (TileView 기능 필요, 일단은 데이터만 바뀜)
+                // node.CurrentTile.UpdateVisual(...) 
+                
+                // 3. 경로 재계산
+            }
+        }
+    }
 
     // 노드 위에 있는 유닛 찾기 (임시 검색 로직)
     private Unit FindUnitOnNode(GridNode node)

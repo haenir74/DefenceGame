@@ -26,6 +26,10 @@ public class Unit : MonoBehaviour
         if (movement != null) movement.Setup(this);
         if (combat != null) combat.Setup(this, data);
 
+        var pathfinder = GetComponent<EnemyPathfinder>();
+        if (pathfinder == null) pathfinder = gameObject.AddComponent<EnemyPathfinder>();
+        pathfinder.Initialize(this);
+
         stateMachine = new StateMachine<Unit>(this);
         UnitManager.Instance.RegisterUnit(this);
 

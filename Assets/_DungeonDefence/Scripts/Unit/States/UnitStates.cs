@@ -26,8 +26,10 @@ public class EnemyTurnState : BaseState<Unit>
         base.Initialize(controller, machine);
         _pathfinder = controller.GetComponent<EnemyPathfinder>();
         if (_pathfinder == null) 
+        {
             _pathfinder = controller.gameObject.AddComponent<EnemyPathfinder>();
             _pathfinder.Initialize(controller);
+        }
     }
 
     public override void Enter()
