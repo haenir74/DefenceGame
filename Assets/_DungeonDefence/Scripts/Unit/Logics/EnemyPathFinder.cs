@@ -21,21 +21,14 @@ public class EnemyPathfinder : MonoBehaviour
     public void RecordVisit(GridNode node)
     {
         if (node == null) return;
-
-        if (_visited.ContainsKey(node))
-        {
-            _visited[node]++;
-        }
-        else
-        {
-            _visited[node] = 1;
-        }
+        if (_visited.ContainsKey(node)) _visited[node]++;
+        else _visited[node] = 1;
     }
 
     public GridNode GetNextNode()
     {
         GridNode current = _unit.CurrentNode;
-        GridNode core = GridManager.Instance.Map.CoreNode;
+        GridNode core = GridManager.Instance.GetCoreNode();
         if (current == null || core == null) return null;
 
         RecordVisit(current);
@@ -43,18 +36,13 @@ public class EnemyPathfinder : MonoBehaviour
         GridNode bestNode = null;
         int maxScore = int.MinValue;
 
-        int[] dx = { 0, 0, -1, 1 };
-        int[] dy = { 1, -1, 0, 0 };
+        List<GridNode> neighbors = GridManager.Instance.GetNeighbors(current);
 
-        for (int i = 0; i < 4; i++)
+        foreach (GridNode neighbor in neighbors)
         {
-            GridNode neighbor = GridManager.Instance.GetNode(current.X + dx[i], current.Y + dy[i]);
-
-            if (neighbor == null) continue;
-            // if (neighbor.IsWall) continue; // 벽 기능 구현 시 추가
             int tileBonus = neighbor.GetTileBonus();
-
-            int dist = neighbor.GetDistance(core);
+            
+            int dist = neighbor.GetDistance(core); 
             int distScore = coreBaseScore - (dist * distancePenalty);
 
             int penalty = 0;
@@ -63,9 +51,6 @@ public class EnemyPathfinder : MonoBehaviour
                 penalty = count * visitedPenalty;
             }
             int totalScore = tileBonus + distScore - penalty;
-
-            // --- 디버깅용 로그 (필요시 사용) ---
-            Debug.Log($"Node({neighbor.X},{neighbor.Y}) : Tile({tileBonus}) + Dist({distScore}) - Visited({penalty}) = {totalScore}");
 
             if (totalScore > maxScore)
             {

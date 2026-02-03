@@ -16,7 +16,9 @@ public abstract class SkillDataSO : ScriptableObject
     {
         if (caster.CurrentNode == null) return new List<Unit>();
 
-        return caster.CurrentNode.UnitsOnTile
+        var unitsOnTile = UnitManager.Instance.GetUnitsOnNode(caster.CurrentNode);
+
+        return unitsOnTile
             .Where(u => u != caster && 
                         u.IsPlayerTeam != caster.IsPlayerTeam && 
                         !u.Combat.IsDead)
@@ -27,7 +29,7 @@ public abstract class SkillDataSO : ScriptableObject
     {
         if (caster.CurrentNode == null) return new List<Unit>();
 
-        return caster.CurrentNode.UnitsOnTile
+        return UnitManager.Instance.GetUnitsOnNode(caster.CurrentNode)
             .Where(u => u.IsPlayerTeam == caster.IsPlayerTeam && 
                         !u.Combat.IsDead)
             .ToList();

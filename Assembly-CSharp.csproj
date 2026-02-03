@@ -93,6 +93,7 @@
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\UnitManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Global\FSM\StateMachine.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Logics\UnitRegistry.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Controllers\UnitController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />

@@ -11,13 +11,14 @@ public class UnitController : MonoBehaviour
     {
         if (data == null || data.prefab == null || node == null) return null;
 
-        Vector3 spawnPos = node.WorldPosition; 
-        
-        GameObject unitObj = Instantiate(data.prefab, spawnPos, Quaternion.identity, unitContainer);
-        Unit unit = unitObj.GetComponent<Unit>();
+        Unit prefabComp = data.prefab.GetComponent<Unit>();
+        if (prefabComp == null) return null;
+
+        Unit unit = PoolManager.Instance.Spawn(prefabComp, node.WorldPosition, Quaternion.identity);
 
         if (unit != null)
         {
+            unit.transform.SetParent(unitContainer);
             unit.Setup(data, node);
         }
 

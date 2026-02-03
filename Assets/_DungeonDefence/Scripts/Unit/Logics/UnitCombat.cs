@@ -112,6 +112,13 @@ public class UnitCombat : MonoBehaviour
     {
         OnDeath?.Invoke();
         
-        Destroy(gameObject); // 일단 단순 파괴, 오브젝트 풀링 만든 후 변경
+        if (PoolManager.Instance != null && _unit != null)
+        {
+            PoolManager.Instance.Despawn(_unit);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 }

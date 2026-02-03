@@ -82,7 +82,9 @@ public class UnitCombatState : BaseState<Unit>
     {
         GridNode currentNode = Controller.CurrentNode;
         if (currentNode == null) return;
-        _target = currentNode.UnitsOnTile
+        var unitsOnNode = UnitManager.Instance.GetUnitsOnNode(currentNode);
+
+        _target = unitsOnNode
             .FirstOrDefault(u => u != Controller && 
                                  u.IsPlayerTeam != Controller.IsPlayerTeam && 
                                  !u.Combat.IsDead);

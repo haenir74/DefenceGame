@@ -31,9 +31,13 @@ public class Unit : MonoBehaviour
             combat.OnDeath += HandleDeath;
         }
 
-        var pathfinder = GetComponent<EnemyPathfinder>();
-        if (pathfinder == null) pathfinder = gameObject.AddComponent<EnemyPathfinder>();
-        pathfinder.Initialize(this);
+        // 코어, 타워는 길찾기 수행 안함.
+        if (data.moveSpeed > 0)
+        {
+            var pathfinder = GetComponent<EnemyPathfinder>();
+            if (pathfinder == null) pathfinder = gameObject.AddComponent<EnemyPathfinder>();
+            pathfinder.Initialize(this);
+        }
 
         stateMachine = new StateMachine<Unit>(this);
         UnitManager.Instance.RegisterUnit(this);
@@ -55,9 +59,13 @@ public class Unit : MonoBehaviour
 
     public void SetNode(GridNode newNode)
     {
-        if (CurrentNode != null) CurrentNode.OnUnitExit(this);
+        GridNode oldNode = CurrentNode;
         CurrentNode = newNode;
-        if (CurrentNode != null) CurrentNode.OnUnitEnter(this);
+
+        if (UnitManager.Instance != null)
+        {
+            UnitManager.Instance.MoveUnit(this, oldNode, newNode);
+        }
     }
 
     public void StartCombat()
@@ -81,8 +89,8 @@ public class Unit : MonoBehaviour
     {
         if (data.category == UnitCategory.Core)
         {
-            Debug.Log($"<color=red>🚨 [Unit] CORE DESTROYED! GAME OVER! 🚨</color>");
-            
+            Debug.Log($"GAME OVER");
+
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.GameOver();
@@ -96,10 +104,7 @@ public class Unit : MonoBehaviour
     }
 
     private void OnDestroy()
-    {
-        if (CurrentNode != null)
-            CurrentNode.OnUnitExit(this);
-            
+    {            
         if (UnitManager.Instance != null)
             UnitManager.Instance.UnregisterUnit(this);
     }
