@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Models\UnitDataSO.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Core\Economy\EconomyManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Global\FSM\BaseState.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
@@ -74,16 +75,20 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Views\GridView.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Shop\ITradable.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Core\Input\InputManager.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Core\GameManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Entities\Unit.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Core\GameState.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Core\Input\InputController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SimpleScript.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Views\TileView.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
-    <Compile Include="Assets\_DungeonDefence\Scripts\Control\Input\InputLogic.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Global\Pooling\PoolManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\GridManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Controllers\GridSystem.cs" />
@@ -93,6 +98,7 @@
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\UnitManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Global\FSM\StateMachine.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Shop\ShopManager.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Logics\UnitRegistry.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Controllers\UnitController.cs" />
@@ -102,7 +108,6 @@
     <Compile Include="Assets\_DungeonDefence\Scripts\Global\Singleton.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventCheck.cs" />
-    <Compile Include="Assets\_DungeonDefence\Scripts\Control\Core\GameManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
@@ -111,7 +116,6 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Logics\UnitMovement.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Logics\EnemyPathFinder.cs" />
-    <Compile Include="Assets\_DungeonDefence\Scripts\Control\Input\InputManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\States\UnitStates.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Models\GridDataSO.cs" />
@@ -120,13 +124,13 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Unit\Logics\UnitCombat.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Models\TileDataSO.cs" />
-    <Compile Include="Assets\_DungeonDefence\Scripts\Control\Core\GameState.cs" />
-    <Compile Include="Assets\_DungeonDefence\Scripts\Control\Camera\CameraController.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Core\Camera\CameraController.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\Core\Input\InputLogic.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ShaderPropAnimator.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Models\GridMap.cs" />
-    <Compile Include="Assets\_DungeonDefence\Scripts\Control\Input\InputController.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Global\Pooling\ComponentPool.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
+    <Compile Include="Assets\_DungeonDefence\Scripts\UI\HUD\HUDController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Models\GridTile.cs" />
     <Compile Include="Assets\_DungeonDefence\Scripts\Grid\Controllers\GridController.cs" />

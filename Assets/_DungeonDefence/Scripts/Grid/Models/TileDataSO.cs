@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Tiles/Tile Data")]
-public class TileDataSO : ScriptableObject
+public class TileDataSO : ScriptableObject//, ITradable
 {
     [Header("Basic Info")]
     public string tileId;
@@ -21,4 +21,9 @@ public class TileDataSO : ScriptableObject
     [Header("Economy")]
     public int cost;
     public int sellPrice;
+
+    // ITradable
+    public string Name => tileName;
+    public int Cost => cost;
+    public Sprite Icon => icon;
 }

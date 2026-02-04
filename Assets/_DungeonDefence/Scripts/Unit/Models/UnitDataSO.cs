@@ -10,7 +10,7 @@ public enum UnitCategory
 }
 
 [CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Unit/Unit Data")]
-public class UnitDataSO : ScriptableObject
+public class UnitDataSO : ScriptableObject//, ITradable
 {
     [Header("Basic Info")]
     public string unitId;
@@ -43,4 +43,9 @@ public class UnitDataSO : ScriptableObject
     [Header("Economy (Player Unit)")]
     public int cost;
     public int populationCost;
+
+    // ITradable
+    public string Name => unitName;
+    public int Cost => cost;
+    public Sprite Icon => icon;
 }
