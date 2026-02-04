@@ -1,27 +1,124 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using System;
 
 public class UnitController : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private Transform unitContainer;
 
+    private List<Unit> activeUnits = new List<Unit>();
+    public event Action<int, int> OnUnitCountChanged;
+
+    public void OnUpdate()
+    {
+        for (int i = activeUnits.Count - 1; i >= 0; i--)
+        {
+            var unit = activeUnits[i];
+            if (unit.gameObject.activeSelf && !unit.IsDead)
+            {
+                unit.OnUpdate();
+            }
+        }
+    }
+
     public Unit SpawnUnit(UnitDataSO data, GridNode node)
     {
         if (data == null || data.prefab == null || node == null) return null;
 
-        Unit prefabComp = data.prefab.GetComponent<Unit>();
-        if (prefabComp == null) return null;
+        Unit newUnit = null;
 
-        Unit unit = PoolManager.Instance.Spawn(prefabComp, node.WorldPosition, Quaternion.identity);
-
-        if (unit != null)
+        if (PoolManager.Instance != null)
         {
-            unit.transform.SetParent(unitContainer);
-            unit.Setup(data, node);
+            Unit prefabComp = data.prefab.GetComponent<Unit>();
+            if (prefabComp != null)
+                newUnit = PoolManager.Instance.Pop(prefabComp);
+        }
+        
+        if (newUnit == null)
+        {
+            GameObject obj = Instantiate(data.prefab);
+            newUnit = obj.GetComponent<Unit>();
         }
 
-        return unit;
+        if (newUnit != null)
+        {
+            newUnit.transform.SetParent(this.unitContainer);
+            newUnit.transform.position = node.WorldPosition;
+            newUnit.Initialize(data, node);
+            
+            RegisterUnit(newUnit);
+        }
+
+        return newUnit;
+    }
+
+    public void RegisterUnit(Unit unit)
+    {
+        if (!activeUnits.Contains(unit)) activeUnits.Add(unit);
+    }
+
+    public void UnregisterUnit(Unit unit)
+    {
+        if (activeUnits.Contains(unit)) activeUnits.Remove(unit);
+    }
+
+    private void NotifyUnitCount()
+    {
+        int playerCount = this.activeUnits.Count(u => u.IsPlayerTeam && !u.IsDead);
+        int enemyCount = this.activeUnits.Count(u => !u.IsPlayerTeam && !u.IsDead);
+        
+        OnUnitCountChanged?.Invoke(playerCount, enemyCount);
+    }
+
+    public Unit GetOpponentAt(Vector2Int coord, bool myTeam)
+    {
+        return activeUnits.FirstOrDefault(u => 
+            u.Coordinate == coord && 
+            !u.IsDead && 
+            u.IsPlayerTeam != myTeam
+        );
+    }
+
+    public int GetEnemyCount()
+    {
+        return activeUnits.Count(u => !u.IsPlayerTeam && !u.IsDead);
+    }
+    
+    public List<Unit> GetAllUnits() => activeUnits;
+
+    public void AttackUnit(Unit attacker, Unit target)
+    {
+        if (attacker != null && !attacker.IsDead && target != null && !target.IsDead)
+        {
+            attacker.Combat.Attack(target);
+        }
+    }
+
+    public void DamageUnit(Unit target, float amount)
+    {
+        if (target != null && !target.IsDead)
+        {
+            target.Combat.TakeDamage(amount);
+        }
+    }
+
+    public void HealUnit(Unit unit, float amount)
+    {
+        if (unit != null && !unit.IsDead)
+        {
+            unit.Combat.Heal(amount);
+        }
+    }
+
+    public float GetUnitHpRatio(Unit unit)
+    {
+        if (unit != null && !unit.IsDead)
+        {
+            return unit.Combat.GetHpRatio();
+        }
+        return 0f;
     }
 }

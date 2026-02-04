@@ -4,68 +4,49 @@ using UnityEngine;
 
 public class GridManager : Singleton<GridManager>
 {
-    private GridController _controller;
-    private GridSystem _system;
-    private GridMap _map;
+    private GridController controller;
 
-    public GridDataSO Data => _controller != null ? _controller.Data : null;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        _system = new GridSystem();
-        _map = new GridMap();
-    }
+    public GridDataSO Data => controller != null ? controller.Data : null;
 
     public void Initialize(GridController controller)
     {
-        this._controller = controller;
-        if (_controller == null || _controller.Data == null) return;
-
-        _system.Generate(_map, _controller.Data);
-        _controller.BuildView(_map);
+        this.controller = controller;
+        if (this.controller != null)
+        {
+            this.controller.Initialize();
+        }
     }
 
     public GridNode GetNode(Vector3 worldPos)
     {
-        if (_controller == null || _system == null) return null;
-        return _system.GetNode(_map, _controller.Data, worldPos);
+        return this.controller?.GetNode(worldPos);
     }
 
     public GridNode GetNode(int x, int y)
     {
-        if (_map == null) return null;
-        return _map.GetNode(x, y);
+        return this.controller?.GetNode(x, y);
     }
 
-    public GridNode GetCoreNode() => _map?.CoreNode;
-    public GridNode GetSpawnNode() => _map?.SpawnNode;
+    public GridNode GetCoreNode() => this.controller?.Map?.CoreNode;
+    public GridNode GetSpawnNode() => this.controller?.Map?.SpawnNode;
 
-    public bool IsValidNode(int x, int y) => _map.IsValid(x, y);
+    public bool IsValidNode(int x, int y) 
+    {
+        return this.controller != null && this.controller.IsValidNode(x, y);
+    }
 
     public Vector3 GetWorldPosition(int x, int y)
     {
-        if (_controller == null || _system == null) return Vector3.zero;
-        return _system.GetWorldPosition(x, y, _controller.Data.cellSize);
-    }
-
-    public List<GridNode> GetNeighbors(GridNode node)
-    {
-        return _system.GetNeighbors(_map, node);
-    }
-
-    public void ChangeTile(GridNode node, TileDataSO newData)
-    {
-        if (node == null || newData == null) return;
-
-        if (node.Tile != null)
-        {
-            node.Tile.Setup(newData);
-        }
+        return this.controller != null ? this.controller.GetWorldPosition(x, y) : Vector3.zero;
     }
 
     public void OnHoverChanged(GridNode prevNode, GridNode currNode)
     {
-        _controller?.UpdateHoverView(prevNode, currNode);
+        this.controller?.UpdateHoverView(prevNode, currNode);
+    }
+
+    public Vector2Int GetNextPosition(Vector2Int currentPos)
+    {
+        return this.controller != null ? this.controller.GetNextPosition(currentPos) : currentPos;
     }
 }

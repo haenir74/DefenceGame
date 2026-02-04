@@ -4,79 +4,57 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
-    [Header("Controllers")]
-    [SerializeField] private GridController gridController;
-    [SerializeField] private InputController inputController;
-    [SerializeField] private UnitController unitController;
-    [SerializeField] private CameraController cameraController;
-    [SerializeField] private EconomyManager economyManager;
-
-    //FSM
-    private StateMachine<GameManager> stateMachine;
-    public BaseState<GameManager> CurrentState => stateMachine.CurrentState;
-
-    public CameraController Camera => cameraController;
-    public InputController Input => inputController;
+    private GameController controller;
 
     protected override void Awake()
     {
         base.Awake();
-
-        if (inputController == null) inputController = GetComponentInChildren<InputController>();
-        if (cameraController == null) cameraController = GetComponentInChildren<CameraController>();
-        if (economyManager == null) economyManager = GetComponentInChildren<EconomyManager>();
-
-        stateMachine = new StateMachine<GameManager>(this);
-    }
-
-    void Start()
-    {
-        if (gridController != null) GridManager.Instance.Initialize(gridController);
-        else Debug.LogError("GridController 누락됨!");
-
-        if (unitController != null) UnitManager.Instance.Initialize(unitController);
-        else Debug.LogError("UnitController 누락됨!");
-
-        if (InputManager.Instance != null)
+        this.controller = GetComponent<GameController>();
+        
+        if (this.controller == null)
         {
-            InputManager.Instance.OnClickNode += HandleNodeClick;
-            InputManager.Instance.OnRightClickNode += HandleRightClick;
-        }
-        else Debug.LogError("InputManager 누락됨!");
-
-        ChangeState(new NormalState());
-        Debug.Log("[GameManager] 초기화 완료.");
-    }
-
-    public void ChangeState(BaseState<GameManager> newState)
-    {
-        stateMachine.ChangeState(newState);
-    }
-
-    private void HandleNodeClick(GridNode node)
-    {
-        if (CurrentState is GameState gameState)
-        {
-            gameState.OnClickNode(node);
+            this.controller = FindObjectOfType<GameController>();
         }
     }
 
-    private void HandleRightClick(GridNode node)
+    public void ChangeState(BaseState<GameController> newState)
     {
-        if (CurrentState is GameState gameState)
-        {
-            gameState.OnCancel();
-        }
+        controller?.ChangeState(newState);
     }
 
-    void Update()
-    {
-        stateMachine.Update();
-    }
-    
     public void GameOver()
     {
-        Debug.Log("Game Over!");
-        Time.timeScale = 0; 
+        controller?.GameOver();
+    }
+
+    public bool IsInState<T>() where T : GameState
+    {
+        return controller?.CurrentState is T;
+    }
+
+    // EconomyManager
+    public int Gold => EconomyManager.Instance ? EconomyManager.Instance.CurrentGold : 0;
+    public void AddGold(int amount)
+    {
+        EconomyManager.Instance?.AddGold(amount);
+    }
+    public bool TrySpendGold(int amount)
+    {
+        return EconomyManager.Instance != null && EconomyManager.Instance.TrySpendGold(amount);
+    }
+
+    // CameraManager
+    public void FocusCamera(Vector3 targetPosition)
+    {
+        CameraManager.Instance?.FocusOn(targetPosition);
+    }
+    public void FocusCamera(GridNode node)
+    {
+        if (node != null)
+            CameraManager.Instance?.FocusOn(node.WorldPosition);
+    }
+    public void ResetCamera()
+    {
+        CameraManager.Instance?.ResetPosition();
     }
 }

@@ -8,6 +8,7 @@ public class GridNode
     [SerializeField] private int x;
     [SerializeField] private int y;
     [SerializeField] private Vector3 worldPosition;
+    [SerializeField] private Vector2Int coordinate;
 
     public TileView CurrentTile { get; set; }
     public GridTile Tile { get; set; }
@@ -15,6 +16,9 @@ public class GridNode
     public int X => x;
     public int Y => y;
     public Vector3 WorldPosition => worldPosition;
+    public Vector2Int Coordinate => coordinate;
+
+    public bool IsWalkable = true;
 
     public GridNode(int x, int y, Vector3 worldPosition)
     {
@@ -50,5 +54,17 @@ public class GridNode
     public override int GetHashCode()
     {
         return System.HashCode.Combine(x, y);
+    }
+
+    public int Attractiveness
+    {
+        get
+        {
+            if (Tile != null && Tile.Data != null)
+            {
+                return Tile.Data.attractivenessBonus; 
+            }
+            return 0;
+        }
     }
 }

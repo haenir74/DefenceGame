@@ -2,56 +2,85 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.EventSystems;
 
 public class InputController : MonoBehaviour
 {
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask unitLayer;
 
-    private InputLogic inputLogic;
     private Camera mainCamera;
     private GridNode lastHoveredNode;
 
     private void Awake()
     {
-        inputLogic = new InputLogic();
-        mainCamera = Camera.main;
+        this.mainCamera = Camera.main;
     }
 
     private void Update()
     {
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-            if (mainCamera == null) return;
-        }
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+        if (this.mainCamera == null) return;
+        
+        HandleMouseHover();
+        HandleMouseClick();
+    }
 
-        Vector3? hitPoint = inputLogic.GetMouseWorldPosition(mainCamera, Input.mousePosition, groundLayer);
-        GridNode currentNode = null;
-
-        if (hitPoint.HasValue && GridManager.Instance != null)
-        {
-            currentNode = GridManager.Instance.GetNode(hitPoint.Value);
-        }
-
-        // 호버 이벤트 처리
+    private void HandleMouseHover()
+    {
+        GridNode currentNode = GetNodeUnderMouse();
+        
         if (currentNode != lastHoveredNode)
         {
-            InputManager.Instance.TriggerHover(lastHoveredNode, currentNode);
-            GridManager.Instance.OnHoverChanged(lastHoveredNode, currentNode);
-            
+            InputManager.Instance?.TriggerHover(lastHoveredNode, currentNode);
+            GridManager.Instance?.OnHoverChanged(lastHoveredNode, currentNode);
             lastHoveredNode = currentNode;
         }
+    }
 
-        // 클릭 이벤트 처리
-        if (Input.GetMouseButtonDown(0) && currentNode != null)
+    private void HandleMouseClick()
+    {
+        if (Input.GetMouseButtonDown(0))
         {
-            InputManager.Instance.TriggerClick(currentNode);
+            if (TrySelectUnit()) return;
+            GridNode node = GetNodeUnderMouse();
+            if (node != null)
+            {
+                InputManager.Instance?.TriggerClick(node);
+            }
         }
-        
-        // 우클릭 이벤트 처리
-        if (Input.GetMouseButtonDown(1) && currentNode != null)
+        else if (Input.GetMouseButtonDown(1))
         {
-            InputManager.Instance.TriggerRightClick(currentNode);
+            GridNode node = GetNodeUnderMouse();
+            if (node != null)
+            {
+                InputManager.Instance?.TriggerRightClick(node);
+            }
         }
+    }
+
+    private bool TrySelectUnit()
+    {
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, unitLayer))
+        {
+            Unit unit = hit.collider.GetComponent<Unit>();
+            if (unit != null)
+            {
+                Debug.Log($"유닛 선택됨: {unit.name}");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private GridNode GetNodeUnderMouse()
+    {
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, groundLayer))
+        {
+            return GridManager.Instance.GetNode(hit.point);
+        }
+        return null;
     }
 }

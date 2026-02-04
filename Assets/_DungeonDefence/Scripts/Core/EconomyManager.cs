@@ -14,26 +14,26 @@ public class EconomyManager : Singleton<EconomyManager>
 
     private void Start()
     {
-        CurrentGold = startingGold;
+        this.CurrentGold = this.startingGold;
         NotifyGoldChanged();
     }
 
     public void AddGold(int amount)
     {
-        CurrentGold += amount;
+        this.CurrentGold += amount;
         NotifyGoldChanged();
     }
 
     public bool CanAfford(int amount)
     {
-        return CurrentGold >= amount;
+        return this.CurrentGold >= amount;
     }
 
     public bool TrySpendGold(int amount)
     {
         if (CanAfford(amount))
         {
-            CurrentGold -= amount;
+            this.CurrentGold -= amount;
             NotifyGoldChanged();
             return true;
         }
@@ -42,6 +42,6 @@ public class EconomyManager : Singleton<EconomyManager>
 
     private void NotifyGoldChanged()
     {
-        OnGoldChanged?.Invoke(CurrentGold);
+        this.OnGoldChanged?.Invoke(this.CurrentGold);
     }
 }

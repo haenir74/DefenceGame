@@ -4,36 +4,46 @@ using UnityEngine;
 
 public class UnitMovement : MonoBehaviour
 {
-    private Unit _unit;
-    private float _moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 5f;
 
-    public void Setup(Unit unit)
+    private Unit unit;
+    private Vector3 targetWorldPos;
+
+    public bool IsMoving { get; private set; }
+
+    public void Initialize(Unit unit)
     {
-        _unit = unit;
+        this.unit = unit;
+        IsMoving = false;
+
+        transform.position = unit.transform.position; 
     }
 
-    public void MoveTo(GridNode targetNode, System.Action onComplete = null)
+    public void MoveTo(Vector2Int targetGridPos)
     {
-        if (targetNode == null) return;
-        StartCoroutine(MoveRoutine(targetNode, onComplete));
+        if (IsMoving) return;
+        targetWorldPos = GridManager.Instance.GetWorldPosition(targetGridPos.x, targetGridPos.y);
+        IsMoving = true;
     }
 
-    private IEnumerator MoveRoutine(GridNode targetNode, System.Action onComplete)
+    public void OnUpdate()
     {
-        Vector3 startPos = transform.position;
-        Vector3 endPos = targetNode.WorldPosition; 
-        
-        float t = 0;
-        while (t < 1f)
+        if (!IsMoving) return;
+        transform.position = Vector3.MoveTowards(transform.position, targetWorldPos, moveSpeed * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, targetWorldPos) < 0.01f)
         {
-            t += Time.deltaTime * _moveSpeed;
-            transform.position = Vector3.Lerp(startPos, endPos, t);
-            yield return null;
-        }
+            transform.position = targetWorldPos;
+            IsMoving = false;
 
-        transform.position = endPos;
-        _unit.SetNode(targetNode);
-        
-        onComplete?.Invoke();
+            if (unit != null)
+            {
+                GridNode node = GridManager.Instance.GetNode(transform.position);
+                if (node != null)
+                {
+                    unit.OnReachTile(node.Coordinate);
+                }
+            }
+        }
     }
 }

@@ -6,7 +6,6 @@ public class StateMachine<T> where T : class
 {
     public T Owner { get; private set; }
     public BaseState<T> CurrentState { get; private set; }
-    public BaseState<T> PreviousState { get; private set; }
 
     public StateMachine(T owner, BaseState<T> initialState = null)
     {
@@ -17,37 +16,29 @@ public class StateMachine<T> where T : class
         }
     }
 
-    public void ChangeState(BaseState<T> newState)
+    public void Initialize(BaseState<T> startState)
     {
-        if (CurrentState == newState) return;
-
-        CurrentState?.Exit();
-
-        PreviousState = CurrentState;
-        CurrentState = newState;
-
+        CurrentState = startState;
         if (CurrentState != null)
         {
-            CurrentState.Initialize(Owner, this);
-            CurrentState.Enter();
+            CurrentState.OnEnter(Owner);
         }
+    }
+
+    public void ChangeState(BaseState<T> newState)
+    {
+        if (CurrentState != null) CurrentState.OnExit(Owner);
+        CurrentState = newState;
+        if (CurrentState != null) CurrentState.OnEnter(Owner);
     }
 
     public void Update()
     {
-        CurrentState?.Update();
+        CurrentState?.OnUpdate(Owner);
     }
 
     public void PhysicsUpdate()
     {
-        CurrentState?.PhysicsUpdate();
-    }
-
-    public void RevertState()
-    {
-        if (PreviousState != null)
-        {
-            ChangeState(PreviousState);
-        }
+        CurrentState?.OnPhysicsUpdate(Owner);
     }
 }
