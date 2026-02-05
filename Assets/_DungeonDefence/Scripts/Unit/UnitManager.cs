@@ -1,14 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class UnitManager : Singleton<UnitManager>
 {
     private UnitController controller;
 
+    public event Action<int, int> OnUnitCountChanged;
+    public event Action<Unit> OnUnitDead;
+    public event Action<float, float> OnCoreHpChanged;
+
     public void Initialize(UnitController controller)
     {
         this.controller = controller;
+
+        if (this.controller != null)
+        {
+            this.controller.OnUnitCountChanged += (p, e) => OnUnitCountChanged?.Invoke(p, e);
+            this.controller.OnUnitDead += (unit) => OnUnitDead?.Invoke(unit);
+            this.controller.OnCoreHpChanged += (cur, max) => OnCoreHpChanged?.Invoke(cur, max);
+        }
     }
 
     private void Update()

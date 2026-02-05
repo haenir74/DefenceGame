@@ -10,7 +10,10 @@ public class UnitController : MonoBehaviour
     [SerializeField] private Transform unitContainer;
 
     private List<Unit> activeUnits = new List<Unit>();
+
     public event Action<int, int> OnUnitCountChanged;
+    public event Action<Unit> OnUnitDead;
+    public event Action<float, float> OnCoreHpChanged;
 
     public void OnUpdate()
     {
@@ -57,12 +60,35 @@ public class UnitController : MonoBehaviour
 
     public void RegisterUnit(Unit unit)
     {
-        if (!activeUnits.Contains(unit)) activeUnits.Add(unit);
+        if (!activeUnits.Contains(unit)) 
+        {
+            activeUnits.Add(unit);
+            NotifyUnitCount();
+            if (unit.Data != null && unit.Data.category == UnitCategory.Core)
+            {
+                NotifyCoreHp(unit.Combat.CurrentHp, unit.Combat.MaxHp);
+                unit.Combat.OnHpChanged += (hp) => NotifyCoreHp(hp, unit.Combat.MaxHp);
+            }
+        }
     }
 
     public void UnregisterUnit(Unit unit)
     {
-        if (activeUnits.Contains(unit)) activeUnits.Remove(unit);
+        if (activeUnits.Contains(unit)) 
+        {
+            activeUnits.Remove(unit);
+            NotifyUnitCount();
+
+            if (unit.IsDead)
+            {
+                OnUnitDead?.Invoke(unit);
+            }
+        }
+    }
+
+    private void NotifyCoreHp(float current, float max)
+    {
+        OnCoreHpChanged?.Invoke(current, max);
     }
 
     private void NotifyUnitCount()

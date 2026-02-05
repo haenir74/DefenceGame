@@ -11,6 +11,9 @@ public class UnitCombat : MonoBehaviour
     private float currentHp;
     private float attackTimer;
 
+    public float CurrentHp => currentHp;
+    public float MaxHp => data != null ? data.maxHp : 0f;
+
     public bool IsDead { get; private set; }
 
     public event Action OnDeath;
