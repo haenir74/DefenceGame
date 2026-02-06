@@ -23,6 +23,19 @@ public class HUDView : MonoBehaviour
     [SerializeField] private TextMeshProUGUI speedText;
     [SerializeField] private Button settingsButton;
 
+    [Header("Phase UI Containers")]
+    [SerializeField] private GameObject maintenancePanel;
+    [SerializeField] private GameObject battlePanel;
+
+    [Header("Maintenance Controls")]
+    [SerializeField] private Button bagButton;
+    [SerializeField] private Button startWaveButton;
+
+    public Button SpeedButton => speedButton;
+    public Button SettingsButton => settingsButton;
+    public Button BagButton => bagButton;
+    public Button StartWaveButton => startWaveButton;
+
     public void UpdateCoreInfo(float current, float max)
     {
         if (coreHpSlider != null)
@@ -56,6 +69,11 @@ public class HUDView : MonoBehaviour
         if (speedText != null) speedText.text = $"x{speed}";
     }
 
-    public Button SpeedButton => speedButton;
-    public Button SettingsButton => settingsButton;
+    public void SetPhaseUI(bool isBattlePhase)
+    {
+        if (maintenancePanel != null) maintenancePanel.SetActive(!isBattlePhase);
+        if (battlePanel != null) battlePanel.SetActive(isBattlePhase);
+
+        // 전투 시작하면 인벤토리는 닫아야 할 수도 있음 (Manager에서 처리)
+    }
 }

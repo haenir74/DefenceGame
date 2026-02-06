@@ -5,6 +5,7 @@ using UnityEngine;
 public class UIManager : Singleton<UIManager>
 {
     [SerializeField] private HUDView hudView;
+    [SerializeField] private InventoryUIView inventoryView;
 
     private int currentGold = 0;
     private int currentPop = 0;
@@ -59,6 +60,15 @@ public class UIManager : Singleton<UIManager>
             hudView.SpeedButton?.onClick.AddListener(ToggleGameSpeed);
             // hudView.SettingsButton?.onClick.AddListener(OnSettingsClick);
         }
+
+        // 인벤토리 버튼
+        if (hudView != null && hudView.BagButton != null)
+        {
+            hudView.BagButton.onClick.AddListener(() => 
+            {
+                inventoryView.ToggleInventory();
+            });
+        }
     }
 
     private void InitializeUI()
@@ -76,5 +86,19 @@ public class UIManager : Singleton<UIManager>
         timeScale = (timeScale >= 1.5f) ? 1.0f : 2.0f;
         Time.timeScale = timeScale;
         hudView?.UpdateSpeed(timeScale);
+    }
+
+    // 페이즈 전환
+    
+    public void SwitchToMaintenancePhase()
+    {
+        hudView.SetPhaseUI(false); 
+        // inventoryView.CloseInventory(); 
+    }
+
+    public void SwitchToBattlePhase()
+    {
+        hudView.SetPhaseUI(true);
+        inventoryView.CloseInventory();
     }
 }
