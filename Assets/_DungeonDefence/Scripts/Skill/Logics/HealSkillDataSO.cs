@@ -14,13 +14,13 @@ public class HealSkillDataSO : SkillDataSO
         var allies = GetAllies(caster);
 
         var targetAlly = allies
-            .OrderBy(u => u.Combat.CurrentHp / u.Combat.MaxHp)
+            .OrderBy(u => UnitManager.Instance.GetUnitHpRatio(u))
             .FirstOrDefault();
 
         if (targetAlly != null)
         {
             Debug.Log($"<color=green>[Skill] {caster.name} >> {skillName} >> {targetAlly.name} (Heal: {healAmount})</color>");
-            targetAlly.Combat.TakeDamage(-healAmount);
+            UnitManager.Instance.HealUnit(targetAlly, healAmount);
         }
         else
         {

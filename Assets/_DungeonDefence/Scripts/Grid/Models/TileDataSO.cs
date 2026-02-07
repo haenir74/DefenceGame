@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Panex.Inventory;
 
 [CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Tiles/Tile Data")]
-public class TileDataSO : ScriptableObject
+public class TileDataSO : ScriptableObject, IStorable
 {
     [Header("Basic Info")]
+    public int tileIdNumber;
     public string tileId;
     public string tileName;
     [TextArea] public string description;
@@ -21,4 +23,11 @@ public class TileDataSO : ScriptableObject
     [Header("Economy")]
     public int cost;
     public int sellPrice;
+
+    // IStorable
+    public int ID => tileIdNumber;
+    public string Name => tileName;
+    public string Description => description;
+    public Sprite Icon => icon;
+    public int MaxStack => 1;
 }

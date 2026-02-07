@@ -13,8 +13,8 @@ public abstract class BaseState<T> where T : class
         Machine = machine;
     }
 
-    public virtual void Enter() { }
-    public virtual void Update() { }
-    public virtual void PhysicsUpdate() { }
-    public virtual void Exit() { }
+    public virtual void OnEnter(T entity) { }
+    public virtual void OnUpdate(T entity) { }
+    public virtual void OnPhysicsUpdate(T entity) { }
+    public virtual void OnExit(T entity) { }
 }

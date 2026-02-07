@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Panex.Inventory;
 
 public enum UnitCategory
 {
@@ -10,9 +11,10 @@ public enum UnitCategory
 }
 
 [CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Unit/Unit Data")]
-public class UnitDataSO : ScriptableObject
+public class UnitDataSO : ScriptableObject, IStorable
 {
     [Header("Basic Info")]
+    public int unitIdNumber;
     public string unitId;
     public string unitName;
     [TextArea] public string description;
@@ -43,4 +45,11 @@ public class UnitDataSO : ScriptableObject
     [Header("Economy (Player Unit)")]
     public int cost;
     public int populationCost;
+
+    // IStorable
+    public int ID => unitIdNumber;
+    public string Name => unitName;
+    public string Description => description;
+    public Sprite Icon => icon;
+    public int MaxStack => 1;
 }

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
   m_Name: Enemy_Archer
   m_EditorClassIdentifier: 
-  unitId: 3001
-  unitName: "\uBAA8\uD5D8\uAC00 \uC804\uC0AC"
+  unitId: 3002
+  unitName: "\uBAA8\uD5D8\uAC00 \uAD81\uC218"
   description: 
   icon: {fileID: 0}
   prefab: {fileID: 6117380593175443770, guid: e6c2ee7a0a28d29468b3afb78bfb3263, type: 3}

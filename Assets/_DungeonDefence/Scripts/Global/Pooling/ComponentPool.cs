@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class ComponentPool<T> where T : Component
 {
-    private T _prefab;
-    private Transform _parent;
-    private Queue<T> _poolQueue = new Queue<T>();
+    private T prefab;
+    private Transform parent;
+    private Queue<T> poolQueue = new Queue<T>();
 
     public ComponentPool(T prefab, int initialSize, Transform root)
     {
-        _prefab = prefab;
+        this.prefab = prefab;
         
         GameObject poolObj = new GameObject($"{prefab.name}_Pool");
         poolObj.transform.SetParent(root);
-        _parent = poolObj.transform;
+        parent = poolObj.transform;
 
         for (int i = 0; i < initialSize; i++)
         {
@@ -24,24 +24,24 @@ public class ComponentPool<T> where T : Component
 
     private T CreateNew()
     {
-        T instance = Object.Instantiate(_prefab, _parent);
+        T instance = Object.Instantiate(prefab, parent);
         instance.gameObject.SetActive(false);
         
         var tracker = instance.gameObject.AddComponent<PoolObject>();
-        tracker.OriginalPrefab = _prefab.gameObject;
+        tracker.OriginalPrefab = prefab.gameObject;
         
-        _poolQueue.Enqueue(instance);
+        poolQueue.Enqueue(instance);
         return instance;
     }
 
     public T Get()
     {
-        if (_poolQueue.Count == 0)
+        if (poolQueue.Count == 0)
         {
             CreateNew();
         }
 
-        T instance = _poolQueue.Dequeue();
+        T instance = poolQueue.Dequeue();
         instance.gameObject.SetActive(true);
         return instance;
     }
@@ -49,8 +49,8 @@ public class ComponentPool<T> where T : Component
     public void Release(T instance)
     {
         instance.gameObject.SetActive(false);
-        instance.transform.SetParent(_parent);
-        _poolQueue.Enqueue(instance);
+        instance.transform.SetParent(parent);
+        poolQueue.Enqueue(instance);
     }
 }
 

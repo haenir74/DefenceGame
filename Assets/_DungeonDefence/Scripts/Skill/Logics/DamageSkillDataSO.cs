@@ -10,10 +10,10 @@ public class DamageSkillDataSO : SkillDataSO
 
     public override void Cast(Unit caster, Unit mainTarget)
     {
-        if (mainTarget != null && !mainTarget.Combat.IsDead)
+        if (mainTarget != null)
         {
             Debug.Log($"<color=red>[Skill] {caster.name} >> {skillName} >> {mainTarget.name} (Dmg: {damageAmount})</color>");
-            mainTarget.Combat.TakeDamage(damageAmount);
+            UnitManager.Instance.DamageUnit(mainTarget, damageAmount);
         }
     }
 }

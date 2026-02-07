@@ -5,41 +5,82 @@ using System;
 
 public class UnitManager : Singleton<UnitManager>
 {
-    private UnitController _controller;
-    private List<Unit> _activeUnits = new List<Unit>();
+    private UnitController controller;
 
-    public event Action<Unit> OnUnitSpawned;
-    public event Action<Unit> OnUnitDied;
+    public event Action<int, int> OnUnitCountChanged;
+    public event Action<Unit> OnUnitDead;
+    public event Action<float, float> OnCoreHpChanged;
 
     public void Initialize(UnitController controller)
     {
-        this._controller = controller;
-        if (_controller == null) return;
-    }
+        this.controller = controller;
 
-    public void RegisterUnit(Unit unit)
-    {
-        if (!_activeUnits.Contains(unit))
+        if (this.controller != null)
         {
-            _activeUnits.Add(unit);
-            OnUnitSpawned?.Invoke(unit);
+            this.controller.OnUnitCountChanged += (p, e) => OnUnitCountChanged?.Invoke(p, e);
+            this.controller.OnUnitDead += (unit) => OnUnitDead?.Invoke(unit);
+            this.controller.OnCoreHpChanged += (cur, max) => OnCoreHpChanged?.Invoke(cur, max);
         }
     }
 
-    public void UnregisterUnit(Unit unit)
+    private void Update()
     {
-        if (_activeUnits.Contains(unit))
-        {
-            _activeUnits.Remove(unit);
-            OnUnitDied?.Invoke(unit);
-        }
+        if (controller != null)
+            controller.OnUpdate();
     }
 
     public Unit SpawnUnit(UnitDataSO data, GridNode node)
     {
-        if (_controller == null) return null;
-        return _controller.SpawnUnit(data, node);
+        return controller?.SpawnUnit(data, node);
     }
 
-    public List<Unit> GetAllUnits() => _activeUnits;
+    public Unit SpawnUnit(UnitDataSO data, int x, int y)
+    {
+        GridNode node = GridManager.Instance.GetNode(x, y);
+        return SpawnUnit(data, node);
+    }
+
+    public void RegisterUnit(Unit unit) => controller?.RegisterUnit(unit);
+    public void UnregisterUnit(Unit unit) => controller?.UnregisterUnit(unit);        
+
+    public Unit GetOpponentAt(Vector2Int coord, bool myTeam) 
+        => controller?.GetOpponentAt(coord, myTeam);
+
+    public int GetEnemyCount() 
+        => controller != null ? controller.GetEnemyCount() : 0;
+
+    public List<Unit> GetAllUnits() 
+        => controller?.GetAllUnits();
+
+    public void MoveUnit(Unit unit, GridNode from, GridNode to)
+    {
+        // 필요하다면 구현
+    }
+
+    public List<Unit> GetUnitsOnNode(GridNode node)
+    {
+         if(controller == null || node == null) return new List<Unit>();
+         var allUnits = controller.GetAllUnits();
+         return allUnits.FindAll(u => u.Coordinate == node.Coordinate && !u.IsDead);
+    }
+
+    public void AttackUnit(Unit attacker, Unit target)
+    {
+        this.controller?.AttackUnit(attacker, target);
+    }
+    
+    public void DamageUnit(Unit target, float amount)
+    {
+        this.controller?.DamageUnit(target, amount);
+    }
+
+    public void HealUnit(Unit unit, float amount)
+    {
+        this.controller?.HealUnit(unit, amount);
+    }
+
+    public float GetUnitHpRatio(Unit unit)
+    {
+        return this.controller != null ? this.controller.GetUnitHpRatio(unit) : 0f;
+    }
 }

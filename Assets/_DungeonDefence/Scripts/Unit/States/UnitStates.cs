@@ -5,86 +5,74 @@ using System.Linq;
 
 public class UnitIdleState : BaseState<Unit>
 {
-    public override void Enter()
+    public override void OnEnter(Unit unit) { }
+
+    public override void OnUpdate(Unit unit)
     {
-        Debug.Log("Unit Idle");
+        CheckCombatCondition(unit);
     }
 
-    public override void Update()
+    public override void OnExit(Unit unit) { }
+
+    private void CheckCombatCondition(Unit unit)
     {
+        Unit target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
         
+        if (target != null)
+        {
+            unit.StartCombat();
+        }
     }
 }
 
 
 public class EnemyTurnState : BaseState<Unit>
 {
-    private EnemyPathfinder _pathfinder;
+    public override void OnEnter(Unit unit) { }
 
-    public override void Initialize(Unit controller, StateMachine<Unit> machine)
+    public override void OnUpdate(Unit unit)
     {
-        base.Initialize(controller, machine);
-        _pathfinder = controller.GetComponent<EnemyPathfinder>();
-        if (_pathfinder == null) 
-        {
-            _pathfinder = controller.gameObject.AddComponent<EnemyPathfinder>();
-            _pathfinder.Initialize(controller);
-        }
+        if (CheckCombatCondition(unit)) return;
     }
 
-    public override void Enter()
-    {
-        GridNode nextNode = _pathfinder.GetNextNode();
+    public override void OnExit(Unit unit) { }
 
-        if (nextNode != null)
-        {
-            Controller.Movement.MoveTo(nextNode, () => OnMoveComplete(nextNode));
-        }
-        else
-        {
-            Controller.FSM.ChangeState(new UnitIdleState());
-        }
-    }
-
-    private void OnMoveComplete(GridNode arrivedNode)
+    private bool CheckCombatCondition(Unit unit)
     {
-        _pathfinder.RecordVisit(arrivedNode);
+        Unit target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
         
-        if (Machine.CurrentState == this)
+        if (target != null)
         {
-            Controller.FSM.ChangeState(new EnemyTurnState());
+            unit.StartCombat();
+            return true;
         }
+        return false;
     }
 }
 
 public class UnitCombatState : BaseState<Unit>
 {
-    private Unit _target;
-    private float _lastAttackTime;
+    private Unit target;
 
-    public override void Enter()
+    public override void OnEnter(Unit unit)
     {
-        _lastAttackTime = Time.time;
-        FindTarget();
+        this.target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
+
+        if (this.target == null)
+        {
+            unit.EndCombat();
+        }
     }
 
-    public override void Update()
+    public override void OnUpdate(Unit unit)
     {
-        if (_target == null || _target.Combat.IsDead)
+        if (target == null || target.IsDead || target.Coordinate != unit.Coordinate)
         {
-            FindTarget();
+            unit.EndCombat();
             return;
         }
-        Controller.Combat.TryAttack(_target);
+        UnitManager.Instance.AttackUnit(unit, this.target);
     }
 
-    private void FindTarget()
-    {
-        GridNode currentNode = Controller.CurrentNode;
-        if (currentNode == null) return;
-        _target = currentNode.UnitsOnTile
-            .FirstOrDefault(u => u != Controller && 
-                                 u.IsPlayerTeam != Controller.IsPlayerTeam && 
-                                 !u.Combat.IsDead);
-    }
+    public override void OnExit(Unit unit) { }
 }

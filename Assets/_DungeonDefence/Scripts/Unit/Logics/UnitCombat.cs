@@ -2,116 +2,81 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+
 public class UnitCombat : MonoBehaviour
 {
-    private Unit _unit;
-    private UnitDataSO _data;
+    private Unit unit;
+    private UnitDataSO data;
 
-    public float CurrentHp { get; private set; }
-    public float MaxHp { get; private set; }
-    public bool IsDead => CurrentHp <= 0;
+    private float currentHp;
+    private float attackTimer;
 
-    public float CurrentMana { get; private set; }
-    public float MaxMana { get; private set; }
+    public float CurrentHp => currentHp;
+    public float MaxHp => data != null ? data.maxHp : 0f;
 
-    private float _lastAttackTime;
+    public bool IsDead { get; private set; }
 
-    private const float MANA_PER_ATTACK = 10f;
-
-    public event Action<float> OnHealthChanged; // float: 비율(0~1)
-    public event Action<float> OnManaChanged;
     public event Action OnDeath;
-    public event Action OnAttack;
-    public event Action OnSkillCast;
+    public event Action<float> OnHpChanged;
 
-    public void Setup(Unit unit, UnitDataSO data)
+    public void Initialize(Unit unit, UnitDataSO data)
     {
-        _unit = unit;
-        _data = data;
+        this.unit = unit;
+        this.data = data;
+        
+        this.currentHp = data.maxHp;
+        this.attackTimer = 0f;
+        IsDead = false;
+    }
 
-        MaxHp = data.maxHp;
-        CurrentHp = MaxHp;
-        MaxMana = data.maxMp;
-        CurrentMana = data.startMp;
-
-        _lastAttackTime = -999f;
+    public void OnUpdate()
+    {
+        if (IsDead) return;
+        if (attackTimer > 0)
+        {
+            attackTimer -= Time.deltaTime;
+        }
     }
 
     public void TakeDamage(float amount)
     {
         if (IsDead) return;
+        currentHp -= amount;
+        OnHpChanged?.Invoke(this.currentHp);
 
-        CurrentHp -= amount;
-        CurrentHp = Mathf.Clamp(CurrentHp, 0, MaxHp);
-
-        OnHealthChanged?.Invoke(CurrentHp / MaxHp);
-
-        AddMana(5f);
-
-        if (CurrentHp <= 0)
+        if (currentHp <= 0)
         {
             Die();
         }
     }
 
-    public void AddMana(float amount)
+    public void Heal(float amount)
     {
-        if (MaxMana <= 0) return;
+        if (this.IsDead) return;
 
-        CurrentMana += amount;
-        CurrentMana = Mathf.Clamp(CurrentMana, 0, MaxMana);
-        
-        OnManaChanged?.Invoke(CurrentMana / MaxMana);
+        this.currentHp += amount;
+        if (this.currentHp > this.data.maxHp) 
+            this.currentHp = this.data.maxHp;
+
+        OnHpChanged?.Invoke(this.currentHp);
     }
 
-    public bool TryAttack(Unit target)
+    public float GetHpRatio()
     {
-        if (IsDead || target == null || target.Combat.IsDead) return false;
-
-        if (Time.time < _lastAttackTime + _data.attackInterval) return false;
-
-        if (CurrentMana >= MaxMana && _data.skill != null)
-        {
-            PerformSkill(target);
-        }
-        else
-        {
-            PerformAttack(target);
-        }
-
-        return true;
+        if (this.data == null || this.data.maxHp == 0) return 0f;
+        return this.currentHp / this.data.maxHp;
     }
 
-    private void PerformAttack(Unit target)
+    public void Attack(Unit target)
     {
-        _lastAttackTime = Time.time;
-        OnAttack?.Invoke();
-
-        target.Combat.TakeDamage(_data.basePower);
-        AddMana(MANA_PER_ATTACK);
-    }
-
-    private void PerformSkill(Unit target)
-    {
-        _lastAttackTime = Time.time; 
-        
-        CurrentMana = 0f;
-        OnManaChanged?.Invoke(0f);
-        
-        OnSkillCast?.Invoke();
-
-        if (_data.skill != null)
-        {
-            _data.skill.Cast(_unit, target);
-        }
-        
-        Debug.Log($"{_unit.name} used Skill: {_data.skill.skillName}!");
+        if (attackTimer > 0 || target == null || target.IsDead) return;
+        target.Combat.TakeDamage(data.basePower);
+        attackTimer = data.attackInterval;
     }
 
     private void Die()
     {
+        IsDead = true;
         OnDeath?.Invoke();
-        
-        Destroy(gameObject); // 일단 단순 파괴, 오브젝트 풀링 만든 후 변경
     }
 }
