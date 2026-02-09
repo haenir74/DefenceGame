@@ -15,10 +15,11 @@ public class Unit : MonoBehaviour, IPoolable
     public UnitDataSO Data => data;
     public UnitMovement Movement => movement;
     public UnitCombat Combat => combat;
+    public EnemyPathFinder PathFinder => pathFinder;
 
     public GridNode CurrentNode { get; private set; }
     public Vector2Int Coordinate => CurrentNode != null ? CurrentNode.Coordinate : Vector2Int.zero;
-
+    
     public bool IsDead { get; private set; }
     public bool IsPlayerTeam => data != null && data.isPlayerTeam;
 
@@ -46,10 +47,13 @@ public class Unit : MonoBehaviour, IPoolable
 
         stateMachine = new StateMachine<Unit>(this);
 
+        if (pathFinder != null) pathFinder.Initialize(startNode);
+
         if (startNode != null)
         {
             transform.position = startNode.WorldPosition;
-            SetNode(startNode); 
+            CurrentNode = startNode;
+            UnitManager.Instance.RegisterUnit(this);
         }
 
         if (IsPlayerTeam)
@@ -67,11 +71,9 @@ public class Unit : MonoBehaviour, IPoolable
 
     public void OnDespawn()
     {
-        IsDead = true;
-        
+        IsDead = true;        
         if (UnitManager.Instance != null)
             UnitManager.Instance.UnregisterUnit(this);
-
         gameObject.SetActive(false);
     }
 
@@ -84,19 +86,31 @@ public class Unit : MonoBehaviour, IPoolable
         {
             UnitManager.Instance.MoveUnit(this, oldNode, newNode);
         }
-
-        if (pathFinder != null)
-        {
-            pathFinder.OnReachTile();
-        }
     }
 
     public void OnReachTile(Vector2Int coord)
     {
-        GridNode node = GridManager.Instance.GetNode(coord.x, coord.y);
+        GridNode node = GridManager.Instance.GetNode(coord.x, coord.y);        
         if (node != null)
         {
             SetNode(node);
+            if (pathFinder != null) pathFinder.OnMoveCompleted(node);
+        }
+        CheckCombatCondition();
+    }
+
+    public void CheckCombatCondition()
+    {
+        if (IsDead) return;
+        Unit target = UnitManager.Instance.GetOpponentAt(Coordinate, IsPlayerTeam);
+        
+        if (target != null)
+        {
+            StartCombat();
+        }
+        else
+        {
+            (stateMachine.CurrentState as UnitState)?.OnStepFinished();
         }
     }
 
@@ -118,27 +132,8 @@ public class Unit : MonoBehaviour, IPoolable
     public void OnUpdate()
     {
         if (IsDead) return;
-
         stateMachine?.Update();
-
-        if (!IsPlayerTeam && movement != null && !movement.IsMoving)
-        {
-            if (!(stateMachine.CurrentState is UnitCombatState))
-            {
-                if (pathFinder != null)
-                {
-                    pathFinder.FindNextStep();
-                    Vector2Int? nextStep = pathFinder.GetTargetStep();
-
-                    if (nextStep.HasValue)
-                    {
-                        movement.MoveTo(nextStep.Value);
-                    }
-                }
-            }
-        }
-
-        if (movement != null) movement.OnUpdate();
+        movement?.OnUpdate();
     }
 
     private void HandleDeath()
@@ -150,6 +145,7 @@ public class Unit : MonoBehaviour, IPoolable
             Debug.Log($"GAME OVER");
             if (GameManager.Instance != null) GameManager.Instance.GameOver();
         }
+
         if (PoolManager.Instance != null)
         {
             PoolManager.Instance.Push(this); 

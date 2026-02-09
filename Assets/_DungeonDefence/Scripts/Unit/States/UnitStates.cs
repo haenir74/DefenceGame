@@ -1,34 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.UI;
 
 public abstract class UnitState : BaseState<Unit>
 {
     protected Unit Self => Controller;
     protected UnitState(Unit unit) : base(unit) {}
+
+    public virtual void OnStepFinished() { }
 }
 
 public class UnitIdleState : UnitState
 {
     public UnitIdleState(Unit unit) : base(unit) {}
 
-    public override void OnEnter() { }
+    public override void OnEnter()
+    {
+        CheckCombat();
+    }
 
     public override void OnUpdate()
     {
-        if (Self.IsDead) return;
-        CheckCombatCondition();
+        CheckCombat();
     }
 
     public override void OnExit() { }
 
-    private void CheckCombatCondition()
+    private void CheckCombat()
     {
+        if (Self.IsDead) return;
         Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
-        
         if (target != null)
         {
             Self.StartCombat();
@@ -45,22 +46,39 @@ public class EnemyTurnState : UnitState
 
     public override void OnUpdate()
     {
-        if (Self.IsDead) return;
-        if (CheckCombatCondition()) return;
+        Act();
+    }
+
+    public override void OnStepFinished()
+    {
+        Act();
     }
 
     public override void OnExit() { }
 
-    private bool CheckCombatCondition()
+    private void Act()
     {
+        if (Self.IsDead) return;
+        if (Self.Movement.IsMoving) return;
         Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
-        
         if (target != null)
         {
             Self.StartCombat();
-            return true;
+            return;
         }
-        return false;
+        if (Self.PathFinder != null)
+        {
+            Vector2Int? nextStep = Self.PathFinder.GetTargetStep();
+            
+            if (nextStep.HasValue)
+            {
+                Self.Movement.MoveTo(nextStep.Value);
+            }
+            else
+            {
+                Self.PathFinder.FindNextStep();
+            }
+        }
     }
 }
 

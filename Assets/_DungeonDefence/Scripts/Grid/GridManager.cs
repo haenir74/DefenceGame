@@ -49,4 +49,25 @@ public class GridManager : Singleton<GridManager>
     {
         return this.controller != null ? this.controller.GetNextPosition(currentPos) : currentPos;
     }
+
+    public List<GridNode> GetNeighbors(GridNode node)
+    {
+        List<GridNode> neighbors = new List<GridNode>();
+        if (controller == null || node == null) return neighbors;
+        
+        int[] dx = { 0, 0, 1, -1 };
+        int[] dy = { 1, -1, 0, 0 };
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = node.X + dx[i];
+            int ny = node.Y + dy[i];
+
+            if (controller.IsValidNode(nx, ny))
+            {
+                neighbors.Add(controller.GetNode(nx, ny));
+            }
+        }
+        return neighbors;
+    }
 }

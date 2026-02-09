@@ -21,6 +21,10 @@ public class GameManager : Singleton<GameManager>
     private IEnumerator Start()
     {
         yield return null;
+        while (GridManager.Instance == null || GridManager.Instance.GetCoreNode() == null)
+        {
+            yield return null;
+        }
         SpawnCore();
         
         if (controller != null)
@@ -31,13 +35,17 @@ public class GameManager : Singleton<GameManager>
 
     private void SpawnCore()
     {
-        if (coreUnit == null || GridManager.Instance == null) return;
-        GridNode coreNode = GridManager.Instance.GetCoreNode(); 
-        
+        if (coreUnit == null) return;
+
+        GridNode coreNode = GridManager.Instance.GetCoreNode();
         if (coreNode != null)
         {
             Unit core = UnitManager.Instance.SpawnUnit(coreUnit, coreNode);
             FocusCamera(coreNode);
+        }
+        else
+        {
+            Debug.LogError("[GameManager] CoreNode를 찾을 수 없습니다. GridDataSO의 좌표 설정을 확인하세요.");
         }
     }
 

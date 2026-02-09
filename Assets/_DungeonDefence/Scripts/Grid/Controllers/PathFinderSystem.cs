@@ -10,8 +10,7 @@ public class PathFinderSystem
     {
         this.map = map;
     }
-
-    // 현재 위치에서 이동할 가장 매력도가 높은 이웃 좌표를 반환합니다.
+    
     public Vector2Int GetNextStep(Vector2Int currentPos)
     {
         if (map == null) return currentPos;

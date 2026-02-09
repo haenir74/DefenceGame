@@ -19,12 +19,14 @@ public class GridNode
     public Vector2Int Coordinate => coordinate;
 
     public bool IsWalkable = true;
+    public int DistanceToTarget { get; set; } = int.MaxValue;
 
     public GridNode(int x, int y, Vector3 worldPosition)
     {
         this.x = x;
         this.y = y;
         this.worldPosition = worldPosition;
+        this.coordinate = new Vector2Int(x, y);
     }
 
     public int GetDistance(GridNode target)
