@@ -8,8 +8,9 @@ public class EnemyPathFinder : MonoBehaviour
 
     private Unit unit;
     private Vector2Int? currentTarget;
-
     private List<Vector2Int> visitedNodes = new List<Vector2Int>();
+
+    private GridNode coreNode;
 
     private void Awake()
     {
@@ -24,11 +25,12 @@ public class EnemyPathFinder : MonoBehaviour
             visitedNodes.Add(startNode.Coordinate);
         }
         currentTarget = null;
+        coreNode = GridManager.Instance.GetCoreNode();
     }
 
     public void FindNextStep()
     {
-        if (unit == null || unit.CurrentNode == null) return;
+        if (unit == null || unit.CurrentNode == null || coreNode == null) return;
 
         List<GridNode> neighbors = GridManager.Instance.GetNeighbors(unit.CurrentNode);
         
@@ -37,10 +39,7 @@ public class EnemyPathFinder : MonoBehaviour
 
         foreach (var node in neighbors)
         {
-            if (!node.IsWalkable) continue;
-
             int score = CalculateScore(node);
-
             if (score > maxScore)
             {
                 maxScore = score;
@@ -60,16 +59,16 @@ public class EnemyPathFinder : MonoBehaviour
 
     private int CalculateScore(GridNode node)
     {
-        if (node.DistanceToTarget == int.MaxValue) return int.MinValue;
-        int distanceScore = 10000 - (node.DistanceToTarget * 10);
+        int dist = node.GetDistance(coreNode);
+        int distanceScore = 10000 - (dist * 10); 
         int tileBonus = node.Attractiveness;
         int visitCount = 0;
         foreach (var visited in visitedNodes)
         {
             if (visited == node.Coordinate) visitCount++;
         }
-        
         int penalty = visitCount * visitedPenalty;
+
         return distanceScore + tileBonus - penalty;
     }
 

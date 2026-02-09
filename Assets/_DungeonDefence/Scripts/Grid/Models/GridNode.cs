@@ -18,9 +18,6 @@ public class GridNode
     public Vector3 WorldPosition => worldPosition;
     public Vector2Int Coordinate => coordinate;
 
-    public bool IsWalkable = true;
-    public int DistanceToTarget { get; set; } = int.MaxValue;
-
     public GridNode(int x, int y, Vector3 worldPosition)
     {
         this.x = x;

@@ -15,6 +15,7 @@ public class TileDataSO : ScriptableObject, IStorable
     [Header("Visuals")]
     public Sprite icon;
     public Sprite tileSprite;
+    public GameObject prefab;
 
     [Header("Game Logic")]
     public int attractivenessBonus;

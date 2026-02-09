@@ -132,8 +132,27 @@ public class Unit : MonoBehaviour, IPoolable
     public void OnUpdate()
     {
         if (IsDead) return;
+
         stateMachine?.Update();
-        movement?.OnUpdate();
+        if (combat != null) combat.OnUpdate();
+        if (!IsPlayerTeam && movement != null && !movement.IsMoving)
+        {
+            if (!(stateMachine.CurrentState is UnitCombatState))
+            {
+                if (pathFinder != null)
+                {
+                    pathFinder.FindNextStep();
+                    Vector2Int? nextStep = pathFinder.GetTargetStep();
+
+                    if (nextStep.HasValue)
+                    {
+                        movement.MoveTo(nextStep.Value);
+                    }
+                }
+            }
+        }
+
+        if (movement != null) movement.OnUpdate();
     }
 
     private void HandleDeath()

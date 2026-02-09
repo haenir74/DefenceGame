@@ -36,16 +36,11 @@ public class GameManager : Singleton<GameManager>
     private void SpawnCore()
     {
         if (coreUnit == null) return;
-
         GridNode coreNode = GridManager.Instance.GetCoreNode();
         if (coreNode != null)
         {
             Unit core = UnitManager.Instance.SpawnUnit(coreUnit, coreNode);
             FocusCamera(coreNode);
-        }
-        else
-        {
-            Debug.LogError("[GameManager] CoreNode를 찾을 수 없습니다. GridDataSO의 좌표 설정을 확인하세요.");
         }
     }
 

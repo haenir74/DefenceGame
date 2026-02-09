@@ -25,15 +25,13 @@ public class GridController : MonoBehaviour
         {
             this.system.Generate(this.map, this.gridData);
             this.pathFinder.Initialize(this.map);
+            BuildView();
         }
-
-        BuildView();
     }
 
     private void BuildView()
     {
         if (this.map == null || this.gridData == null) return;
-
         CalculateCellSize();
         PlaceInitialTiles();
         
@@ -50,24 +48,48 @@ public class GridController : MonoBehaviour
 
     private void PlaceInitialTiles()
     {
-        if (this.map == null || this.tileContainer == null || this.gridData.defaultTilePrefab == null) return;
+        if (this.map == null || this.tileContainer == null) return;
+        int layerIndex = 0;
+        int mask = gridData.groundLayer.value;
+        for(int i=0; i<32; i++) {
+            if((mask & (1 << i)) != 0) {
+                layerIndex = i;
+                break;
+            }
+        }
 
         foreach (var node in this.map.Nodes)
         {
-            GameObject tileObj = Instantiate(this.gridData.defaultTilePrefab, node.WorldPosition, Quaternion.identity, this.tileContainer);
-            
-            TileView tileView = tileObj.GetComponent<TileView>();
-            if (tileView != null)
-            {
-                tileView.Setup(node, this.gridData.defaultTileData);
-            }
+            GameObject cellObj = new GameObject($"Cell_{node.X}_{node.Y}");
+            cellObj.transform.SetParent(this.tileContainer);
+            cellObj.transform.position = node.WorldPosition;
+            cellObj.layer = layerIndex;
 
-            GridTile tileComp = tileObj.GetComponent<GridTile>();
-            if (tileComp != null)
-            {
-                tileComp.Setup(this.gridData.defaultTileData);
-                node.Tile = tileComp;
-            }
+            BoxCollider col = cellObj.AddComponent<BoxCollider>();
+            col.size = new Vector3(this.gridData.cellSize, 0.1f, this.gridData.cellSize);
+            col.center = Vector3.zero;
+            
+            GridTile tileComp = cellObj.AddComponent<GridTile>();
+            TileView tileView = cellObj.AddComponent<TileView>();
+
+            node.Tile = tileComp;
+            tileComp.Setup(this.gridData.defaultTileData);
+            
+            tileView.SetDefaultPrefab(this.gridData.defaultTilePrefab);
+            tileView.Setup(node, this.gridData.defaultTileData);
+        }
+    }
+
+    public void ChangeTile(GridNode node, TileDataSO newData)
+    {
+        if (node == null || newData == null) return;
+        if (node.Tile != null)
+        {
+            node.Tile.Setup(newData);
+        }
+        if (node.CurrentTile != null)
+        {
+            node.CurrentTile.UpdateVisual(newData);
         }
     }
 
@@ -103,5 +125,10 @@ public class GridController : MonoBehaviour
     public Vector2Int GetNextPosition(Vector2Int currentPos)
     {
         return this.pathFinder != null ? this.pathFinder.GetNextStep(currentPos) : currentPos;
+    }
+
+    public List<GridNode> GetNeighbors(GridNode node)
+    {
+        return pathFinder != null ? pathFinder.GetNeighbors(node) : null;
     }
 }

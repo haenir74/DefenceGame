@@ -10,7 +10,7 @@ public class PathFinderSystem
     {
         this.map = map;
     }
-    
+
     public Vector2Int GetNextStep(Vector2Int currentPos)
     {
         if (map == null) return currentPos;
@@ -19,28 +19,19 @@ public class PathFinderSystem
         if (currentNode == null) return currentPos;
         List<GridNode> neighbors = GetNeighbors(currentNode);
 
-        // 이동 불가능한 곳 제외
-        // (기존 로직에 왔던 길을 되돌아가지 않는 조건이 있었다면 여기에 visited 체크 추가 필요)
         List<GridNode> candidates = new List<GridNode>();
         foreach (var node in neighbors)
         {
-            if (node.IsWalkable) // GridNode에 추가한 IsWalkable 프로퍼티 사용
-            {
-                candidates.Add(node);
-            }
+            candidates.Add(node);
         }
 
-        if (candidates.Count == 0) return currentPos; // 갈 곳이 없음
-
-        // 3. 매력도가 가장 높은 타일 찾기 (내림차순 정렬)
-        // 만약 매력도가 같다면? -> 거리나 무작위 등 '우선순위 룰'이 필요할 수 있음
-        // 여기서는 단순히 먼저 발견된 순서 혹은 리스트 정렬 순서를 따름
+        if (candidates.Count == 0) return currentPos;
         candidates.Sort((a, b) => b.Attractiveness.CompareTo(a.Attractiveness));
 
         return candidates[0].Coordinate;
     }
 
-    private List<GridNode> GetNeighbors(GridNode node)
+    public List<GridNode> GetNeighbors(GridNode node)
     {
         List<GridNode> results = new List<GridNode>();
         int[] dx = { 0, 0, 1, -1 };

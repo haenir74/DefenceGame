@@ -18,8 +18,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  spawnNodePos: {x: 2, y: 0}
-  coreNodePos: {x: 2, y: 7}
+  spawnNodePos: {x: 0, y: 2}
+  coreNodePos: {x: 7, y: 2}
   defaultTilePrefab: {fileID: 4933445558535422339, guid: 55bde1fd0b7097741b4750f89d55495f, type: 3}
   coreUnitPrefab: {fileID: 0}
   defaultTileData: {fileID: 0}

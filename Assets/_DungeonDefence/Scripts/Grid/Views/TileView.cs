@@ -8,44 +8,69 @@ public class TileView : MonoBehaviour
     public GridNode Node { get; private set; }
     public TileDataSO Data { get; private set; }
 
-    [Header("Visuals")]
-    [SerializeField] private MeshRenderer meshRenderer;
-    private Color originalColor;
-    private bool isHighlighted;
+    private GameObject currentVisualObject;
+    private GameObject defaultPrefab;
 
-    private void Awake()
+    public void SetDefaultPrefab(GameObject prefab)
     {
-        if (meshRenderer == null) 
-            meshRenderer = GetComponent<MeshRenderer>();
+        this.defaultPrefab = prefab;
     }
 
     public void Setup(GridNode node, TileDataSO data)
     {
         this.Node = node;
-        this.Data = data;
-
+        
         if (this.Node != null)
         {
             this.Node.CurrentTile = this;
-            gameObject.name = $"Tile_{node.X}_{node.Y}";
+            gameObject.name = $"Cell_{node.X}_{node.Y}";
         }
 
-        if (meshRenderer != null) 
+        UpdateVisual(data);
+    }
+
+    public void UpdateVisual(TileDataSO newData)
+    {
+        this.Data = newData;
+        if (this.Data == null) return;
+        if (currentVisualObject != null)
         {
-            originalColor = meshRenderer.material.color; 
+            Destroy(currentVisualObject);
+            currentVisualObject = null;
+        }
+        GameObject prefabToSpawn = this.Data.prefab;
+        if (prefabToSpawn == null)
+        {
+            prefabToSpawn = this.defaultPrefab;
+        }
+        if (prefabToSpawn != null)
+        {
+            currentVisualObject = Instantiate(prefabToSpawn, transform);
+            currentVisualObject.transform.localPosition = Vector3.zero;
+            currentVisualObject.transform.localRotation = Quaternion.identity;
+            
+            Renderer rend = currentVisualObject.GetComponentInChildren<Renderer>();
+            if (rend != null)
+            {
+                if (this.Data.tileSprite != null)
+                {
+                    rend.material.mainTexture = this.Data.tileSprite.texture;
+                }
+            }
         }
     }
 
     public void SetHighlight(bool isActive)
     {
-        if (meshRenderer == null || isHighlighted == isActive) return;
+        if (currentVisualObject == null) return;
 
-        isHighlighted = isActive;
-        meshRenderer.material.color = isActive ? originalColor * 0.6f : originalColor;
-    }
-
-    public void UpdateVisual(Sprite newSprite)
-    {
-        
+        var renderers = currentVisualObject.GetComponentsInChildren<Renderer>();
+        foreach (var rend in renderers)
+        {
+            if (rend.material.HasProperty("_Color"))
+            {
+                rend.material.color = isActive ? Color.gray : Color.white; 
+            }
+        }
     }
 }
