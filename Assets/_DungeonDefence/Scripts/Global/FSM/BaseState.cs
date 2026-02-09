@@ -5,16 +5,14 @@ using UnityEngine;
 public abstract class BaseState<T> where T : class
 {
     protected T Controller { get; private set; }
-    protected StateMachine<T> Machine { get; private set; }
 
-    public virtual void Initialize(T controller, StateMachine<T> machine)
+    public BaseState(T controller)
     {
-        Controller = controller;
-        Machine = machine;
+        this.Controller = controller;
     }
 
-    public virtual void OnEnter(T entity) { }
-    public virtual void OnUpdate(T entity) { }
-    public virtual void OnPhysicsUpdate(T entity) { }
-    public virtual void OnExit(T entity) { }
+    public virtual void OnEnter() { }
+    public virtual void OnUpdate() { }
+    public virtual void OnPhysicsUpdate() { }
+    public virtual void OnExit() { }
 }

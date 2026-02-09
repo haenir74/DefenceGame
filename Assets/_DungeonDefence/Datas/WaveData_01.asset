@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06baf04d56adca1459e2dff3de5cd63d, type: 3}
+  m_Name: WaveData_01
+  m_EditorClassIdentifier: 
+  waveIndex: 1
+  description: "1\uC6E8\uC774\uBE0C\n\uC804\uC0AC2\n\uAD81\uC2183\n"
+  groups:
+  - unitData: {fileID: 11400000, guid: 3f23730ff5a70b146aaf07ada7f9e7d2, type: 2}
+    count: 2
+    spawnInterval: 1.5
+    initialDelay: 2
+  - unitData: {fileID: 11400000, guid: a7c8f6a9cbfe90f4e9c6e7b396f6afeb, type: 2}
+    count: 2
+    spawnInterval: 1.5
+    initialDelay: 2

@@ -4,41 +4,28 @@ using UnityEngine;
 
 public class StateMachine<T> where T : class
 {
-    public T Owner { get; private set; }
+    private T owner;
     public BaseState<T> CurrentState { get; private set; }
 
-    public StateMachine(T owner, BaseState<T> initialState = null)
+    public StateMachine(T owner)
     {
-        Owner = owner;
-        if (initialState != null)
-        {
-            ChangeState(initialState);
-        }
-    }
-
-    public void Initialize(BaseState<T> startState)
-    {
-        CurrentState = startState;
-        if (CurrentState != null)
-        {
-            CurrentState.OnEnter(Owner);
-        }
+        this.owner = owner;
     }
 
     public void ChangeState(BaseState<T> newState)
     {
-        if (CurrentState != null) CurrentState.OnExit(Owner);
+        CurrentState?.OnExit();
         CurrentState = newState;
-        if (CurrentState != null) CurrentState.OnEnter(Owner);
+        CurrentState?.OnEnter();
     }
 
     public void Update()
     {
-        CurrentState?.OnUpdate(Owner);
+        CurrentState?.OnUpdate();
     }
 
     public void PhysicsUpdate()
     {
-        CurrentState?.OnPhysicsUpdate(Owner);
+        CurrentState?.OnPhysicsUpdate();
     }
 }

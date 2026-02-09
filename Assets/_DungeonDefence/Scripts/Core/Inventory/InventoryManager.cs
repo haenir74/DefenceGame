@@ -83,12 +83,12 @@ public class InventoryManager : Singleton<InventoryManager>
         if (item is UnitDataSO unitData)
         {
             Debug.Log($"[Unit] 유닛 배치: {unitData.Name}");
-            // GameManager.Instance.StartUnitPlacement(unitData);
+            GameManager.Instance.SelectUnitToPlace(unitData);
         }
         else if (item is TileDataSO tileData)
         {
             Debug.Log($"[Tile] 타일 배치: {tileData.Name}");
-            // GameManager.Instance.StartTilePlacement(tileData);
+            //GameManager.Instance.SelectUnitToPlace(tileData);
         }
     }
 

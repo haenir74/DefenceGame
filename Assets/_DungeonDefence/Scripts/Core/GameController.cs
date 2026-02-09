@@ -22,7 +22,7 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         InitializeSystems();
-        ChangeState(new NormalState());
+        ChangeState(new MaintenanceState(this));
     }
 
     private void Update()

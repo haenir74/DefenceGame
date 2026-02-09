@@ -1,53 +1,99 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using System;
 
 public class WaveManager : Singleton<WaveManager>
 {
-    private int currentWave = 1;
-    private int remainingEnemies;
-    private int totalEnemies;
-    
-    // 현재웨이브, 남은적, 전체적
+    [Header("Settings")]
+    [SerializeField] private List<WaveDataSO> waves;
+
+    // WaveIndex, Remaining, Total
     public event Action<int, int, int> OnWaveInfoChanged;
+    public event Action OnWaveCompleted;
+
+    private int currentWaveIndex = 0;
+    private int totalEnemiesInCurrentWave;
+    private int aliveEnemiesCount;
+    private bool isWaveInProgress;
+
+    private Coroutine spawnCoroutine;
 
     private void Start()
     {
-        StartWave(1, 10); 
-        
         if (UnitManager.Instance != null)
         {
             UnitManager.Instance.OnUnitDead += HandleUnitDead;
         }
     }
 
-    public void StartWave(int waveIndex, int enemyCount)
+    public void StartWave(int waveIndex)
     {
-        this.currentWave = waveIndex;
-        this.totalEnemies = enemyCount;
-        this.remainingEnemies = enemyCount;
+        if (waves == null || waveIndex < 0 || waveIndex >= waves.Count)
+        {
+            OnWaveCompleted?.Invoke();
+            return;
+        }
+
+        WaveDataSO waveData = waves[waveIndex];
+        this.currentWaveIndex = waveIndex + 1;
+        this.totalEnemiesInCurrentWave = waveData.GetTotalEnemyCount();
+        this.aliveEnemiesCount = this.totalEnemiesInCurrentWave;
+        this.isWaveInProgress = true;
+
+        Debug.Log($"[WaveManager] 웨이브 {currentWaveIndex} 시작 (총 적 수: {totalEnemiesInCurrentWave})");
 
         NotifyUI();
+
+        if (spawnCoroutine != null) StopCoroutine(spawnCoroutine);
+        spawnCoroutine = StartCoroutine(SpawnRoutine(waveData));
+    }
+
+    private IEnumerator SpawnRoutine(WaveDataSO data)
+    {
+        GridNode spawnNode = GridManager.Instance.GetSpawnNode();
+        if (spawnNode == null) yield break;
+
+        foreach (var group in data.groups)
+        {
+            if (group.initialDelay > 0)
+                yield return new WaitForSeconds(group.initialDelay);
+
+            for (int i = 0; i < group.count; i++)
+            {
+                UnitManager.Instance.SpawnUnit(group.unitData, spawnNode);
+                yield return new WaitForSeconds(group.spawnInterval);
+            }
+        }
+        
+        spawnCoroutine = null;
     }
 
     private void HandleUnitDead(Unit unit)
     {
-        if (unit.IsPlayerTeam) return;
+        if (!isWaveInProgress || unit.IsPlayerTeam) return;
 
-        if (remainingEnemies > 0)
+        aliveEnemiesCount--;
+        if (aliveEnemiesCount < 0) aliveEnemiesCount = 0;
+
+        NotifyUI();
+
+        if (aliveEnemiesCount == 0)
         {
-            remainingEnemies--;
-            NotifyUI();
-
-            if (remainingEnemies <= 0)
-            {
-                Debug.Log($"[Wave] {currentWave} 웨이브 클리어!");
-            }
+            FinishWave();
         }
+    }
+
+    private void FinishWave()
+    {
+        isWaveInProgress = false;
+        Debug.Log($"[WaveManager] 웨이브 {currentWaveIndex} 클리어!");
+        OnWaveCompleted?.Invoke();
     }
 
     private void NotifyUI()
     {
-        OnWaveInfoChanged?.Invoke(currentWave, remainingEnemies, totalEnemies);
+        OnWaveInfoChanged?.Invoke(currentWaveIndex, aliveEnemiesCount, totalEnemiesInCurrentWave);
     }
 
     protected override void OnDestroy()

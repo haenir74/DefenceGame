@@ -53,9 +53,9 @@ public class Unit : MonoBehaviour, IPoolable
         }
 
         if (IsPlayerTeam)
-            stateMachine.ChangeState(new UnitIdleState());
+            stateMachine.ChangeState(new UnitIdleState(this));
         else
-            stateMachine.ChangeState(new EnemyTurnState());
+            stateMachine.ChangeState(new EnemyTurnState(this));
 
         UnitManager.Instance.RegisterUnit(this);
     }
@@ -103,16 +103,16 @@ public class Unit : MonoBehaviour, IPoolable
     public void StartCombat()
     {
         if (stateMachine.CurrentState is UnitCombatState) return;
-        stateMachine.ChangeState(new UnitCombatState());
+        stateMachine.ChangeState(new UnitCombatState(this));
     }
 
     public void EndCombat()
     {
         if (!(stateMachine.CurrentState is UnitCombatState)) return;
         if (IsPlayerTeam)
-            stateMachine.ChangeState(new UnitIdleState());
+            stateMachine.ChangeState(new UnitIdleState(this));
         else
-            stateMachine.ChangeState(new EnemyTurnState());
+            stateMachine.ChangeState(new EnemyTurnState(this));
     }
 
     public void OnUpdate()

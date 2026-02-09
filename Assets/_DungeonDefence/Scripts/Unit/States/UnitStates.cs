@@ -2,77 +2,96 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Unity.VisualScripting;
+using UnityEditor.UI;
 
-public class UnitIdleState : BaseState<Unit>
+public abstract class UnitState : BaseState<Unit>
 {
-    public override void OnEnter(Unit unit) { }
+    protected Unit Self => Controller;
+    protected UnitState(Unit unit) : base(unit) {}
+}
 
-    public override void OnUpdate(Unit unit)
+public class UnitIdleState : UnitState
+{
+    public UnitIdleState(Unit unit) : base(unit) {}
+
+    public override void OnEnter() { }
+
+    public override void OnUpdate()
     {
-        CheckCombatCondition(unit);
+        if (Self.IsDead) return;
+        CheckCombatCondition();
     }
 
-    public override void OnExit(Unit unit) { }
+    public override void OnExit() { }
 
-    private void CheckCombatCondition(Unit unit)
+    private void CheckCombatCondition()
     {
-        Unit target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
+        Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         
         if (target != null)
         {
-            unit.StartCombat();
+            Self.StartCombat();
         }
     }
 }
 
 
-public class EnemyTurnState : BaseState<Unit>
+public class EnemyTurnState : UnitState
 {
-    public override void OnEnter(Unit unit) { }
+    public EnemyTurnState(Unit unit) : base(unit) { }
 
-    public override void OnUpdate(Unit unit)
+    public override void OnEnter() { }
+
+    public override void OnUpdate()
     {
-        if (CheckCombatCondition(unit)) return;
+        if (Self.IsDead) return;
+        if (CheckCombatCondition()) return;
     }
 
-    public override void OnExit(Unit unit) { }
+    public override void OnExit() { }
 
-    private bool CheckCombatCondition(Unit unit)
+    private bool CheckCombatCondition()
     {
-        Unit target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
+        Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         
         if (target != null)
         {
-            unit.StartCombat();
+            Self.StartCombat();
             return true;
         }
         return false;
     }
 }
 
-public class UnitCombatState : BaseState<Unit>
+public class UnitCombatState : UnitState
 {
     private Unit target;
 
-    public override void OnEnter(Unit unit)
+    public UnitCombatState(Unit unit) : base(unit) { }
+
+    public override void OnEnter()
     {
-        this.target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
+        this.target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
 
         if (this.target == null)
         {
-            unit.EndCombat();
+            Self.EndCombat();
         }
     }
 
-    public override void OnUpdate(Unit unit)
+    public override void OnUpdate()
     {
-        if (target == null || target.IsDead || target.Coordinate != unit.Coordinate)
+        if (target == null || target.IsDead || target.Coordinate != Self.Coordinate)
         {
-            unit.EndCombat();
+            Self.EndCombat();
             return;
         }
-        UnitManager.Instance.AttackUnit(unit, this.target);
+        UnitManager.Instance.AttackUnit(Self, this.target);
     }
 
-    public override void OnExit(Unit unit) { }
+    public override void OnExit() 
+    {
+        target = null;
+    }
 }

@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
   m_Name: Core
   m_EditorClassIdentifier: 
+  unitIdNumber: 0
   unitId: 0000
   unitName: "\uCF54\uC5B4"
   description: 
   icon: {fileID: 0}
-  prefab: {fileID: 1640284175939508328, guid: e6cd5a372b37fa24892713aa95e14b84, type: 3}
+  prefab: {fileID: 1640284175939508328, guid: 9c8ef490753d540469ec03623bcf9802, type: 3}
   isPlayerTeam: 1
   category: 2
   maxHp: 3000
