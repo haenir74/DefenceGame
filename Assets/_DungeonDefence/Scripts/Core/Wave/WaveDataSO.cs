@@ -7,8 +7,8 @@ public class WaveGroup
 {
     public UnitDataSO unitData;
     public int count;
-    public float spawnInterval;
-    public float initialDelay;
+    public float spawnInterval = 1.0f;
+    public float initialDelay = 0.5f;
 }
 
 [CreateAssetMenu(fileName = "WaveData_01", menuName = "DungeonDefence/Wave/Wave Data")]

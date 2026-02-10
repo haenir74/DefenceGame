@@ -21,5 +21,5 @@ MonoBehaviour:
   spawnNodePos: {x: 0, y: 2}
   coreNodePos: {x: 7, y: 2}
   defaultTilePrefab: {fileID: 4933445558535422339, guid: 55bde1fd0b7097741b4750f89d55495f, type: 3}
-  coreUnitPrefab: {fileID: 0}
-  defaultTileData: {fileID: 0}
+  coreUnitPrefab: {fileID: 1640284175939508328, guid: 9c8ef490753d540469ec03623bcf9802, type: 3}
+  defaultTileData: {fileID: 11400000, guid: df0293d380b76a444865db9d102026df, type: 2}

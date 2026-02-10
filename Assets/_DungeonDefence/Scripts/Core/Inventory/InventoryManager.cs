@@ -92,6 +92,24 @@ public class InventoryManager : Singleton<InventoryManager>
         }
     }
 
+    public bool TryConsumeItem(IStorable item, int amount = 1)
+    {
+        Inventory targetInv = null;
+        if (item is UnitDataSO) targetInv = unitInventory;
+        else if (item is TileDataSO) targetInv = tileInventory;
+
+        if (targetInv != null)
+        {
+            int currentCount = targetInv.GetItemAmount(item.ID);
+            if (currentCount >= amount)
+            {
+                targetInv.RemoveItem(item, amount);
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected override void OnDestroy()
     {
         base.OnDestroy();

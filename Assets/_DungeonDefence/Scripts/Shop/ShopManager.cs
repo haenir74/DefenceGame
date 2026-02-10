@@ -1,29 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Panex.Inventory;
 
 public class ShopManager : Singleton<ShopManager>
 {
-    [SerializeField] private List<ScriptableObject> itemsForSale; 
+    public event System.Action<string> OnPurchaseSuccess;
+    public event System.Action OnPurchaseFailed;
 
-    public void TryBuy(ITradable item)
+    public void BuyUnit(UnitDataSO unitData)
+    {
+        TryBuyItem(unitData, unitData.cost);
+    }
+
+    public void BuyTile(TileDataSO tileData)
+    {
+        TryBuyItem(tileData, tileData.cost);
+    }
+
+    private void TryBuyItem(IStorable item, int cost)
     {
         if (item == null) return;
-
-        // if (EconomyManager.Instance.TrySpendGold(item.Cost))
-        // {
-        //     if (item is IStorable storableItem)
-        //     {
-        //         Debug.Log($"구매 성공: {item.Name}");
-        //     }
-        //     else
-        //     {
-        //         Debug.Log($"구매 성공(즉시 사용): {item.Name}");
-        //     }
-        // }
-        // else
-        // {
-        //     Debug.Log("골드가 부족합니다.");
-        // }
+        if (EconomyManager.Instance.CanAfford(cost))
+        {
+            if (EconomyManager.Instance.TrySpendGold(cost))
+            {
+                InventoryManager.Instance.AddItem(item, 1);
+                
+                Debug.Log($"[Shop] 구매 성공: {item.Name} (-{cost} G)");
+                OnPurchaseSuccess?.Invoke(item.Name);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[Shop] 골드가 부족합니다.");
+            OnPurchaseFailed?.Invoke();
+        }
     }
 }

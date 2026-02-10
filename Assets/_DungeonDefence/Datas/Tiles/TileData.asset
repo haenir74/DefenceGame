@@ -12,5 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b67ab77bbe56fd34b97101eee47127f5, type: 3}
   m_Name: TileData
   m_EditorClassIdentifier: 
+  tileIdNumber: 0
+  tileId: 
   tileName: Default
+  description: 
+  icon: {fileID: 0}
   tileSprite: {fileID: 21300000, guid: e0ab1fe94a3af044e8080867af6b6813, type: 3}
+  prefab: {fileID: 4933445558535422339, guid: 55bde1fd0b7097741b4750f89d55495f, type: 3}
+  attractivenessBonus: 0
+  cost: 0
+  sellPrice: 0

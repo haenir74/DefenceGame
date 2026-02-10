@@ -33,16 +33,30 @@ public class MaintenanceState : GameState
     public override void OnClickNode(GridNode node) 
     {
         if (node == null) return;
+
         var unitToPlace = GameManager.Instance.SelectedUnitToPlace;
         if (unitToPlace != null)
         {
-            UnitManager.Instance.SpawnUnit(unitToPlace, node);
-            GameManager.Instance.ClearSelection();
+            if (InventoryManager.Instance != null && InventoryManager.Instance.TryConsumeItem(unitToPlace))
+            {
+                UnitManager.Instance.SpawnUnit(unitToPlace, node);
+                Debug.Log($"[배치 성공] {unitToPlace.Name} (인벤토리 소모)");
+                GameManager.Instance.ClearSelection(); 
+            }
+            else
+            {
+                Debug.LogWarning("배치할 유닛이 인벤토리에 부족합니다!");
+                GameManager.Instance.ClearSelection();
+            }
         }
         else
         {
-            var units = UnitManager.Instance.GetAllUnits();
-            Debug.Log($"유닛 선택 {units}");
+            var units = UnitManager.Instance.GetUnitsOnNode(node);
+            if(units.Count > 0) 
+            {
+                Debug.Log($"타일 위 유닛 수: {units.Count}");
+                foreach(var u in units) Debug.Log($"- {u.name}");
+            }
         }
     }
 
@@ -81,11 +95,6 @@ public class BattleState : GameState
         }
     }
 
-    public override void OnUpdate()
-    {
-        if (isBattleOver) return;
-    }
-
     public override void OnExit()
     {
         if (WaveManager.Instance != null)
@@ -106,13 +115,12 @@ public class BattleState : GameState
     {
         if (isBattleOver) return;
         isBattleOver = true;
-        Controller.StartCoroutine(TransitionToMaintenance());
+        Controller.StartCoroutine(ReturnToMaintenanceCo());
     }
 
-    private IEnumerator TransitionToMaintenance()
+    private IEnumerator ReturnToMaintenanceCo()
     {
-        // TODO: 보상 씬 만든 후 그쪽으로 이동
         yield return new WaitForSeconds(2.0f);
-        Controller.ChangeState(new MaintenanceState(Controller));
+        GameManager.Instance.EndBattlePhase();
     }
 }

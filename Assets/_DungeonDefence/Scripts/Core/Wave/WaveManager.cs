@@ -16,7 +16,6 @@ public class WaveManager : Singleton<WaveManager>
     private int totalEnemiesInCurrentWave;
     private int aliveEnemiesCount;
     private bool isWaveInProgress;
-
     private Coroutine spawnCoroutine;
 
     private void Start()
@@ -40,9 +39,7 @@ public class WaveManager : Singleton<WaveManager>
         this.totalEnemiesInCurrentWave = waveData.GetTotalEnemyCount();
         this.aliveEnemiesCount = this.totalEnemiesInCurrentWave;
         this.isWaveInProgress = true;
-
-        Debug.Log($"[WaveManager] 웨이브 {currentWaveIndex} 시작 (총 적 수: {totalEnemiesInCurrentWave})");
-
+        
         NotifyUI();
 
         if (spawnCoroutine != null) StopCoroutine(spawnCoroutine);
@@ -65,8 +62,6 @@ public class WaveManager : Singleton<WaveManager>
                 yield return new WaitForSeconds(group.spawnInterval);
             }
         }
-        
-        spawnCoroutine = null;
     }
 
     private void HandleUnitDead(Unit unit)

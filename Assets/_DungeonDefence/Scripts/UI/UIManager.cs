@@ -38,6 +38,9 @@ public class UIManager : Singleton<UIManager>
                 currentPop = ally;
                 hudView.UpdateResources(currentGold, currentPop, maxPop);
             };
+            
+            UnitManager.Instance.OnCoreHpChanged += (cur, max) => 
+                hudView.UpdateCoreInfo(cur, max);
         }
 
         // 코어 체력
@@ -69,6 +72,17 @@ public class UIManager : Singleton<UIManager>
                 inventoryView.ToggleInventory();
             });
         }
+
+        // 전투 시작 버튼
+        if (hudView != null && hudView.StartWaveButton != null)
+        {
+            hudView.StartWaveButton.onClick.RemoveAllListeners();
+            hudView.StartWaveButton.onClick.AddListener(() => 
+            {
+                Debug.Log("[UI] 전투 시작 버튼 클릭됨");
+                GameManager.Instance.StartBattlePhase();
+            });
+        }
     }
 
     private void InitializeUI()
@@ -92,13 +106,13 @@ public class UIManager : Singleton<UIManager>
     
     public void SwitchToMaintenancePhase()
     {
-        hudView.SetPhaseUI(false); 
+        hudView?.SetPhaseUI(false); 
         // inventoryView.CloseInventory(); 
     }
 
     public void SwitchToBattlePhase()
     {
-        hudView.SetPhaseUI(true);
-        inventoryView.CloseInventory();
+        hudView?.SetPhaseUI(true);
+        inventoryView?.CloseInventory();
     }
 }

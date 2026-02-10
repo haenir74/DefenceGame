@@ -50,11 +50,20 @@ public class GameManager : Singleton<GameManager>
         {
             ClearSelection();
             int waveIndex = CurrentWave - 1;
-
-            var battleDTO = new BattleStateDTO(CurrentWave);
+            var battleDTO = new BattleStateDTO(waveIndex);
             controller.ChangeState(new BattleState(controller, battleDTO));
-            CurrentWave++;
         }
+        else
+        {
+            Debug.LogWarning("정비 페이즈가 아닐 때는 전투를 시작할 수 없습니다.");
+        }
+    }
+
+    public void EndBattlePhase()
+    {
+        EconomyManager.Instance?.AddGold(100);
+        CurrentWave++;
+        controller.ChangeState(new MaintenanceState(controller));
     }
 
     // Helper
