@@ -70,4 +70,9 @@ public class GridManager : Singleton<GridManager>
         }
         return neighbors;
     }
+
+    public void ChangeTile(GridNode node, TileDataSO newData)
+    {
+        controller?.ChangeTile(node, newData);
+    }
 }

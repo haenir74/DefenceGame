@@ -1,71 +1,119 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Panex.Inventory;
+
 
 public class InventoryUIView : MonoBehaviour
 {
-    [Header("Container")]
-    [SerializeField] private RectTransform containerRect;
-    [SerializeField] private float slideDuration = 0.3f;
+    [Header("Inv Container")]
+    [SerializeField] private RectTransform drawerRect;
+    [SerializeField] private float openY = 0f;
+    [SerializeField] private float closedY = -250f;
+    [SerializeField] private float duration = 0.3f;
     
     [Header("Tabs")]
     [SerializeField] private Button unitTabButton;
     [SerializeField] private Button tileTabButton;
-    [SerializeField] private GameObject unitListObj;
-    [SerializeField] private GameObject tileListObj;
+    [SerializeField] private Image unitTabImage;
+    [SerializeField] private Image tileTabImage;
 
-    [Header("Close")]
-    [SerializeField] private Button closeButton;
+    [Header("Lists")]
+    [SerializeField] private GameObject unitScrollView;
+    [SerializeField] private GameObject tileScrollView;
+
+    [Header("Toggle Button")]
+    [SerializeField] private Button toggleButton;
 
     private bool isOpen = false;
-    private float hiddenY = -200f;
-    private float shownY = 0f;
+    private Coroutine slideCoroutine;
 
     private void Start()
     {
+        if (drawerRect != null)
+        {
+            Vector2 pos = drawerRect.anchoredPosition;
+            pos.y = closedY;
+            drawerRect.anchoredPosition = pos;
+        }
+
         isOpen = false;
-        ShowUnitTab();
 
-        unitTabButton.onClick.AddListener(ShowUnitTab);
-        tileTabButton.onClick.AddListener(ShowTileTab);
-        if (closeButton != null) closeButton.onClick.AddListener(CloseInventory);
-
-        if(containerRect) containerRect.gameObject.SetActive(false);
+        unitTabButton.onClick.AddListener(OnUnitTabClicked);
+        tileTabButton.onClick.AddListener(OnTileTabClicked);
+        OnUnitTabClicked();
     }
 
     public void ToggleInventory()
     {
-        if (isOpen) CloseInventory();
-        else OpenInventory();
+        if (isOpen) Close();
+        else Open();
     }
 
-    public void OpenInventory()
+    public void Open()
     {
+        if (isOpen) return;
         isOpen = true;
-        if(containerRect) 
-        {
-            containerRect.gameObject.SetActive(true);
-        }
+        StopSlide();
+        slideCoroutine = StartCoroutine(SlideRoutine(openY));
     }
 
-    public void CloseInventory()
+    public void Close()
     {
+        if (!isOpen) return;
         isOpen = false;
-        if(containerRect) 
+        StopSlide();
+        slideCoroutine = StartCoroutine(SlideRoutine(closedY));
+    }
+
+    private void OnUnitTabClicked()
+    {
+        ShowTab(true);
+        if (!isOpen) Open(); 
+    }
+
+    private void OnTileTabClicked()
+    {
+        ShowTab(false);
+        if (!isOpen) Open();
+    }
+
+    private void ShowTab(bool isUnit)
+    {
+        if (unitScrollView) unitScrollView.SetActive(isUnit);
+        if (tileScrollView) tileScrollView.SetActive(!isUnit);
+
+        if (unitTabImage) unitTabImage.color = isUnit ? Color.white : Color.gray;
+        if (tileTabImage) tileTabImage.color = !isUnit ? Color.white : Color.gray;
+    }
+
+    private void StopSlide()
+    {
+        if (slideCoroutine != null) StopCoroutine(slideCoroutine);
+    }
+
+    private IEnumerator SlideRoutine(float targetY)
+    {
+        float startY = drawerRect.anchoredPosition.y;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
         {
-            containerRect.gameObject.SetActive(false);
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            t = t * (2 - t);
+
+            float currentY = Mathf.Lerp(startY, targetY, t);
+            
+            Vector2 pos = drawerRect.anchoredPosition;
+            pos.y = currentY;
+            drawerRect.anchoredPosition = pos;
+
+            yield return null;
         }
-    }
 
-    private void ShowUnitTab()
-    {
-        unitListObj.SetActive(true);
-        tileListObj.SetActive(false);
-    }
-
-    private void ShowTileTab()
-    {
-        unitListObj.SetActive(false);
-        tileListObj.SetActive(true);
+        Vector2 finalPos = drawerRect.anchoredPosition;
+        finalPos.y = targetY;
+        drawerRect.anchoredPosition = finalPos;
     }
 }

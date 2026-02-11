@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Settings_Unit
   m_EditorClassIdentifier: 
   Capacity: 99
-  ContainerWidth: 800
-  ContainerHeight: 100
-  Padding: 0
-  Columns: 20
+  ContainerWidth: 100
+  ContainerHeight: 200
+  Padding: 10
+  Columns: 99
   Rows: 1
   AutoSpacing: 0
   Spacing: {x: 10, y: 0}
-  SlotSize: {x: 120, y: 180}
+  SlotSize: {x: 240, y: 180}
   ContainerBackground: {fileID: 0}
   SlotBackground: {fileID: 0}
   SlotHighlight: {fileID: 0}

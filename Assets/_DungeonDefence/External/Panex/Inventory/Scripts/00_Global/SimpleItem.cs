@@ -15,5 +15,6 @@ namespace Panex.Inventory
         public string Name => itemName;
         public string Description => description;
         public Sprite Icon => icon;
+        public int MaxStack => 999;        
     }
 }

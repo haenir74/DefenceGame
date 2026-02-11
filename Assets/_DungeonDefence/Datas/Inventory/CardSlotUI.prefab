@@ -296,6 +296,7 @@ GameObject:
   - component: {fileID: 4680028713859179236}
   - component: {fileID: 4168856322075757536}
   - component: {fileID: 1918752374308825546}
+  - component: {fileID: -4651880411428261721}
   m_Layer: 5
   m_Name: CardSlotUI
   m_TagString: Untagged
@@ -323,7 +324,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 120, y: 180}
+  m_SizeDelta: {x: 240, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4680028713859179236
 CanvasRenderer:
@@ -375,7 +376,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267afd02292e0ad48aef40c8568e3460, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slotImage: {fileID: 0}
+  slotImage: {fileID: 4168856322075757536}
   highlightImage: {fileID: 5318358757737227482}
-  iconImage: {fileID: 0}
-  amountText: {fileID: 0}
+  iconImage: {fileID: 2072576255790264258}
+  amountText: {fileID: 7278682015642871776}
+--- !u!114 &-4651880411428261721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7411864884585469262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: 240
+  m_MinHeight: 160
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1

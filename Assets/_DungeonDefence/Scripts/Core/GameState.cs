@@ -34,29 +34,17 @@ public class MaintenanceState : GameState
     {
         if (node == null) return;
 
-        var unitToPlace = GameManager.Instance.SelectedUnitToPlace;
-        if (unitToPlace != null)
+        if (GameManager.Instance.SelectedUnitToPlace != null)
         {
-            if (InventoryManager.Instance != null && InventoryManager.Instance.TryConsumeItem(unitToPlace))
-            {
-                UnitManager.Instance.SpawnUnit(unitToPlace, node);
-                Debug.Log($"[배치 성공] {unitToPlace.Name} (인벤토리 소모)");
-                GameManager.Instance.ClearSelection(); 
-            }
-            else
-            {
-                Debug.LogWarning("배치할 유닛이 인벤토리에 부족합니다!");
-                GameManager.Instance.ClearSelection();
-            }
+            PlaceUnit(node, GameManager.Instance.SelectedUnitToPlace);
+        }
+        else if (GameManager.Instance.SelectedTileToPlace != null)
+        {
+            PlaceTile(node, GameManager.Instance.SelectedTileToPlace);
         }
         else
         {
-            var units = UnitManager.Instance.GetUnitsOnNode(node);
-            if(units.Count > 0) 
-            {
-                Debug.Log($"타일 위 유닛 수: {units.Count}");
-                foreach(var u in units) Debug.Log($"- {u.name}");
-            }
+            ShowNodeInfo(node);
         }
     }
 
@@ -66,6 +54,48 @@ public class MaintenanceState : GameState
         {
             GameManager.Instance.ClearSelection();
         }
+    }
+
+    private void PlaceUnit(GridNode node, UnitDataSO unitData)
+    {
+        if (InventoryManager.Instance.TryConsumeItem(unitData))
+        {
+            UnitManager.Instance.SpawnUnit(unitData, node);
+            Debug.Log($"[Unit] 배치 완료: {unitData.Name}");
+        }
+        else
+        {
+            Debug.LogWarning("인벤토리에 유닛이 부족합니다.");
+            GameManager.Instance.ClearSelection();
+        }
+    }
+
+    private void PlaceTile(GridNode node, TileDataSO tileData)
+    {
+        if (node.Tile != null && node.Tile.Data == tileData) return;
+        if (node == GridManager.Instance.GetCoreNode() || node == GridManager.Instance.GetSpawnNode())
+        {
+            Debug.LogWarning("시작점과 코어 타일은 교체할 수 없습니다.");
+            return;
+        }
+
+        if (InventoryManager.Instance.TryConsumeItem(tileData))
+        {
+            GridManager.Instance.ChangeTile(node, tileData);
+            Debug.Log($"[Tile] 교체 완료: ({node.X}, {node.Y}) -> {tileData.Name}");
+        }
+        else
+        {
+            Debug.LogWarning("인벤토리에 타일이 부족합니다.");
+            GameManager.Instance.ClearSelection();
+        }
+    }
+
+    private void ShowNodeInfo(GridNode node)
+    {
+        var units = UnitManager.Instance.GetUnitsOnNode(node);
+        string tileName = node.Tile != null ? node.Tile.Data.Name : "Empty";
+        Debug.Log($"[Info] 타일: {tileName} | 유닛 수: {units.Count}");
     }
 }
 

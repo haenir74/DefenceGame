@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
   m_Name: Unit_Kobold
   m_EditorClassIdentifier: 
+  unitIdNumber: 1001
   unitId: 1001
   unitName: "\uCF54\uBCFC\uD2B8"
   description: 

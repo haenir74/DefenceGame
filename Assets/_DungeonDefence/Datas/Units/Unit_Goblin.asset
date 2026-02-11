@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
   m_Name: Unit_Goblin
   m_EditorClassIdentifier: 
+  unitIdNumber: 1002
   unitId: 1002
   unitName: "\uACE0\uBE14\uB9B0"
   description: 

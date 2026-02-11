@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
   m_Name: Unit_Golem
   m_EditorClassIdentifier: 
+  unitIdNumber: 1003
   unitId: 1003
   unitName: "\uACE8\uB818"
   description: 

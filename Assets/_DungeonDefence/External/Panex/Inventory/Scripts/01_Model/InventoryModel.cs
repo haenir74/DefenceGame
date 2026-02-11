@@ -24,34 +24,40 @@ namespace Panex.Inventory.Model {
         public int AddItem(IStorable item, int amount)
         {
             int remaining = amount;
-
+            
             for (int i = 0; i < Capacity; i++)
             {
                 if (remaining <= 0) break;
                 
                 if (!Slots[i].IsEmpty && Slots[i].ItemData.ID == item.ID)
                 {
-                    Slots[i].AddItem(remaining); 
-                    remaining = 0; 
+                    int currentAmount = Slots[i].Amount;
+                    int maxStack = item.MaxStack;
+
+                    if (currentAmount < maxStack)
+                    {
+                        int space = maxStack - currentAmount;
+                        int amountToAdd = Mathf.Min(space, remaining);
+
+                        Slots[i].AddItem(amountToAdd);
+                        remaining -= amountToAdd;
+                    }
                 }
             }
-
             for (int i = 0; i < Capacity; i++)
             {
                 if (remaining <= 0) break;
-                
+
                 if (Slots[i].IsEmpty)
                 {
-                    Slots[i].SetItem(item, remaining);
-                    remaining = 0;
+                    int maxStack = item.MaxStack;
+                    int amountToAdd = Mathf.Min(maxStack, remaining);
+
+                    Slots[i].SetItem(item, amountToAdd);
+                    remaining -= amountToAdd;
                 }
             }
-
-            if (remaining != amount)
-            {
-                OnInventoryUpdated?.Invoke(Slots);
-            }
-
+            if (remaining != amount) OnInventoryUpdated?.Invoke(Slots);
             return remaining;
         }
 
@@ -61,11 +67,17 @@ namespace Panex.Inventory.Model {
             
             if (Slots[index].IsEmpty)
             {
-                Slots[index].SetItem(item, amount);
+                int addAmount = Mathf.Min(amount, item.MaxStack);
+                Slots[index].SetItem(item, addAmount);
             }
             else if (Slots[index].ItemData.ID == item.ID)
             {
-                Slots[index].AddItem(amount);
+                int space = item.MaxStack - Slots[index].Amount;
+                int addAmount = Mathf.Min(amount, space);
+                if (addAmount > 0)
+                {
+                    Slots[index].AddItem(addAmount);
+                }
             }
             
             OnInventoryUpdated?.Invoke(Slots);

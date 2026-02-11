@@ -7,17 +7,10 @@ using Panex.Inventory.Controller;
 public class InventoryManager : Singleton<InventoryManager>
 {
     [Header("Settings")]
-    [SerializeField] private Settings unitInventorySettings; 
-    [SerializeField] private Settings tileInventorySettings;
-    [SerializeField] private InventoryController unitInventoryPrefab;
-    [SerializeField] private InventoryController tileInventoryPrefab;
-
-    [Header("UI")]
-    [SerializeField] private Transform unitListParent;
-    [SerializeField] private Transform tileListParent;
-
-    private Inventory unitInventory;
-    private Inventory tileInventory;
+    [SerializeField] private InventoryController unitInventoryController;
+    [SerializeField] private InventoryController tileInventoryController;
+    [SerializeField] private Settings unitSettings; 
+    [SerializeField] private Settings tileSettings;
 
     protected override void Awake()
     {
@@ -27,93 +20,58 @@ public class InventoryManager : Singleton<InventoryManager>
 
     private void Initialize()
     {
-        unitInventory = CreateListInventory("UnitInventory", unitInventorySettings, unitInventoryPrefab, unitListParent);
-        tileInventory = CreateListInventory("TileInventory", tileInventorySettings, tileInventoryPrefab, tileListParent);
+        if (unitInventoryController != null && unitSettings != null)
+        {
+            unitInventoryController.Configure(unitSettings);
+        }
+        if (tileInventoryController != null && tileSettings != null)
+        {
+            tileInventoryController.Configure(tileSettings);
+        }
     }
 
-    private Inventory CreateListInventory(string id, Settings settings, InventoryController prefab, Transform parent)
+    private InventoryController GetControllerFor(IStorable item)
     {
-        var inv = new Inventory(id, settings, prefab, parent);
+        if (item == null) return null;
 
-        var helper = parent.GetComponent<InventoryListHelper>();
-        if (helper == null)
+        if (item is UnitDataSO)
         {
-            helper = parent.gameObject.AddComponent<InventoryListHelper>();
+            return unitInventoryController;
         }
-
-        inv.OnSlotClicked += HandleSlotClicked;
-        inv.OnInventoryChanged += () => helper.RefreshSlots();
-
-        inv.Open();
-        helper.RefreshSlots();
-
-        return inv;
+        else if (item is TileDataSO)
+        {
+            return tileInventoryController;
+        }
+        return null;
     }
 
     public void AddItem(IStorable item, int amount = 1)
     {
-        if (item is UnitDataSO)
+        var controller = GetControllerFor(item);
+        
+        if (controller != null)
         {
-            unitInventory?.AddItem(item, amount);
-            Debug.Log($"[Unit List] {item.Name} 획득");
-        }
-        else if (item is TileDataSO)
-        {
-            tileInventory?.AddItem(item, amount);
-            Debug.Log($"[Tile List] {item.Name} 획득");
-        }
-    }
-
-    public void RemoveItem(IStorable item, int amount = 1)
-    {
-        if (item is UnitDataSO)
-            unitInventory?.RemoveItem(item, amount);
-        else if (item is TileDataSO)
-            tileInventory?.RemoveItem(item, amount);
-    }
-
-    public void ToggleAllInventories()
-    {
-        unitInventory?.Toggle();
-        tileInventory?.Toggle();
-    }
-
-    private void HandleSlotClicked(IStorable item, int amount)
-    {
-        if (item is UnitDataSO unitData)
-        {
-            Debug.Log($"[Unit] 유닛 배치: {unitData.Name}");
-            GameManager.Instance.SelectUnitToPlace(unitData);
-        }
-        else if (item is TileDataSO tileData)
-        {
-            Debug.Log($"[Tile] 타일 배치: {tileData.Name}");
-            //GameManager.Instance.SelectUnitToPlace(tileData);
+            int remaining = controller.AddItem(item, amount);
         }
     }
 
     public bool TryConsumeItem(IStorable item, int amount = 1)
     {
-        Inventory targetInv = null;
-        if (item is UnitDataSO) targetInv = unitInventory;
-        else if (item is TileDataSO) targetInv = tileInventory;
-
-        if (targetInv != null)
+        var controller = GetControllerFor(item);
+        if (controller != null)
         {
-            int currentCount = targetInv.GetItemAmount(item.ID);
-            if (currentCount >= amount)
-            {
-                targetInv.RemoveItem(item, amount);
-                return true;
-            }
+            return controller.RemoveItem(item, amount);
         }
         return false;
     }
 
-    protected override void OnDestroy()
+    public int GetItemAmount(IStorable item)
     {
-        base.OnDestroy();
-        if (unitInventory != null) unitInventory.Destroy();
-        if (tileInventory != null) tileInventory.Destroy();
+        var controller = GetControllerFor(item);
+        if (controller != null)
+        {
+            return controller.GetItemAmount(item.ID);
+        }
+        return 0;
     }
 }

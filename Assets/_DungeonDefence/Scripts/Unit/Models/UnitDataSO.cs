@@ -10,7 +10,7 @@ public enum UnitCategory
     Core
 }
 
-[CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Unit/Unit Data")]
+[CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Datas/Unit Data")]
 public class UnitDataSO : ScriptableObject, IStorable
 {
     [Header("Basic Info")]
@@ -51,5 +51,5 @@ public class UnitDataSO : ScriptableObject, IStorable
     public string Name => unitName;
     public string Description => description;
     public Sprite Icon => icon;
-    public int MaxStack => 1;
+    public int MaxStack => 999;
 }

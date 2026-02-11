@@ -8,14 +8,18 @@ public class GameManager : Singleton<GameManager>
 
     private GameController controller;
 
-    public UnitDataSO SelectedUnitToPlace { get; private set; }
     public int CurrentWave { get; private set; } = 1;
+    public UnitDataSO SelectedUnitToPlace { get; private set; }
+    public TileDataSO SelectedTileToPlace { get; private set; }
+    public bool IsMaintenancePhase => controller != null && controller.CurrentState is MaintenanceState;
 
     protected override void Awake()
     {
         base.Awake();
-        this.controller = GetComponent<GameController>();
-        if (this.controller == null) this.controller = FindObjectOfType<GameController>();
+        if (!TryGetComponent(out controller))
+        {
+            controller = FindObjectOfType<GameController>();
+        }
     }
 
     private IEnumerator Start()
@@ -33,49 +37,70 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    private void SpawnCore()
-    {
-        if (coreUnit == null) return;
-        GridNode coreNode = GridManager.Instance.GetCoreNode();
-        if (coreNode != null)
-        {
-            Unit core = UnitManager.Instance.SpawnUnit(coreUnit, coreNode);
-            FocusCamera(coreNode);
-        }
-    }
-
+    // ** Game Flow **
     public void StartBattlePhase()
     {
-        if(controller.CurrentState is MaintenanceState)
+        if (IsMaintenancePhase)
         {
             ClearSelection();
             int waveIndex = CurrentWave - 1;
             var battleDTO = new BattleStateDTO(waveIndex);
             controller.ChangeState(new BattleState(controller, battleDTO));
         }
-        else
-        {
-            Debug.LogWarning("정비 페이즈가 아닐 때는 전투를 시작할 수 없습니다.");
-        }
     }
 
     public void EndBattlePhase()
     {
+        // 추후 보상 화면 만든 뒤 추가
         EconomyManager.Instance?.AddGold(100);
         CurrentWave++;
         controller.ChangeState(new MaintenanceState(controller));
     }
 
-    // Helper
+    public void GameOver()
+    {
+        controller?.GameOver();
+    }
+    // ***
+
+    // ** Select System **
     public void SelectUnitToPlace(UnitDataSO unitData)
     {
-        if (!(controller.CurrentState is MaintenanceState)) return;
-        this.SelectedUnitToPlace = unitData;
+        if (!IsMaintenancePhase) return;
+
+        SelectedUnitToPlace = unitData;
+        SelectedTileToPlace = null; 
+        
+        Debug.Log($"[GameManager] 유닛 선택: {unitData.Name}");
+    }
+
+    public void SelectTileToPlace(TileDataSO tileData)
+    {
+        if (!IsMaintenancePhase) return;
+
+        SelectedTileToPlace = tileData;
+        SelectedUnitToPlace = null;
+
+        Debug.Log($"[GameManager] 타일 선택: {tileData.Name}");
     }
 
     public void ClearSelection()
     {
-        this.SelectedUnitToPlace = null;
+        SelectedUnitToPlace = null;
+        SelectedTileToPlace = null;
+    }
+    // ***
+
+    // ** Helper **
+    private void SpawnCore()
+    {
+        if (coreUnit == null) return;
+        GridNode coreNode = GridManager.Instance.GetCoreNode();
+        if (coreNode != null)
+        {
+            UnitManager.Instance.SpawnUnit(coreUnit, coreNode);
+            FocusCamera(coreNode);
+        }
     }
 
     public void ChangeState(BaseState<GameController> newState)
@@ -83,39 +108,28 @@ public class GameManager : Singleton<GameManager>
         controller?.ChangeState(newState);
     }
 
-    public void GameOver()
-    {
-        controller?.GameOver();
-    }
-
     public bool IsInState<T>() where T : GameState
     {
         return controller?.CurrentState is T;
     }
+    // Helper
 
-    // EconomyManager
+    // ** EconomyManager **
     public int Gold => EconomyManager.Instance ? EconomyManager.Instance.CurrentGold : 0;
-    public void AddGold(int amount)
-    {
-        EconomyManager.Instance?.AddGold(amount);
-    }
-    public bool TrySpendGold(int amount)
-    {
-        return EconomyManager.Instance != null && EconomyManager.Instance.TrySpendGold(amount);
-    }
+    
+    public void AddGold(int amount) => EconomyManager.Instance?.AddGold(amount);
+    
+    public bool TrySpendGold(int amount) => EconomyManager.Instance != null && EconomyManager.Instance.TrySpendGold(amount);
+    // ***
 
-    // CameraManager
-    public void FocusCamera(Vector3 targetPosition)
-    {
-        CameraManager.Instance?.FocusOn(targetPosition);
-    }
+    // ** CameraManager **
+    public void FocusCamera(Vector3 targetPosition) => CameraManager.Instance?.FocusOn(targetPosition);
+    
     public void FocusCamera(GridNode node)
     {
-        if (node != null)
-            CameraManager.Instance?.FocusOn(node.WorldPosition);
+        if (node != null) FocusCamera(node.WorldPosition);
     }
-    public void ResetCamera()
-    {
-        CameraManager.Instance?.ResetPosition();
-    }
+    
+    public void ResetCamera() => CameraManager.Instance?.ResetPosition();
+    // ***
 }

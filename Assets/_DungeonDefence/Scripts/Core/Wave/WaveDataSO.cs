@@ -11,7 +11,7 @@ public class WaveGroup
     public float initialDelay = 0.5f;
 }
 
-[CreateAssetMenu(fileName = "WaveData_01", menuName = "DungeonDefence/Wave/Wave Data")]
+[CreateAssetMenu(fileName = "WaveData_01", menuName = "DungeonDefence/Datas/Wave Data")]
 public class WaveDataSO : ScriptableObject
 {
     public int waveIndex;

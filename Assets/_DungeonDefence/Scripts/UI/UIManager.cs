@@ -107,12 +107,12 @@ public class UIManager : Singleton<UIManager>
     public void SwitchToMaintenancePhase()
     {
         hudView?.SetPhaseUI(false); 
-        // inventoryView.CloseInventory(); 
+        inventoryView.Close();
     }
 
     public void SwitchToBattlePhase()
     {
         hudView?.SetPhaseUI(true);
-        inventoryView?.CloseInventory();
+        inventoryView?.Close();
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Panex.Inventory;
 
-[CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Tiles/Tile Data")]
+[CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Datas/Tile Data")]
 public class TileDataSO : ScriptableObject, IStorable
 {
     [Header("Basic Info")]
@@ -30,5 +30,5 @@ public class TileDataSO : ScriptableObject, IStorable
     public string Name => tileName;
     public string Description => description;
     public Sprite Icon => icon;
-    public int MaxStack => 1;
+    public int MaxStack => 999;
 }

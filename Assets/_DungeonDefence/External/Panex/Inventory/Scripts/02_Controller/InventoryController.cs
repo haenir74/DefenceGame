@@ -19,11 +19,6 @@ namespace Panex.Inventory.Controller {
         public event Action<IStorable, int> OnSlotClicked;
         public event Action<IStorable, Vector2> OnItemDroppedOutside;
 
-        private void Awake()
-        {
-            if (settings != null) Initialize();
-        }
-
         private void OnDestroy()
         {
             if (model != null) model.OnInventoryUpdated -= HandleModelUpdate;
@@ -55,17 +50,21 @@ namespace Panex.Inventory.Controller {
 
             // 2. View 연결
             if (view == null) view = GetComponentInChildren<InventoryView>();
-            view.InitializeUI(settings);
+            if (view != null)
+            {
+                view.InitializeUI(settings);
 
-            view.OnSwapRequest -= SwapSlots;
-            view.OnTransferRequest -= HandleTransferRequest;
-            view.OnClickSlot -= HandleViewClick;
-            view.OnDragEnd -= HandleDragEnd;            
+                view.OnSwapRequest -= SwapSlots;
+                view.OnTransferRequest -= HandleTransferRequest;
+                view.OnClickSlot -= HandleViewClick;
+                view.OnDragEnd -= HandleDragEnd;            
 
-            view.OnSwapRequest += SwapSlots;                    // 드래그 -> 스왑
-            view.OnTransferRequest += HandleTransferRequest;    // 다른 인벤토리로 이동
-            view.OnClickSlot += HandleViewClick;                // 클릭 -> 외부 알림
-            view.OnDragEnd += HandleDragEnd;                    // 드래그 종료 -> 외부 알림
+                view.OnSwapRequest += SwapSlots;
+                view.OnTransferRequest += HandleTransferRequest;
+                view.OnClickSlot += HandleViewClick;
+                view.OnDragEnd += HandleDragEnd;
+            }
+            HandleModelUpdate(model.Slots);
         }
 
 
@@ -143,7 +142,7 @@ namespace Panex.Inventory.Controller {
 
         // 데이터 접근
         public int Capacity => settings != null ? settings.Capacity : 0;
-        public Panex.Inventory.Model.Slot GetSlot(int index) => model?.GetSlot(index);
+        public Slot GetSlot(int index) => model?.GetSlot(index);
         public int GetItemAmount(int itemId) => model != null ? model.GetItemAmount(itemId) : 0;
 
         // 아이템 조작
@@ -184,11 +183,10 @@ namespace Panex.Inventory.Controller {
             if (index == -1) return false;
             
             int remaining = amount;
-            // 여러 슬롯에 나뉘어 있을 경우를 대비해 반복 처리
             while (remaining > 0)
             {
-                index = FindIndex(item); // 매번 위치 재검색 (삭제 후 위치가 바뀔 수 있으므로)
-                if (index == -1) return false; // 더 이상 아이템이 없음
+                index = FindIndex(item);
+                if (index == -1) return false;
 
                 var slot = model.GetSlot(index);
                 int take = Mathf.Min(slot.Amount, remaining);
