@@ -12,12 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
   m_Name: AllyDefault
   m_EditorClassIdentifier: 
+  unitIdNumber: 0
+  unitId: 
   unitName: Ally_Default
-  prefab: {fileID: 8302592700147644995, guid: d6b98baa1127a134c87f1187fc10e9e9, type: 3}
+  description: 
   icon: {fileID: 0}
-  maxHp: 100
-  moveSpeed: 5
-  attackDamage: 10
-  attackRange: 1
-  attackInterval: 1
+  prefab: {fileID: 8302592700147644995, guid: d6b98baa1127a134c87f1187fc10e9e9, type: 3}
   isPlayerTeam: 1
+  category: 0
+  maxHp: 100
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 5
+  basePower: 10
+  attackInterval: 1
+  skill: {fileID: 0}
+  dispatchEfficiency: 1
+  costs:
+  - type: 0
+    amount: 100
+  populationCost: 0

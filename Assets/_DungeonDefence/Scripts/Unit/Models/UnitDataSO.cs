@@ -11,7 +11,7 @@ public enum UnitCategory
 }
 
 [CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Datas/Unit Data")]
-public class UnitDataSO : ScriptableObject, IStorable
+public class UnitDataSO : ScriptableObject, IStorable, ITradable
 {
     [Header("Basic Info")]
     public int unitIdNumber;
@@ -43,9 +43,10 @@ public class UnitDataSO : ScriptableObject, IStorable
     public float dispatchEfficiency = 1.0f;
 
     [Header("Economy (Player Unit)")]
-    public int cost;
+    [SerializeField] private List<ResourceCost> costs;
+    public List<ResourceCost> GetCosts() => costs;
     public int populationCost;
-
+    
     // IStorable
     public int ID => unitIdNumber;
     public string Name => unitName;

@@ -24,6 +24,10 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator Start()
     {
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.OnClickNode += OnGridNodeClicked;
+        }
         yield return null;
         while (GridManager.Instance == null || GridManager.Instance.GetCoreNode() == null)
         {
@@ -35,6 +39,12 @@ public class GameManager : Singleton<GameManager>
         {
             controller.ChangeState(new MaintenanceState(controller));
         }
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        InputManager.Instance.OnClickNode -= OnGridNodeClicked;
     }
 
     // ** Game Flow **
@@ -49,11 +59,29 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    public void EndBattlePhase()
+    public void EndBattlePhase(bool isWin = true)
     {
-        // 추후 보상 화면 만든 뒤 추가
-        EconomyManager.Instance?.AddGold(100);
-        CurrentWave++;
+        if (isWin)
+        {
+            if (RewardManager.Instance != null)
+            {
+                RewardManager.Instance.ProcessWaveClear(CurrentWave);
+            }
+            else
+            {
+                EconomyManager.Instance?.AddCurrency(CurrencyType.Gold, 100);
+                SwitchToMaintenancePhase();
+            }
+        }
+        else
+        {
+            GameOver();
+        }
+    }
+    
+    public void SwitchToMaintenancePhase()
+    {
+        CurrentWave++; 
         controller.ChangeState(new MaintenanceState(controller));
     }
 
@@ -115,11 +143,51 @@ public class GameManager : Singleton<GameManager>
     // Helper
 
     // ** EconomyManager **
-    public int Gold => EconomyManager.Instance ? EconomyManager.Instance.CurrentGold : 0;
-    
-    public void AddGold(int amount) => EconomyManager.Instance?.AddGold(amount);
-    
-    public bool TrySpendGold(int amount) => EconomyManager.Instance != null && EconomyManager.Instance.TrySpendGold(amount);
+    public int GetResourceAmount(CurrencyType type)
+    {
+        return EconomyManager.Instance.GetCurrencyAmount(type);
+    }
+    public int GetCurrentGold()
+    {
+        return GetResourceAmount(CurrencyType.Gold);
+    }
+
+    public void AddResource(CurrencyType type, int amount)
+    {
+        EconomyManager.Instance.AddCurrency(type, amount);
+    }
+    public void AddGold(int amount)
+    {
+        AddResource(CurrencyType.Gold, amount);
+    }
+
+    public bool CanAfford(List<ResourceCost> costs)
+    {
+        return EconomyManager.Instance.CanAfford(costs);
+    }
+
+    public bool CanAfford(int amount)
+    {
+        var cost = new ResourceCost { type = CurrencyType.Gold, amount = amount };
+        return CanAfford(new List<ResourceCost> { cost });
+    }
+
+    public bool TrySpend(List<ResourceCost> costs)
+    {
+        return EconomyManager.Instance.TrySpend(costs);
+    }
+
+    public bool TrySpend(CurrencyType type, int amount)
+    {
+        var cost = new ResourceCost { type = type, amount = amount };
+        return TrySpend(new List<ResourceCost> { cost });
+    }
+
+    public bool TrySpend(int amount)
+    {
+        var cost = new ResourceCost { type = CurrencyType.Gold, amount = amount };
+        return TrySpend(new List<ResourceCost> { cost });
+    }
     // ***
 
     // ** CameraManager **
@@ -131,5 +199,53 @@ public class GameManager : Singleton<GameManager>
     }
     
     public void ResetCamera() => CameraManager.Instance?.ResetPosition();
+    // ***
+
+    // ** Interaction Logic **
+    public void OnGridNodeClicked(GridNode node)
+    {
+        if (!IsMaintenancePhase || node == null) return;
+
+        if (SelectedUnitToPlace != null)
+        {
+            if (node.CanPlaceUnit)
+            {
+                bool success = UnitManager.Instance.SpawnUnit(SelectedUnitToPlace, node);
+                
+                if (success)
+                {
+                    Debug.Log($"[GameManager] {SelectedUnitToPlace.Name} 배치 완료.");
+                    InventoryManager.Instance.TryConsumeItem(SelectedUnitToPlace, 1);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("이 타일에는 유닛을 배치할 수 없습니다. (장애물 또는 이미 있음)");
+            }
+        }
+        else if (SelectedTileToPlace != null)
+        {
+            if (node.UnitObject != null)
+            {
+                Debug.LogWarning("유닛이 있는 곳의 타일은 바꿀 수 없습니다.");
+                return;
+            }
+
+            if (node.CurrentTileData != null && node.CurrentTileData.ID == SelectedTileToPlace.ID)
+            {
+                return;
+            }
+
+            if (node.CurrentTileData != null && !node.CurrentTileData.IsDefaultTile)
+            {
+                Debug.Log($"[GameManager] 기존 타일({node.CurrentTileData.Name}) 회수.");
+                InventoryManager.Instance.AddItem(node.CurrentTileData, 1);
+            }
+
+            GridManager.Instance.ChangeTile(node, SelectedTileToPlace);
+            InventoryManager.Instance.TryConsumeItem(SelectedTileToPlace, 1);
+            ClearSelection();
+        }
+    }
     // ***
 }

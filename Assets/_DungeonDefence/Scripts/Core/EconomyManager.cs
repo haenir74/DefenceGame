@@ -5,43 +5,83 @@ using System;
 
 public class EconomyManager : Singleton<EconomyManager>
 {
+    private Dictionary<CurrencyType, int> currencies = new Dictionary<CurrencyType, int>();
+    public event Action<CurrencyType, int> OnCurrencyChanged;
+
     [Header("Settings")]
     [SerializeField] private int startingGold = 100;
 
-    public int CurrentGold { get; private set; }
-
-    public event Action<int> OnGoldChanged;
+    protected override void Awake()
+    {
+        base.Awake();
+        Initialize();
+    }
 
     private void Start()
     {
-        this.CurrentGold = this.startingGold;
-        NotifyGoldChanged();
+        AddCurrency(CurrencyType.Gold, startingGold);
     }
 
-    public void AddGold(int amount)
+    private void Initialize()
     {
-        this.CurrentGold += amount;
-        NotifyGoldChanged();
-    }
-
-    public bool CanAfford(int amount)
-    {
-        return this.CurrentGold >= amount;
-    }
-
-    public bool TrySpendGold(int amount)
-    {
-        if (CanAfford(amount))
+        foreach (CurrencyType type in Enum.GetValues(typeof(CurrencyType)))
         {
-            this.CurrentGold -= amount;
-            NotifyGoldChanged();
-            return true;
+            currencies[type] = 0;
         }
-        return false;
     }
 
-    private void NotifyGoldChanged()
+    public int GetCurrencyAmount(CurrencyType type)
     {
-        this.OnGoldChanged?.Invoke(this.CurrentGold);
+        if (currencies.ContainsKey(type))
+            return currencies[type];
+        return 0;
+    }
+
+    public void AddCurrency(CurrencyType type, int amount)
+    {
+        if (amount < 0) return;
+
+        if (currencies.ContainsKey(type))
+        {
+            currencies[type] += amount;
+        }
+        else
+        {
+            currencies.Add(type, amount);
+        }
+
+        OnCurrencyChanged?.Invoke(type, currencies[type]);
+    }
+
+    public bool CanAfford(List<ResourceCost> costs)
+    {
+        if (costs == null || costs.Count == 0) return true;
+
+        foreach (var cost in costs)
+        {
+            int currentAmount = GetCurrencyAmount(cost.type);
+            if (currentAmount < cost.amount)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public bool TrySpend(List<ResourceCost> costs)
+    {
+        if (!CanAfford(costs)) return false;
+        foreach (var cost in costs)
+        {
+            currencies[cost.type] -= cost.amount;
+            OnCurrencyChanged?.Invoke(cost.type, currencies[cost.type]);
+        }
+
+        return true;
+    }
+
+    internal bool CanAfford()
+    {
+        throw new NotImplementedException();
     }
 }

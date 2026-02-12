@@ -12,12 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
   m_Name: EnemyDefault
   m_EditorClassIdentifier: 
+  unitIdNumber: 0
+  unitId: 
   unitName: Enemy_Default
-  prefab: {fileID: 6117380593175443770, guid: e6c2ee7a0a28d29468b3afb78bfb3263, type: 3}
+  description: 
   icon: {fileID: 0}
-  maxHp: 50
-  moveSpeed: 0.2
-  attackDamage: 5
-  attackRange: 3
-  attackInterval: 1
+  prefab: {fileID: 6117380593175443770, guid: e6c2ee7a0a28d29468b3afb78bfb3263, type: 3}
   isPlayerTeam: 0
+  category: 0
+  maxHp: 50
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 0.2
+  basePower: 10
+  attackInterval: 1
+  skill: {fileID: 0}
+  dispatchEfficiency: 1
+  costs:
+  - type: 0
+    amount: 100
+  populationCost: 0

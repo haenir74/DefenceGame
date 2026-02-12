@@ -1,39 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using Panex.Inventory;
 
 public class ShopManager : Singleton<ShopManager>
 {
-    public event System.Action<string> OnPurchaseSuccess;
-    public event System.Action OnPurchaseFailed;
+    [SerializeField] private List<UnitDataSO> unitCatalog;
+    [SerializeField] private List<TileDataSO> tileCatalog;
+    [SerializeField] private int rerollCost = 50;
 
-    public void BuyUnit(UnitDataSO unitData)
+    public List<UnitDataSO> GetUnitCatalog() => unitCatalog;
+    public List<TileDataSO> GetTileCatalog() => tileCatalog;
+
+    public event Action<string> OnPurchaseSuccess;
+    public event Action OnPurchaseFailed;
+    public event Action OnShopRefreshed;
+    
+    public void RerollShop()
     {
-        TryBuyItem(unitData, unitData.cost);
+        if (EconomyManager.Instance.CanAfford(new List<ResourceCost>{ new ResourceCost{ type = CurrencyType.Gold, amount = rerollCost } }))
+        {
+            EconomyManager.Instance.AddCurrency(CurrencyType.Gold, -rerollCost);
+            OnShopRefreshed?.Invoke();
+        }
     }
 
-    public void BuyTile(TileDataSO tileData)
-    {
-        TryBuyItem(tileData, tileData.cost);
-    }
-
-    private void TryBuyItem(IStorable item, int cost)
+    public void TryBuyItem(ITradable item)
     {
         if (item == null) return;
-        if (EconomyManager.Instance.CanAfford(cost))
+
+        List<ResourceCost> costs = item.GetCosts();
+
+        if (EconomyManager.Instance.TrySpend(costs))
         {
-            if (EconomyManager.Instance.TrySpendGold(cost))
-            {
-                InventoryManager.Instance.AddItem(item, 1);
-                
-                Debug.Log($"[Shop] 구매 성공: {item.Name} (-{cost} G)");
-                OnPurchaseSuccess?.Invoke(item.Name);
-            }
+            InventoryManager.Instance.AddItem(item, 1);
+            OnPurchaseSuccess?.Invoke(item.Name);
         }
         else
         {
-            Debug.LogWarning("[Shop] 골드가 부족합니다.");
             OnPurchaseFailed?.Invoke();
         }
     }

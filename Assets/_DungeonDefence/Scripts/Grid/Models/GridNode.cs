@@ -18,6 +18,9 @@ public class GridNode
     public Vector3 WorldPosition => worldPosition;
     public Vector2Int Coordinate => coordinate;
 
+    public TileDataSO CurrentTileData { get; private set; }
+    public GameObject UnitObject { get; set; }
+
     public GridNode(int x, int y, Vector3 worldPosition)
     {
         this.x = x;
@@ -65,5 +68,21 @@ public class GridNode
             }
             return 0;
         }
+    }
+
+    public bool CanPlaceUnit
+    {
+        get
+        {
+            if (CurrentTileData == null || CurrentTileData.MaxUnitCapacity <= 0) return false;
+            if (UnitObject != null) return false;
+
+            return true;
+        }
+    }
+
+    public void SetTileData(TileDataSO newData)
+    {
+        CurrentTileData = newData;
     }
 }

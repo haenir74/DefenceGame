@@ -20,10 +20,7 @@ public class GameStarter : MonoBehaviour
         yield return null; 
 
         // 1. 골드 지급
-        if (EconomyManager.Instance != null)
-        {
-            EconomyManager.Instance.AddGold(startingGold);
-        }
+        GameManager.Instance?.AddGold(startingGold);
 
         // 2. 인벤토리에 유닛/타일 지급
         if (InventoryManager.Instance != null)

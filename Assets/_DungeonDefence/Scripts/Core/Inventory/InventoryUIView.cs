@@ -36,11 +36,10 @@ public class InventoryUIView : MonoBehaviour
             pos.y = closedY;
             drawerRect.anchoredPosition = pos;
         }
-
         isOpen = false;
 
-        unitTabButton.onClick.AddListener(OnUnitTabClicked);
-        tileTabButton.onClick.AddListener(OnTileTabClicked);
+        unitTabButton?.onClick.AddListener(OnUnitTabClicked);
+        tileTabButton?.onClick.AddListener(OnTileTabClicked);
         OnUnitTabClicked();
     }
 
@@ -52,6 +51,7 @@ public class InventoryUIView : MonoBehaviour
 
     public void Open()
     {
+        this.gameObject.SetActive(true); 
         if (isOpen) return;
         isOpen = true;
         StopSlide();

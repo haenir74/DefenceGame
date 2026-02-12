@@ -1,16 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Panex.Inventory;
 
 public enum CurrencyType
 {
     Gold,
 }
 
-public interface ITradable
+[System.Serializable]
+public struct ResourceCost
 {
-    string ItemId { get; }
-    string Name { get; }
-    Sprite Icon { get; }
-    Dictionary<CurrencyType, int> GetCosts();
+    public CurrencyType type;
+    public int amount;
+}
+
+public interface ITradable : IStorable
+{
+    List<ResourceCost> GetCosts();
 }

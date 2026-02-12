@@ -4,7 +4,7 @@ using UnityEngine;
 using Panex.Inventory;
 
 [CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Datas/Tile Data")]
-public class TileDataSO : ScriptableObject, IStorable
+public class TileDataSO : ScriptableObject, IStorable, ITradable
 {
     [Header("Basic Info")]
     public int tileIdNumber;
@@ -19,10 +19,13 @@ public class TileDataSO : ScriptableObject, IStorable
 
     [Header("Game Logic")]
     public int attractivenessBonus;
+    public int MaxUnitCapacity = 1;
+    public bool IsDefaultTile => tileIdNumber == 0;
     // public SkillDataSO tileEffect; // 타일을 밟았을 때 지속 효과
 
     [Header("Economy")]
-    public int cost;
+    [SerializeField] private List<ResourceCost> costs;
+    public List<ResourceCost> GetCosts() => costs;
     public int sellPrice;
 
     // IStorable

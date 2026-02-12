@@ -28,5 +28,7 @@ MonoBehaviour:
   attackInterval: 1
   skill: {fileID: 11400000, guid: a2495d642fb912f40a56d1e4c4274d93, type: 2}
   dispatchEfficiency: 0.5
-  cost: 100
+  costs:
+  - type: 0
+    amount: 100
   populationCost: 1
