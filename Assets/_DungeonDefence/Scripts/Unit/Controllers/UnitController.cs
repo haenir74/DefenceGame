@@ -104,13 +104,14 @@ public class UnitController : MonoBehaviour
         return activeUnits.FirstOrDefault(u => 
             u.Coordinate == coord && 
             !u.IsDead && 
-            u.IsPlayerTeam != myTeam
+            u.IsPlayerTeam != myTeam &&
+            !u.IsDispatched
         );
     }
 
     public int GetEnemyCount()
     {
-        return activeUnits.Count(u => !u.IsPlayerTeam && !u.IsDead);
+        return activeUnits.Count(u => !u.IsPlayerTeam && !u.IsDead && !u.IsDispatched);
     }
     
     public List<Unit> GetAllUnits() => activeUnits;

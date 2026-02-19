@@ -44,7 +44,10 @@ public class GameManager : Singleton<GameManager>
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        InputManager.Instance.OnClickNode -= OnGridNodeClicked;
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.OnClickNode -= OnGridNodeClicked;
+        }
     }
 
     // ** Game Flow **

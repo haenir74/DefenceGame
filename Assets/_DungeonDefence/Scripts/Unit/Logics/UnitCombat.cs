@@ -40,7 +40,8 @@ public class UnitCombat : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
-        if (IsDead) return;
+        if (IsDead || (unit != null && unit.IsDispatched)) return;
+
         currentHp -= amount;
         OnHpChanged?.Invoke(this.currentHp);
 
@@ -69,6 +70,8 @@ public class UnitCombat : MonoBehaviour
 
     public void Attack(Unit target)
     {
+        if (unit != null && unit.IsDispatched) return;
+
         if (attackTimer > 0 || target == null || target.IsDead) return;
         target.Combat.TakeDamage(data.basePower);
         attackTimer = data.attackInterval;

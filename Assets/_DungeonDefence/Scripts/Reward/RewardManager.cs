@@ -7,40 +7,46 @@ public class RewardManager : Singleton<RewardManager>
     [SerializeField] private int baseGoldPerWave = 100;
     [SerializeField] private int goldIncrementPerWave = 50;
 
-    private float GetCurrentDispatchEfficiency()
-    {
-        // 추후 DispatchManager.Instance.GetEfficiency()로 대체
-        return 1.0f; 
-    }
-
     public void ProcessWaveClear(int clearedWaveIndex)
     {
         int baseGold = CalculateBaseReward(clearedWaveIndex);
-        float efficiency = GetCurrentDispatchEfficiency();
         
-        int bonusGold = Mathf.RoundToInt(baseGold * (efficiency - 1.0f));
-        int totalGold = baseGold + bonusGold;
-
-        EconomyManager.Instance?.AddCurrency(CurrencyType.Gold, totalGold);
-        Debug.Log($"[Reward] Wave {clearedWaveIndex} 보상 지급: {totalGold}G (기본 {baseGold} + 보너스 {bonusGold})");
-
-        if (rewardPopup != null)
+        int dispatchBonus = 0;
+        if (DispatchManager.Instance != null)
         {
-            rewardPopup.ShowReward(clearedWaveIndex, baseGold, bonusGold);
-            
-            rewardPopup.OnConfirm -= () => 
-            {
-                CompleteRewardPhase();
-            };
-            rewardPopup.OnConfirm += () => 
-            {
-                CompleteRewardPhase();
-            };
+            dispatchBonus = DispatchManager.Instance.CalculateDispatchBonus();
         }
         else
         {
+            Debug.LogWarning("[RewardManager] DispatchManager가 존재하지 않습니다.");
+        }
+
+        int totalGold = baseGold + dispatchBonus;
+
+        EconomyManager.Instance?.AddCurrency(CurrencyType.Gold, totalGold);
+        Debug.Log($"[Reward] Wave {clearedWaveIndex} 보상 지급: 합계 {totalGold}G (기본 {baseGold} + 파견 {dispatchBonus})");
+        
+        if (rewardPopup != null)
+        {
+            rewardPopup.ShowReward(clearedWaveIndex, baseGold, dispatchBonus);
+            
+            rewardPopup.OnConfirm -= HandleRewardConfirm;
+            rewardPopup.OnConfirm += HandleRewardConfirm;
+        }
+        else
+        {
+            Debug.LogError("[RewardManager] Reward Popup UI가 연결되지 않았습니다.");
             CompleteRewardPhase();
         }
+    }
+
+    private void HandleRewardConfirm()
+    {
+        if (rewardPopup != null)
+        {
+            rewardPopup.OnConfirm -= HandleRewardConfirm;
+        }
+        CompleteRewardPhase();
     }
 
     private int CalculateBaseReward(int wave)
@@ -50,6 +56,7 @@ public class RewardManager : Singleton<RewardManager>
 
     private void CompleteRewardPhase()
     {
+        Debug.Log("[RewardManager] 보상 단계 종료 -> 정비 페이즈로 전환");
         GameManager.Instance.SwitchToMaintenancePhase();
     }
 }

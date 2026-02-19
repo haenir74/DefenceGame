@@ -14,33 +14,31 @@ public class RewardPopupUI : MonoBehaviour
 
     public event Action OnConfirm;
 
-    private void Start()
+    private void Awake()
     {
-        confirmButton.onClick.AddListener(() => 
+        if (confirmButton != null)
         {
-            OnConfirm?.Invoke();
-            Close();
-        });
-        gameObject.SetActive(false);
+            confirmButton.onClick.RemoveAllListeners();
+            confirmButton.onClick.AddListener(() => 
+            {
+                OnConfirm?.Invoke();
+                Close();
+            });
+        }
     }
 
     public void ShowReward(int wave, int baseGold, int bonusGold)
     {
-        gameObject.SetActive(true);
-        
         int totalGold = baseGold + bonusGold;
 
         if (titleText != null) titleText.text = $"WAVE {wave} CLEAR";
         if (baseRewardText != null) baseRewardText.text = $"기본 보상 : {baseGold} G";
         if (bonusRewardText != null) 
         {
-            if (bonusGold > 0)
-                bonusRewardText.text = $"파견 보너스 : +{bonusGold} G";
-            else
-                bonusRewardText.text = "파견 보너스 : 없음";
+            bonusRewardText.text = bonusGold > 0 ? $"파견 보너스 : +{bonusGold} G" : "파견 보너스 : 없음";
         }
-
         if (totalRewardText != null) totalRewardText.text = $"총 획득 : <color=yellow>{totalGold} G</color>";
+        gameObject.SetActive(true);
     }
 
     public void Close()

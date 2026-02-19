@@ -23,6 +23,12 @@ public class TileDataSO : ScriptableObject, IStorable, ITradable
     public bool IsDefaultTile => tileIdNumber == 0;
     // public SkillDataSO tileEffect; // 타일을 밟았을 때 지속 효과
 
+    [Header("Dispatch System")]
+    public bool IsDispatchTile;
+    [Tooltip("파견 시 획득하는 기본 골드")]
+    public int baseDispatchReward = 0;
+    public float EfficiencyMultiplier = 1.0f;
+
     [Header("Economy")]
     [SerializeField] private List<ResourceCost> costs;
     public List<ResourceCost> GetCosts() => costs;

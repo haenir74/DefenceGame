@@ -29,6 +29,8 @@ public class UnitIdleState : UnitState
     private void CheckCombat()
     {
         if (Self.IsDead) return;
+        if (Self.IsDispatched) return; 
+
         Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (target != null)
         {
@@ -91,7 +93,11 @@ public class UnitCombatState : UnitState
     public override void OnEnter()
     {
         this.target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
-
+        if (Self.IsDispatched)
+        {
+            Self.EndCombat();
+            return;
+        }
         if (this.target == null)
         {
             Self.EndCombat();
