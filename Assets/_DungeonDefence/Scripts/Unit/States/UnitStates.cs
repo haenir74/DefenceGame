@@ -5,14 +5,14 @@ using UnityEngine;
 public abstract class UnitState : BaseState<Unit>
 {
     protected Unit Self => Controller;
-    protected UnitState(Unit unit) : base(unit) {}
+    protected UnitState(Unit unit) : base(unit) { }
 
     public virtual void OnStepFinished() { }
 }
 
 public class UnitIdleState : UnitState
 {
-    public UnitIdleState(Unit unit) : base(unit) {}
+    public UnitIdleState(Unit unit) : base(unit) { }
 
     public override void OnEnter()
     {
@@ -29,7 +29,7 @@ public class UnitIdleState : UnitState
     private void CheckCombat()
     {
         if (Self.IsDead) return;
-        if (Self.IsDispatched) return; 
+        if (Self.IsDispatched) return;
 
         Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (target != null)
@@ -68,17 +68,29 @@ public class EnemyTurnState : UnitState
             Self.StartCombat();
             return;
         }
-        if (Self.PathFinder != null)
+
+        List<GridNode> neighbors = GridManager.Instance.GetNeighbors(Self.CurrentNode);
+        if (neighbors != null && neighbors.Count > 0)
         {
-            Vector2Int? nextStep = Self.PathFinder.GetTargetStep();
-            
-            if (nextStep.HasValue)
+            List<GridNode> bestNodes = new List<GridNode>();
+            int maxAttr = int.MinValue;
+            foreach (var n in neighbors)
             {
-                Self.Movement.MoveTo(nextStep.Value);
+                if (n.Attractiveness > maxAttr)
+                {
+                    maxAttr = n.Attractiveness;
+                    bestNodes.Clear();
+                    bestNodes.Add(n);
+                }
+                else if (n.Attractiveness == maxAttr)
+                {
+                    bestNodes.Add(n);
+                }
             }
-            else
+            if (bestNodes.Count > 0)
             {
-                Self.PathFinder.FindNextStep();
+                GridNode bestNode = bestNodes[Random.Range(0, bestNodes.Count)];
+                Self.Movement.MoveTo(bestNode.Coordinate);
             }
         }
     }
@@ -114,7 +126,7 @@ public class UnitCombatState : UnitState
         UnitManager.Instance.AttackUnit(Self, this.target);
     }
 
-    public override void OnExit() 
+    public override void OnExit()
     {
         target = null;
     }

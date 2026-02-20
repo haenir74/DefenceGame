@@ -10,13 +10,11 @@ public class Unit : MonoBehaviour, IPoolable
     [Header("Components")]
     [SerializeField] private UnitMovement movement;
     [SerializeField] private UnitCombat combat;
-    [SerializeField] private EnemyPathFinder pathFinder;
     [SerializeField] private SpriteRenderer modelRenderer;
 
     public UnitDataSO Data => data;
     public UnitMovement Movement => movement;
     public UnitCombat Combat => combat;
-    public EnemyPathFinder PathFinder => pathFinder;
 
     public GridNode CurrentNode { get; private set; }
     public Vector2Int Coordinate => CurrentNode != null ? CurrentNode.Coordinate : Vector2Int.zero;
@@ -34,7 +32,6 @@ public class Unit : MonoBehaviour, IPoolable
     {
         if (movement == null) movement = GetComponent<UnitMovement>();
         if (combat == null) combat = GetComponent<UnitCombat>();
-        if (pathFinder == null) pathFinder = GetComponent<EnemyPathFinder>();
         if (modelRenderer == null) modelRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
@@ -44,7 +41,7 @@ public class Unit : MonoBehaviour, IPoolable
         IsDead = false;
 
         if (movement != null) movement.Initialize(this);
-        if (combat != null) 
+        if (combat != null)
         {
             combat.Initialize(this, data);
             combat.OnDeath -= HandleDeath;
@@ -52,8 +49,6 @@ public class Unit : MonoBehaviour, IPoolable
         }
 
         stateMachine = new StateMachine<Unit>(this);
-
-        if (pathFinder != null) pathFinder.Initialize(startNode);
 
         if (startNode != null)
         {
@@ -76,14 +71,14 @@ public class Unit : MonoBehaviour, IPoolable
             stateMachine.ChangeState(new EnemyTurnState(this));
     }
 
-    public void OnSpawn() 
+    public void OnSpawn()
     {
         gameObject.SetActive(true);
     }
 
     public void OnDespawn()
     {
-        IsDead = true;        
+        IsDead = true;
         if (UnitManager.Instance != null)
             UnitManager.Instance.UnregisterUnit(this);
         gameObject.SetActive(false);
@@ -102,11 +97,10 @@ public class Unit : MonoBehaviour, IPoolable
 
     public void OnReachTile(Vector2Int coord)
     {
-        GridNode node = GridManager.Instance.GetNode(coord.x, coord.y);        
+        GridNode node = GridManager.Instance.GetNode(coord.x, coord.y);
         if (node != null)
         {
             SetNode(node);
-            if (pathFinder != null) pathFinder.OnMoveCompleted(node);
         }
         CheckCombatCondition();
     }
@@ -114,7 +108,7 @@ public class Unit : MonoBehaviour, IPoolable
     public void CheckCombatCondition()
     {
         if (IsDead || IsDispatched) return;
-        Unit target = UnitManager.Instance.GetOpponentAt(Coordinate, IsPlayerTeam);        
+        Unit target = UnitManager.Instance.GetOpponentAt(Coordinate, IsPlayerTeam);
         if (target != null)
         {
             StartCombat();
@@ -129,7 +123,7 @@ public class Unit : MonoBehaviour, IPoolable
     {
         if (IsDispatched) return;
         if (stateMachine.CurrentState is UnitCombatState) return;
-        
+
         stateMachine.ChangeState(new UnitCombatState(this));
     }
 
@@ -148,38 +142,21 @@ public class Unit : MonoBehaviour, IPoolable
 
         stateMachine?.Update();
         if (combat != null) combat.OnUpdate();
-        if (!IsPlayerTeam && movement != null && !movement.IsMoving)
-        {
-            if (!(stateMachine.CurrentState is UnitCombatState) && !IsDispatched)
-            {
-                if (pathFinder != null)
-                {
-                    pathFinder.FindNextStep();
-                    Vector2Int? nextStep = pathFinder.GetTargetStep();
-
-                    if (nextStep.HasValue)
-                    {
-                        movement.MoveTo(nextStep.Value);
-                    }
-                }
-            }
-        }
         if (movement != null) movement.OnUpdate();
     }
 
     private void HandleDeath()
     {
         IsDead = true;
-        
+
         if (data.category == UnitCategory.Core)
         {
-            Debug.Log($"GAME OVER");
-            if (GameManager.Instance != null) GameManager.Instance.GameOver();
+            Debug.Log($"[Unit] Core has been destroyed.");
         }
 
         if (PoolManager.Instance != null)
         {
-            PoolManager.Instance.Push(this); 
+            PoolManager.Instance.Push(this);
         }
         else
         {
@@ -189,7 +166,7 @@ public class Unit : MonoBehaviour, IPoolable
     }
 
     private void OnDestroy()
-    {            
+    {
         if (UnitManager.Instance != null)
             UnitManager.Instance.UnregisterUnit(this);
     }
@@ -204,7 +181,7 @@ public class Unit : MonoBehaviour, IPoolable
             if (modelRenderer != null)
             {
                 Color color = modelRenderer.color;
-                color.a = 0.5f; 
+                color.a = 0.5f;
                 modelRenderer.color = color;
             }
 

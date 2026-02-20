@@ -20,6 +20,7 @@ public class GridNode
 
     public TileDataSO CurrentTileData { get; private set; }
     public GameObject UnitObject { get; set; }
+    public int DistanceToCore { get; set; } = int.MaxValue;
 
     public GridNode(int x, int y, Vector3 worldPosition)
     {
@@ -62,11 +63,14 @@ public class GridNode
     {
         get
         {
+            if (DistanceToCore == int.MaxValue) return int.MinValue;
+            
+            int baseScore = 10000 - (DistanceToCore * 10);
             if (Tile != null && Tile.Data != null)
             {
-                return Tile.Data.attractivenessBonus; 
+                baseScore += Tile.Data.attractivenessBonus; 
             }
-            return 0;
+            return baseScore;
         }
     }
 

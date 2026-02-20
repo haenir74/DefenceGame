@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class GameState : BaseState<GameController>
+public abstract class GameState : BaseState<GameManager>
 {
-    protected GameState(GameController controller) : base(controller) {}
+    protected GameState(GameManager manager) : base(manager) {}
 
     public virtual void OnClickNode(GridNode node) { }
     public virtual void OnRightClickNode(GridNode node) { }
@@ -23,7 +23,7 @@ public class BattleStateDTO
 
 public class MaintenanceState : GameState
 {
-    public MaintenanceState(GameController controller) : base(controller) {}
+    public MaintenanceState(GameManager manager) : base(manager) {}
     
     public override void OnEnter() 
     { 
@@ -58,21 +58,40 @@ public class MaintenanceState : GameState
 
     private void PlaceUnit(GridNode node, UnitDataSO unitData)
     {
-        if (InventoryManager.Instance.TryConsumeItem(unitData))
+        if (node.CanPlaceUnit)
         {
-            UnitManager.Instance.SpawnUnit(unitData, node);
-            Debug.Log($"[Unit] 배치 완료: {unitData.Name}");
+            if (InventoryManager.Instance.TryConsumeItem(unitData))
+            {
+                bool success = UnitManager.Instance.SpawnUnit(unitData, node) != null;
+                if (success) {
+                    Debug.Log($"[Unit] 배치 완료: {unitData.Name}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("인벤토리에 유닛이 부족합니다.");
+                GameManager.Instance.ClearSelection();
+            }
         }
         else
         {
-            Debug.LogWarning("인벤토리에 유닛이 부족합니다.");
-            GameManager.Instance.ClearSelection();
+            Debug.LogWarning("이 타일에는 유닛을 배치할 수 없습니다. (장애물 또는 이미 있음)");
         }
     }
 
     private void PlaceTile(GridNode node, TileDataSO tileData)
     {
-        if (node.Tile != null && node.Tile.Data == tileData) return;
+        if (node.UnitObject != null)
+        {
+            Debug.LogWarning("유닛이 있는 곳의 타일은 바꿀 수 없습니다.");
+            return;
+        }
+
+        if (node.CurrentTileData != null && node.CurrentTileData.ID == tileData.ID)
+        {
+            return;
+        }
+
         if (node == GridManager.Instance.GetCoreNode() || node == GridManager.Instance.GetSpawnNode())
         {
             Debug.LogWarning("시작점과 코어 타일은 교체할 수 없습니다.");
@@ -81,8 +100,15 @@ public class MaintenanceState : GameState
 
         if (InventoryManager.Instance.TryConsumeItem(tileData))
         {
+            if (node.CurrentTileData != null && !node.CurrentTileData.IsDefaultTile)
+            {
+                Debug.Log($"[GameManager] 기존 타일({node.CurrentTileData.Name}) 회수.");
+                InventoryManager.Instance.AddItem(node.CurrentTileData, 1);
+            }
+
             GridManager.Instance.ChangeTile(node, tileData);
             Debug.Log($"[Tile] 교체 완료: ({node.X}, {node.Y}) -> {tileData.Name}");
+            GameManager.Instance.ClearSelection();
         }
         else
         {
@@ -94,7 +120,7 @@ public class MaintenanceState : GameState
     private void ShowNodeInfo(GridNode node)
     {
         var units = UnitManager.Instance.GetUnitsOnNode(node);
-        string tileName = node.Tile != null ? node.Tile.Data.Name : "Empty";
+        string tileName = node.CurrentTileData != null ? node.CurrentTileData.Name : "Empty";
         Debug.Log($"[Info] 타일: {tileName} | 유닛 수: {units.Count}");
     }
 }
@@ -106,7 +132,7 @@ public class BattleState : GameState
 
     public BattleStateDTO DTO => dto;
 
-    public BattleState(GameController controller, BattleStateDTO dto) : base(controller)
+    public BattleState(GameManager manager, BattleStateDTO dto) : base(manager)
     {
         this.dto = dto;
     }
