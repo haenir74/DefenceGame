@@ -31,6 +31,10 @@ public class UIManager : Singleton<UIManager>
                 {
                     currentGold = amount;
                     hudView?.UpdateResources(currentGold, currentPop, maxPop);
+                    if (shopView != null && shopView.gameObject.activeSelf)
+                    {
+                        shopView.UpdateGoldText(currentGold);
+                    }
                 }
             };
         }
@@ -95,7 +99,7 @@ public class UIManager : Singleton<UIManager>
         {
             if (EconomyManager.Instance) currentGold = EconomyManager.Instance.GetCurrencyAmount(CurrencyType.Gold);
             hudView.UpdateResources(currentGold, currentPop, maxPop);
-            hudView.UpdateWaveInfo(1, 0, 0); 
+            hudView.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0); 
             hudView.UpdateSpeed(timeScale);
         }
         CloseAllPopups();
@@ -116,6 +120,7 @@ public class UIManager : Singleton<UIManager>
         {
             inventoryView?.Close();
             shopView.Open();
+            shopView.UpdateGoldText(currentGold);
             shopView.RefreshShop();
         }
         else
@@ -130,6 +135,7 @@ public class UIManager : Singleton<UIManager>
         if (shopView != null)
         {
             shopView.Open();
+            shopView.UpdateGoldText(currentGold);
             shopView.RefreshShop();
         }
     }
@@ -168,6 +174,7 @@ public class UIManager : Singleton<UIManager>
     public void SwitchToMaintenancePhase()
     {
         hudView?.SetPhaseUI(false); 
+        hudView?.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0); 
         CloseAllPopups();
     }
 

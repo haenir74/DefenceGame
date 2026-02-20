@@ -102,10 +102,12 @@ namespace Panex.Inventory.View {
 
         private void ApplyGridLayout(Settings settings)
         {
-            var gridLayout = gameObject.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+            if (slotContainer == null) return;
+            
+            var gridLayout = slotContainer.GetComponent<UnityEngine.UI.GridLayoutGroup>();
             if (gridLayout == null)
             {
-                gridLayout = gameObject.AddComponent<UnityEngine.UI.GridLayoutGroup>();
+                gridLayout = slotContainer.gameObject.AddComponent<UnityEngine.UI.GridLayoutGroup>();
             }
             
             if (gridLayout != null && settings != null)

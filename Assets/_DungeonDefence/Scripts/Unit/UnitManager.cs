@@ -44,7 +44,7 @@ public class UnitManager : Singleton<UnitManager>
             if (prefabComp != null)
                 newUnit = PoolManager.Instance.Pop(prefabComp);
         }
-        
+
         if (newUnit == null)
         {
             GameObject obj = Instantiate(data.prefab);
@@ -53,10 +53,11 @@ public class UnitManager : Singleton<UnitManager>
 
         if (newUnit != null)
         {
+            newUnit.gameObject.SetActive(true);
             newUnit.transform.SetParent(this.unitContainer);
             newUnit.transform.position = node.WorldPosition;
             newUnit.Initialize(data, node);
-            
+
             RegisterUnit(newUnit);
         }
 
@@ -71,7 +72,7 @@ public class UnitManager : Singleton<UnitManager>
 
     public void RegisterUnit(Unit unit)
     {
-        if (!activeUnits.Contains(unit)) 
+        if (!activeUnits.Contains(unit))
         {
             activeUnits.Add(unit);
             NotifyUnitCount();
@@ -85,7 +86,7 @@ public class UnitManager : Singleton<UnitManager>
 
     public void UnregisterUnit(Unit unit)
     {
-        if (activeUnits.Contains(unit)) 
+        if (activeUnits.Contains(unit))
         {
             activeUnits.Remove(unit);
             NotifyUnitCount();
@@ -106,15 +107,15 @@ public class UnitManager : Singleton<UnitManager>
     {
         int playerCount = this.activeUnits.Count(u => u.IsPlayerTeam && !u.IsDead);
         int enemyCount = this.activeUnits.Count(u => !u.IsPlayerTeam && !u.IsDead);
-        
+
         OnUnitCountChanged?.Invoke(playerCount, enemyCount);
     }
 
     public Unit GetOpponentAt(Vector2Int coord, bool myTeam)
     {
-        return activeUnits.FirstOrDefault(u => 
-            u.Coordinate == coord && 
-            !u.IsDead && 
+        return activeUnits.FirstOrDefault(u =>
+            u.Coordinate == coord &&
+            !u.IsDead &&
             u.IsPlayerTeam != myTeam &&
             !u.IsDispatched
         );
@@ -124,7 +125,7 @@ public class UnitManager : Singleton<UnitManager>
     {
         return activeUnits.Count(u => !u.IsPlayerTeam && !u.IsDead && !u.IsDispatched);
     }
-    
+
     public List<Unit> GetAllUnits() => activeUnits;
 
     public void MoveUnit(Unit unit, GridNode from, GridNode to)
@@ -134,8 +135,8 @@ public class UnitManager : Singleton<UnitManager>
 
     public List<Unit> GetUnitsOnNode(GridNode node)
     {
-         if(node == null) return new List<Unit>();
-         return activeUnits.FindAll(u => u.Coordinate == node.Coordinate && !u.IsDead);
+        if (node == null) return new List<Unit>();
+        return activeUnits.FindAll(u => u.Coordinate == node.Coordinate && !u.IsDead);
     }
 
     public void AttackUnit(Unit attacker, Unit target)

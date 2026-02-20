@@ -64,6 +64,11 @@ public class Unit : MonoBehaviour, IPoolable
             }
         }
 
+        // Attach or initialize animator
+        var animator = GetComponent<UnitSpriteAnimator>();
+        if (animator == null) animator = gameObject.AddComponent<UnitSpriteAnimator>();
+        animator.Initialize(this, modelRenderer);
+
         UnitManager.Instance.RegisterUnit(this);
         if (IsPlayerTeam)
             stateMachine.ChangeState(new UnitIdleState(this));
@@ -147,14 +152,15 @@ public class Unit : MonoBehaviour, IPoolable
 
     private void HandleDeath()
     {
+        if (IsDead) return; // Prevent double trigger
         IsDead = true;
 
-        if (data.category == UnitCategory.Core)
+        if (data != null && data.category == UnitCategory.Core)
         {
             Debug.Log($"[Unit] Core has been destroyed.");
         }
 
-        if (PoolManager.Instance != null)
+        if (PoolManager.Instance != null && gameObject.activeInHierarchy)
         {
             PoolManager.Instance.Push(this);
         }

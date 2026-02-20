@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+[Serializable]
+public class WaveConfig
+{
+    public List<WaveDataSO> waveDatas;
+}
+
 public class WaveManager : Singleton<WaveManager>
 {
     [Header("Settings")]
-    [SerializeField] private List<WaveDataSO> waves;
+    [SerializeField] private List<WaveConfig> waves;
 
     // WaveIndex, Remaining, Total
     public event Action<int, int, int> OnWaveInfoChanged;
@@ -16,7 +22,7 @@ public class WaveManager : Singleton<WaveManager>
     private int totalEnemiesInCurrentWave;
     private int aliveEnemiesCount;
     private bool isWaveInProgress;
-    private Coroutine spawnCoroutine;
+    private List<Coroutine> spawnCoroutines = new List<Coroutine>();
 
     private void Start()
     {
@@ -34,16 +40,40 @@ public class WaveManager : Singleton<WaveManager>
             return;
         }
 
-        WaveDataSO waveData = waves[waveIndex];
+        WaveConfig config = waves[waveIndex];
+        if (config == null || config.waveDatas == null || config.waveDatas.Count == 0)
+        {
+            OnWaveCompleted?.Invoke();
+            return;
+        }
+
         this.currentWaveIndex = waveIndex + 1;
-        this.totalEnemiesInCurrentWave = waveData.GetTotalEnemyCount();
+        this.totalEnemiesInCurrentWave = 0;
+        
+        foreach (var data in config.waveDatas)
+        {
+            if (data != null)
+                this.totalEnemiesInCurrentWave += data.GetTotalEnemyCount();
+        }
+
         this.aliveEnemiesCount = this.totalEnemiesInCurrentWave;
         this.isWaveInProgress = true;
         
         NotifyUI();
 
-        if (spawnCoroutine != null) StopCoroutine(spawnCoroutine);
-        spawnCoroutine = StartCoroutine(SpawnRoutine(waveData));
+        foreach (var coroutine in spawnCoroutines)
+        {
+            if (coroutine != null) StopCoroutine(coroutine);
+        }
+        spawnCoroutines.Clear();
+
+        foreach (var data in config.waveDatas)
+        {
+            if (data != null)
+            {
+                spawnCoroutines.Add(StartCoroutine(SpawnRoutine(data)));
+            }
+        }
     }
 
     private IEnumerator SpawnRoutine(WaveDataSO data)

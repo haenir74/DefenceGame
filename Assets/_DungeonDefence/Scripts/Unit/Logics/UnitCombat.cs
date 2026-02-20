@@ -23,10 +23,10 @@ public class UnitCombat : MonoBehaviour
     {
         this.unit = unit;
         this.data = data;
-        
-        this.currentHp = data.maxHp;
-        this.attackTimer = 0f;
+
         IsDead = false;
+        this.currentHp = data != null ? data.maxHp : 100f;
+        this.attackTimer = 0f;
     }
 
     public void OnUpdate()
@@ -56,7 +56,7 @@ public class UnitCombat : MonoBehaviour
         if (this.IsDead) return;
 
         this.currentHp += amount;
-        if (this.currentHp > this.data.maxHp) 
+        if (this.currentHp > this.data.maxHp)
             this.currentHp = this.data.maxHp;
 
         OnHpChanged?.Invoke(this.currentHp);
