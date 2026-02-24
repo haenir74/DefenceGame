@@ -31,7 +31,7 @@ public class UnitIdleState : UnitState
         if (Self.IsDead) return;
         if (Self.IsDispatched) return;
 
-        Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
+        Unit target = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (target != null)
         {
             Self.StartCombat();
@@ -62,7 +62,7 @@ public class EnemyTurnState : UnitState
     {
         if (Self.IsDead) return;
         if (Self.Movement.IsMoving) return;
-        Unit target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
+        Unit target = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (target != null)
         {
             Self.StartCombat();
@@ -104,7 +104,7 @@ public class UnitCombatState : UnitState
 
     public override void OnEnter()
     {
-        this.target = UnitManager.Instance.GetOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
+        this.target = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (Self.IsDispatched)
         {
             Self.EndCombat();
@@ -123,7 +123,12 @@ public class UnitCombatState : UnitState
             Self.EndCombat();
             return;
         }
-        UnitManager.Instance.AttackUnit(Self, this.target);
+        // 같은 타일의 적 중 랜덤 공격
+        Unit randomTarget = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
+        if (randomTarget != null)
+            UnitManager.Instance.AttackUnit(Self, randomTarget);
+        else
+            Self.EndCombat();
     }
 
     public override void OnExit()

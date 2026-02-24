@@ -303,5 +303,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundImage: {fileID: 0}
   slotContainer: {fileID: 4255702893189548198}
-  slotPrefab: {fileID: 1918752374308825546, guid: 3b92df99d0c8a2144b22ab7655b8d4e8, type: 3}
+  slotPrefab: {fileID: 1918752374308825546, guid: 5eedfe2c4f76a6748b96e63605829943, type: 3}
   hideEmptySlots: 1

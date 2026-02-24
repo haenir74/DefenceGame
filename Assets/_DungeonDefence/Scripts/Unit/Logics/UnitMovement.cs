@@ -16,13 +16,20 @@ public class UnitMovement : MonoBehaviour
         this.unit = unit;
         IsMoving = false;
 
-        transform.position = unit.transform.position; 
+        transform.position = unit.transform.position;
     }
 
     public void MoveTo(Vector2Int targetGridPos)
     {
         if (IsMoving) return;
-        targetWorldPos = GridManager.Instance.GetWorldPosition(targetGridPos.x, targetGridPos.y);
+
+        GridNode targetNode = GridManager.Instance.GetNode(targetGridPos.x, targetGridPos.y);
+        if (targetNode == null) return;
+
+        // 빈 슬롯 위치를 목적지로 사용. 슬롯이 없으면 타일 중앙으로 이동.
+        float cellSize = GridManager.Instance?.Data?.cellSize ?? 1f;
+        Vector3? slotPos = targetNode.TryOccupySlot(unit, cellSize);
+        targetWorldPos = slotPos ?? targetNode.WorldPosition;
         IsMoving = true;
     }
 

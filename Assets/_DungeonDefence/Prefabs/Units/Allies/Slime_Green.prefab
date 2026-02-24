@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6727688013146557340}
   - component: {fileID: 4420307387844538158}
   m_Layer: 0
-  m_Name: UnitPrefab
+  m_Name: Slime_Green
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

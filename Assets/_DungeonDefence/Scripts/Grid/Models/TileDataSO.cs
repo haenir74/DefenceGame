@@ -21,7 +21,8 @@ public class TileDataSO : ScriptableObject, IStorable, ITradable
     public int attractivenessBonus;
     public int MaxUnitCapacity = 1;
     public bool IsDefaultTile => tileIdNumber == 0;
-    // public SkillDataSO tileEffect; // 타일을 밟았을 때 지속 효과
+    [Tooltip("타일 진입/체류/이탈/사망 시 발동되는 효과 SO")]
+    public TileEffectDataSO tileEffect;
 
     [Header("Dispatch System")]
     public bool IsDispatchTile;
@@ -33,6 +34,8 @@ public class TileDataSO : ScriptableObject, IStorable, ITradable
     [SerializeField] private List<ResourceCost> costs;
     public List<ResourceCost> GetCosts() => costs;
     public int sellPrice;
+    [Tooltip("상점에서 구매 가능한 횟수. 0 = 무한")]
+    public int shopStock = 5;
 
     // IStorable
     public int ID => tileIdNumber;

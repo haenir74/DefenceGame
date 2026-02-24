@@ -77,26 +77,31 @@ public class UnitCombat : MonoBehaviour
         if (unit != null && unit.IsDispatched) return;
         if (attackTimer > 0 || target == null || target.IsDead) return;
 
-        // 기본 공격
-        target.Combat.TakeDamage(data.basePower);
-        attackTimer = data.attackInterval;
+        bool hasSkill = data.skill != null && data.maxMp > 0;
 
-        // MP 충전 (스킬이 있을 때만)
-        if (data.skill != null && data.maxMp > 0)
+        if (hasSkill && currentMp >= data.maxMp)
         {
-            currentMp += data.maxMp * 0.25f; // 기본 공격 4회에 스킬 1회
-            if (currentMp >= data.maxMp)
+            // 마나 가득 → 스킬 발동 (기본 공격 대체)
+            currentMp = 0f;
+            data.skill.Cast(unit, target);
+        }
+        else
+        {
+            // 기본 공격
+            target.Combat.TakeDamage(data.basePower);
+
+            // 기본 공격 1회당 10MP 충전
+            if (hasSkill)
             {
-                currentMp = 0f;
-                TryCastSkill(target);
+                currentMp = Mathf.Min(currentMp + 10f, data.maxMp);
             }
         }
-    }
 
-    private void TryCastSkill(Unit mainTarget)
-    {
-        if (data.skill == null) return;
-        data.skill.Cast(unit, mainTarget);
+        attackTimer = data.attackInterval;
+
+        // 공격 애니메이션 트리거 (슬라임 squash 등)
+        var animator = unit?.GetComponentInChildren<UnitSpriteAnimator>();
+        if (animator != null) animator.TriggerAttackAnimation();
     }
 
     private void Die()

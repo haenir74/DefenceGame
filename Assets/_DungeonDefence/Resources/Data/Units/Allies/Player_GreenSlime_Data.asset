@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Player_GreenSlime_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 101
+  unitId: player_green_slime
+  unitName: "\ub9f9\ub3c5 \uc2ac\ub77c\uc784"
+  description: "\uc0ac\ub9dd \uc2dc \uAC19\uC740 \ud0c0\uc77c\uc758 \ubaa8\ub4e0 \uc801\uc5d0\uAC8C \ud3ed\uBC1C \ud53C\ud574\uc640 \ub3c5 \uc0c1\ud0dc\uc774\uc0c1\uc744 \uBD80\uc5ec\ud55c\ub2e4."
+  icon: {fileID: 0}
+  prefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60002, type: 3}
+  isPlayerTeam: 1
+  category: 0
+  maxHp: 100
+  maxMp: 0
+  startMp: 0
+  moveSpeed: 2.5
+  basePower: 5
+  attackInterval: 1.5
+  skill: {fileID: 0}
+  dispatchEfficiency: 0.8
+  costs:
+  - type: 0
+    amount: 120
+  populationCost: 1
+  shopStock: 5

@@ -13,12 +13,18 @@ MonoBehaviour:
   m_Name: TileData
   m_EditorClassIdentifier: 
   tileIdNumber: 0
-  tileId: 
+  tileId: default
   tileName: Default
   description: 
   icon: {fileID: 0}
   tileSprite: {fileID: 21300000, guid: e0ab1fe94a3af044e8080867af6b6813, type: 3}
-  prefab: {fileID: 4933445558535422339, guid: 55bde1fd0b7097741b4750f89d55495f, type: 3}
+  prefab: {fileID: 4933445558535422339, guid: cbbd2bdf84b17284ca7c921a9f588ba8, type: 3}
   attractivenessBonus: 0
-  cost: 0
+  MaxUnitCapacity: 1
+  tileEffect: {fileID: 0}
+  IsDispatchTile: 0
+  baseDispatchReward: 0
+  EfficiencyMultiplier: 1
+  costs: []
   sellPrice: 0
+  shopStock: 0

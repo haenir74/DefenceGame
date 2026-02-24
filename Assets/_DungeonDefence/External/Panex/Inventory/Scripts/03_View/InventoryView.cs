@@ -103,18 +103,27 @@ namespace Panex.Inventory.View {
         private void ApplyGridLayout(Settings settings)
         {
             if (slotContainer == null) return;
-            
-            var gridLayout = slotContainer.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+
+            // 이미 다른 타입의 LayoutGroup이 붙어있으면 GridLayoutGroup 추가 스킵
+            var existingLayout = slotContainer.GetComponent<LayoutGroup>();
+            if (existingLayout != null && !(existingLayout is GridLayoutGroup))
+            {
+                // HorizontalLayoutGroup 또는 VerticalLayoutGroup이 이미 있음 → 그대로 사용
+                Debug.Log($"[InventoryView] {existingLayout.GetType().Name}이 이미 있습니다. GridLayoutGroup 추가를 건너뜁니다.");
+                return;
+            }
+
+            var gridLayout = slotContainer.GetComponent<GridLayoutGroup>();
             if (gridLayout == null)
             {
-                gridLayout = slotContainer.gameObject.AddComponent<UnityEngine.UI.GridLayoutGroup>();
+                gridLayout = slotContainer.gameObject.AddComponent<GridLayoutGroup>();
             }
-            
+
             if (gridLayout != null && settings != null)
             {
                 gridLayout.cellSize = settings.SlotSize;
                 gridLayout.spacing = settings.Spacing;
-                gridLayout.constraint = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
+                gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
                 gridLayout.constraintCount = settings.Columns;
             }
         }

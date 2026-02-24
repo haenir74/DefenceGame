@@ -46,6 +46,8 @@ public class UnitDataSO : ScriptableObject, IStorable, ITradable
     [SerializeField] private List<ResourceCost> costs;
     public List<ResourceCost> GetCosts() => costs;
     public int populationCost;
+    [Tooltip("상점에서 구매 가능한 횟수. 0 = 무한")]
+    public int shopStock = 5;
     
     // IStorable
     public int ID => unitIdNumber;

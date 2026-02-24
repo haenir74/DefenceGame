@@ -37,8 +37,13 @@ public class Unit : MonoBehaviour, IPoolable
 
     public void Initialize(UnitDataSO data, GridNode startNode)
     {
-        this.data = data;
+        if (data != null) this.data = data;
+
         IsDead = false;
+
+        if (movement == null) movement = GetComponent<UnitMovement>();
+        if (combat == null) combat = GetComponent<UnitCombat>();
+        if (modelRenderer == null) modelRenderer = GetComponentInChildren<SpriteRenderer>();
 
         if (movement != null) movement.Initialize(this);
         if (combat != null)
@@ -64,12 +69,9 @@ public class Unit : MonoBehaviour, IPoolable
             }
         }
 
-        // Attach or initialize animator
-        var animator = GetComponent<UnitSpriteAnimator>();
-        if (animator == null) animator = gameObject.AddComponent<UnitSpriteAnimator>();
-        animator.Initialize(this, modelRenderer);
+        var animator = GetComponentInChildren<UnitSpriteAnimator>();
+        if (animator != null) animator.Initialize(this, modelRenderer);
 
-        UnitManager.Instance.RegisterUnit(this);
         if (IsPlayerTeam)
             stateMachine.ChangeState(new UnitIdleState(this));
         else
@@ -102,10 +104,22 @@ public class Unit : MonoBehaviour, IPoolable
 
     public void OnReachTile(Vector2Int coord)
     {
-        GridNode node = GridManager.Instance.GetNode(coord.x, coord.y);
-        if (node != null)
+        GridNode newNode = GridManager.Instance.GetNode(coord.x, coord.y);
+        if (newNode != null)
         {
-            SetNode(node);
+            // 이전 타일 OnExit
+            if (CurrentNode != null && CurrentNode.Tile != null && !CurrentNode.Equals(newNode))
+            {
+                CurrentNode.Tile.OnUnitExit(this);
+            }
+
+            SetNode(newNode);
+
+            // 새 타일 OnEnter
+            if (CurrentNode.Tile != null)
+            {
+                CurrentNode.Tile.OnUnitEnter(this);
+            }
         }
         CheckCombatCondition();
     }
@@ -148,6 +162,18 @@ public class Unit : MonoBehaviour, IPoolable
         stateMachine?.Update();
         if (combat != null) combat.OnUpdate();
         if (movement != null) movement.OnUpdate();
+
+        // 스킬 지속 효과 (매 업데이트 호출)
+        if (data != null && data.skill != null)
+        {
+            data.skill.OnUnitUpdate(this);
+        }
+
+        // 타일 OnUpdate 이벤트 (체류 중 효과)
+        if (!IsDispatched && CurrentNode?.Tile != null)
+        {
+            CurrentNode.Tile.OnUnitUpdate(this);
+        }
     }
 
     private void HandleDeath()
@@ -155,10 +181,27 @@ public class Unit : MonoBehaviour, IPoolable
         if (IsDead) return; // Prevent double trigger
         IsDead = true;
 
+        // 타일 OnDeath 이벤트
+        if (CurrentNode?.Tile != null)
+        {
+            CurrentNode.Tile.OnUnitDeath(this);
+        }
+
+        // 사망 시 스킬 발동 (DeathExplosion / DeathSplit 등)
+        // 슬롯 해제 전에 호출해야 현재 타일 정보를 사용 가능
+        if (data != null && data.skill != null)
+        {
+            data.skill.OnUnitDie(this);
+        }
+
+        // 슬롯 해제
+        CurrentNode?.ReleaseSlot(this);
+
         if (data != null && data.category == UnitCategory.Core)
         {
             Debug.Log($"[Unit] Core has been destroyed.");
         }
+
 
         if (PoolManager.Instance != null && gameObject.activeInHierarchy)
         {

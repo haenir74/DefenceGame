@@ -81,7 +81,8 @@ public class MaintenanceState : GameState
 
     private void PlaceTile(GridNode node, TileDataSO tileData)
     {
-        if (node.UnitObject != null)
+        // 아군 유닛이 있는 타일은 교체 불가
+        if (UnitManager.Instance.GetUnitsOnNode(node).Count > 0)
         {
             Debug.LogWarning("유닛이 있는 곳의 타일은 바꿀 수 없습니다.");
             return;

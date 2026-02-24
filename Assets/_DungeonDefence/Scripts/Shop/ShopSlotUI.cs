@@ -12,7 +12,7 @@ public class ShopSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private Button buyButton;
     [SerializeField] private GameObject soldOutCover;
-    
+
     private UnitDataSO targetUnit;
     private TileDataSO targetTile;
     private int slotIndex;
@@ -29,10 +29,12 @@ public class ShopSlotUI : MonoBehaviour
         if (nameText != null) nameText.text = unitData.Name;
         if (costText != null) costText.text = GetCostText(unitData.GetCosts());
 
+        SetSoldOut(ShopManager.Instance != null && ShopManager.Instance.IsOutOfStock(unitData));
+
         buyButton.onClick.RemoveAllListeners();
         buyButton.onClick.AddListener(OnBuyClicked);
     }
-    
+
     public void Initialize(TileDataSO tileData)
     {
         targetUnit = null;
@@ -42,8 +44,17 @@ public class ShopSlotUI : MonoBehaviour
         if (nameText != null) nameText.text = tileData.Name;
         if (costText != null) costText.text = GetCostText(tileData.GetCosts());
 
+        SetSoldOut(ShopManager.Instance != null && ShopManager.Instance.IsOutOfStock(tileData));
+
         buyButton.onClick.RemoveAllListeners();
         buyButton.onClick.AddListener(OnBuyClicked);
+    }
+
+    public void SetSoldOut(bool soldOut)
+    {
+        isSoldOut = soldOut;
+        if (soldOutCover != null) soldOutCover.SetActive(soldOut);
+        if (buyButton != null) buyButton.interactable = !soldOut;
     }
 
     private string GetCostText(List<ResourceCost> costs)

@@ -17,7 +17,7 @@ public class DispatchManager : Singleton<DispatchManager>
 
         foreach (Unit unit in allUnits)
         {
-            //if (unit.IsDead || !unit.IsDispatched) continue;
+            if (unit.IsDead || !unit.IsDispatched) continue;
             TileDataSO tileData = unit.CurrentNode?.CurrentTileData;
             if (tileData == null || !tileData.IsDispatchTile) continue;
 
@@ -28,7 +28,7 @@ public class DispatchManager : Singleton<DispatchManager>
             float unitReward = baseReward * unitEfficiency * playerEfficiency * tileEfficiency;
 
             totalBonus += unitReward;
-            
+
             Debug.Log($"[Dispatch] {unit.Data.Name}: {baseReward} * {unitEfficiency:P0} * {playerEfficiency:P0} = {unitReward}G");
         }
 

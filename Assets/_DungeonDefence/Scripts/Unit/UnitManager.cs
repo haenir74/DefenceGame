@@ -55,9 +55,13 @@ public class UnitManager : Singleton<UnitManager>
         {
             newUnit.gameObject.SetActive(true);
             newUnit.transform.SetParent(this.unitContainer);
-            newUnit.transform.position = node.WorldPosition;
-            newUnit.Initialize(data, node);
 
+            // 슬롯 배정: 빈 슬롯 위치로 스폰
+            float cellSize = GridManager.Instance?.Data?.cellSize ?? 1f;
+            Vector3? slotPos = node.TryOccupySlot(newUnit, cellSize);
+            newUnit.transform.position = slotPos ?? node.WorldPosition;
+
+            newUnit.Initialize(data, node);
             RegisterUnit(newUnit);
         }
 
@@ -72,15 +76,29 @@ public class UnitManager : Singleton<UnitManager>
 
     public void RegisterUnit(Unit unit)
     {
-        if (!activeUnits.Contains(unit))
+        if (unit == null || activeUnits.Contains(unit)) return;
+
+        activeUnits.Add(unit);
+        NotifyUnitCount();
+
+        // 코어 유닛 특수 처리
+        if (unit.Data != null && unit.Data.category == UnitCategory.Core)
         {
-            activeUnits.Add(unit);
-            NotifyUnitCount();
-            if (unit.Data != null && unit.Data.category == UnitCategory.Core)
-            {
-                NotifyCoreHp(unit.Combat.CurrentHp, unit.Combat.MaxHp);
-                unit.Combat.OnHpChanged += (hp) => NotifyCoreHp(hp, unit.Combat.MaxHp);
-            }
+            NotifyCoreHp(unit.Combat.CurrentHp, unit.Combat.MaxHp);
+
+            // 기존 이벤트 제거 후 등록 (중복 방지)
+            unit.Combat.OnHpChanged -= OnCoreHpChangedCallback;
+            unit.Combat.OnHpChanged += OnCoreHpChangedCallback;
+        }
+    }
+
+    private void OnCoreHpChangedCallback(float hp)
+    {
+        // 모든 코어 중 첫 번째 것의 체력을 UI에 표시 (보통 코어는 1개)
+        var core = activeUnits.FirstOrDefault(u => u.Data != null && u.Data.category == UnitCategory.Core);
+        if (core != null)
+        {
+            NotifyCoreHp(hp, core.Combat.MaxHp);
         }
     }
 
@@ -121,6 +139,19 @@ public class UnitManager : Singleton<UnitManager>
         );
     }
 
+    /// <summary>같은 타일의 상대 팀 유닛 중 무작위 1명 반환 (전투 시 랜덤 타겟 선택용)</summary>
+    public Unit GetRandomOpponentAt(Vector2Int coord, bool myTeam)
+    {
+        List<Unit> opponents = activeUnits.FindAll(u =>
+            u.Coordinate == coord &&
+            !u.IsDead &&
+            u.IsPlayerTeam != myTeam &&
+            !u.IsDispatched
+        );
+        if (opponents.Count == 0) return null;
+        return opponents[UnityEngine.Random.Range(0, opponents.Count)];
+    }
+
     public int GetEnemyCount()
     {
         return activeUnits.Count(u => !u.IsPlayerTeam && !u.IsDead && !u.IsDispatched);
@@ -130,7 +161,10 @@ public class UnitManager : Singleton<UnitManager>
 
     public void MoveUnit(Unit unit, GridNode from, GridNode to)
     {
-        // Can be used to update nodes if we cache Unit by Node
+        // 이전 노드 슬롯 해제
+        if (from != null)
+            from.ReleaseSlot(unit);
+        // 새 노드 슬롯 배정은 UnitMovement.OnUpdate()에서 도착 시 처리
     }
 
     public List<Unit> GetUnitsOnNode(GridNode node)
