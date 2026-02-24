@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_GrandKnightCommander_Boss_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 332
+  unitId: Enemy_GrandKnightCommander_Boss_0
+  unitName: Grand Knight Commander
+  description: "[BOSS] 눈부신 백금 갑주와 붉은 망토의 기사단장. 빛나는 대검이 전장을 휩쓰는 심판자."
+  icon: {fileID: 0}
+  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 1500
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 3
+  basePower: 70
+  attackInterval: 0.9
+  skill: {fileID: 11400000, guid: b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0

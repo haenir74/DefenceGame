@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_EliteCrossbowman_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 313
+  unitId: Enemy_EliteCrossbowman_0
+  unitName: Elite Crossbowman
+  description: 무거운 쇠뇌를 다루는 정예 사수. 느리지만 한 발 한 발이 치명적이다.
+  icon: {fileID: 0}
+  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 150
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 3
+  basePower: 30
+  attackInterval: 1.5
+  skill: {fileID: 11400000, guid: d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0

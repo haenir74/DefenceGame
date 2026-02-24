@@ -9,10 +9,13 @@ public class UnitCombat : MonoBehaviour
     private UnitDataSO data;
 
     private float currentHp;
+    private float currentMp;
     private float attackTimer;
 
     public float CurrentHp => currentHp;
     public float MaxHp => data != null ? data.maxHp : 0f;
+    public float CurrentMp => currentMp;
+    public float MaxMp => data != null ? data.maxMp : 0f;
 
     public bool IsDead { get; private set; }
 
@@ -26,6 +29,7 @@ public class UnitCombat : MonoBehaviour
 
         IsDead = false;
         this.currentHp = data != null ? data.maxHp : 100f;
+        this.currentMp = data != null ? data.startMp : 0f;
         this.attackTimer = 0f;
     }
 
@@ -71,10 +75,28 @@ public class UnitCombat : MonoBehaviour
     public void Attack(Unit target)
     {
         if (unit != null && unit.IsDispatched) return;
-
         if (attackTimer > 0 || target == null || target.IsDead) return;
+
+        // 기본 공격
         target.Combat.TakeDamage(data.basePower);
         attackTimer = data.attackInterval;
+
+        // MP 충전 (스킬이 있을 때만)
+        if (data.skill != null && data.maxMp > 0)
+        {
+            currentMp += data.maxMp * 0.25f; // 기본 공격 4회에 스킬 1회
+            if (currentMp >= data.maxMp)
+            {
+                currentMp = 0f;
+                TryCastSkill(target);
+            }
+        }
+    }
+
+    private void TryCastSkill(Unit mainTarget)
+    {
+        if (data.skill == null) return;
+        data.skill.Cast(unit, mainTarget);
     }
 
     private void Die()

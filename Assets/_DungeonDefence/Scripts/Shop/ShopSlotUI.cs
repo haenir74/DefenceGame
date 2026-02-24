@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using System.Collections.Generic;
 
 public class ShopSlotUI : MonoBehaviour
 {
@@ -24,9 +25,9 @@ public class ShopSlotUI : MonoBehaviour
         targetUnit = unitData;
         targetTile = null;
 
-        iconImage.sprite = unitData.Icon;
-        nameText.text = unitData.Name; 
-        costText.text = $"{unitData.GetCosts()[0].amount} G";
+        if (iconImage != null) iconImage.sprite = unitData.Icon;
+        if (nameText != null) nameText.text = unitData.Name;
+        if (costText != null) costText.text = GetCostText(unitData.GetCosts());
 
         buyButton.onClick.RemoveAllListeners();
         buyButton.onClick.AddListener(OnBuyClicked);
@@ -37,12 +38,18 @@ public class ShopSlotUI : MonoBehaviour
         targetUnit = null;
         targetTile = tileData;
 
-        iconImage.sprite = tileData.Icon;
-        nameText.text = tileData.Name;
-        costText.text = $"{tileData.GetCosts()[0].amount} G";
+        if (iconImage != null) iconImage.sprite = tileData.Icon;
+        if (nameText != null) nameText.text = tileData.Name;
+        if (costText != null) costText.text = GetCostText(tileData.GetCosts());
 
         buyButton.onClick.RemoveAllListeners();
         buyButton.onClick.AddListener(OnBuyClicked);
+    }
+
+    private string GetCostText(List<ResourceCost> costs)
+    {
+        if (costs == null || costs.Count == 0) return "무료";
+        return $"{costs[0].amount} G";
     }
 
     private void OnBuyClicked()

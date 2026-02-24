@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_SupremeEmperor_Boss_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 333
+  unitId: Enemy_SupremeEmperor_Boss_0
+  unitName: Supreme Emperor
+  description: "[BOSS] 황금 왕관과 신성한 빛을 두른 불멸의 황제. 황금 홀의 폭발이 살아있는 모든 것을 무로 돌린다."
+  icon: {fileID: 0}
+  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 2000
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 2.5
+  basePower: 90
+  attackInterval: 1.2
+  skill: {fileID: 11400000, guid: c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0
