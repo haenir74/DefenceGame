@@ -71,11 +71,23 @@ public class RewardManager : Singleton<RewardManager>
         if (unlockPopup != null)
             unlockPopup.OnUnlockConfirmed -= CompleteRewardPhase;
 
-        // 상점 아이템 재구성
-        ShopManager.Instance?.RollShopItems();
+        // 웨이브마다 재고 초기화
+        ShopManager.Instance?.ResetStocksForNewWave();
+
+        // 다음 웨이브 인덱스로 티어 확률 가져와 상점 재구성
+        TierProbabilities tierProbs = GetNextWaveTierProbs();
+        ShopManager.Instance?.RollShopItems(tierProbs);
 
         Debug.Log("[RewardManager] 보상 단계 종료 -> 정비 페이즈로 전환");
         GameManager.Instance.SwitchToMaintenancePhase();
+    }
+
+    private TierProbabilities GetNextWaveTierProbs()
+    {
+        // 다음 웨이브(= CurrentWave+1)의 WaveData에서 티어 확률 읽기
+        // WaveManager가 없거나 해당 Wave 데이터가 없으면 null 반환 (단순 랜덤 폴백)
+        if (WaveManager.Instance == null) return null;
+        return WaveManager.Instance.GetNextWaveTierProbs();
     }
 
     private int CalculateBaseReward(int wave)

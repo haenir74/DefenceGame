@@ -157,7 +157,21 @@ public class GameManager : Singleton<GameManager>
     public void SwitchToMaintenancePhase()
     {
         CurrentWave++;
+        if (CurrentWave > 30)
+        {
+            Victory();
+            return;
+        }
         ChangeState(new MaintenanceState(this));
+    }
+
+    public void Victory()
+    {
+        stateMachine?.ChangeState(new VictoryState(this));
+        Time.timeScale = 0;
+        Debug.Log("<color=yellow>[GameManager] 게임 클리어! 30웨이브 승리!</color>");
+        // TODO: VictoryScene으로 씬 전환
+        // SceneManager.LoadScene("VictoryScene");
     }
 
     public void GameOver()
@@ -194,6 +208,19 @@ public class GameManager : Singleton<GameManager>
     {
         SelectedUnitToPlace = null;
         SelectedTileToPlace = null;
+    }
+
+    /// <summary>
+    /// 드래그 앤 드롭으로 그리드 배치 시 호출.
+    /// SelectUnitToPlace 이후에 호출해야 하며, MaintenanceState의 배치 로직을 재사용.
+    /// </summary>
+    public void TryPlaceSelectedUnit(GridNode node)
+    {
+        if (!IsMaintenancePhase || node == null) return;
+        if (CurrentState is MaintenanceState ms)
+        {
+            ms.OnClickNode(node);
+        }
     }
     // ***
 

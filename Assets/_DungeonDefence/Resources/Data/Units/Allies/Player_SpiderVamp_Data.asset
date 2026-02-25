@@ -26,7 +26,7 @@ MonoBehaviour:
   moveSpeed: 4
   basePower: 30
   attackInterval: 0.7
-  skill: {fileID: 11400000, guid: v11fec7ea15ea150c48b324ed9798c481, type: 2}
+  skill: {fileID: 11400000, guid: a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7, type: 2}
   dispatchEfficiency: 0.7
   costs:
   - type: 0

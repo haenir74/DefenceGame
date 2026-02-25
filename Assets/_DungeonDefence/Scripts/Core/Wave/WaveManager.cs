@@ -135,6 +135,17 @@ public class WaveManager : Singleton<WaveManager>
         OnWaveCompleted?.Invoke();
     }
 
+    /// <summary>다음 웨이브의 티어 확률 반환 (상점 롤에 사용)</summary>
+    public TierProbabilities GetNextWaveTierProbs()
+    {
+        int nextIndex = currentWaveIndex; // 클리어 후이므로 currentWaveIndex == 다음 웨이브 인덱스
+        if (waves == null || nextIndex < 0 || nextIndex >= waves.Count) return null;
+        WaveConfig config = waves[nextIndex];
+        if (config == null || config.waveDatas == null || config.waveDatas.Count == 0) return null;
+        // 첫 번째 WaveData의 확률을 대표값으로 사용
+        return config.waveDatas[0]?.shopTierWeights;
+    }
+
     private void NotifyUI()
     {
         OnWaveInfoChanged?.Invoke(currentWaveIndex, aliveEnemiesCount, totalEnemiesInCurrentWave);

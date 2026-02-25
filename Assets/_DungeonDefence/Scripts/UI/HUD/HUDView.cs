@@ -31,12 +31,14 @@ public class HUDView : MonoBehaviour
     [SerializeField] private Button bagButton;
     [SerializeField] private Button shopButton;
     [SerializeField] private Button startWaveButton;
+    [SerializeField] private Button dispatchButton;
 
     public Button SpeedButton => speedButton;
     public Button SettingsButton => settingsButton;
     public Button BagButton => bagButton;
     public Button ShopButton => shopButton;
     public Button StartWaveButton => startWaveButton;
+    public Button DispatchButton => dispatchButton;
 
     public void UpdateCoreInfo(float current, float max)
     {

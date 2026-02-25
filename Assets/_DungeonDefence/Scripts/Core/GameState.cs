@@ -184,12 +184,26 @@ public class GameOverState : GameState
 
     public override void OnEnter()
     {
-        // TODO: 게임 오버 UI 표시
-        // UIManager.Instance?.ShowGameOverScreen();
-        Debug.Log("[GameOverState] 게임 오버 화면 표시");
+        Debug.Log("<color=red>[GameOverState] *** 게임 오버 *** 코어가 파괴되었습니다!</color>");
+        // TODO: GameOverScene으로 씬 전환
+        // SceneManager.LoadScene("GameOverScene");
     }
 
-    // 게임 오버 상태에서는 노드 클릭 등 입력 무시
+    public override void OnClickNode(GridNode node) { }
+    public override void OnCancel() { }
+}
+
+public class VictoryState : GameState
+{
+    public VictoryState(GameManager manager) : base(manager) { }
+
+    public override void OnEnter()
+    {
+        Debug.Log("<color=yellow>[VictoryState] *** 게임 클리어! *** 30웨이브를 모두 클리어했습니다!</color>");
+        // TODO: VictoryScene으로 씬 전환
+        // SceneManager.LoadScene("VictoryScene");
+    }
+
     public override void OnClickNode(GridNode node) { }
     public override void OnCancel() { }
 }

@@ -7,6 +7,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private HUDView hudView;
     [SerializeField] private InventoryUIView inventoryView;
     [SerializeField] private ShopUIView shopView;
+    [SerializeField] private DispatchPanelUI dispatchPanel;
 
     private int currentGold = 0;
     private int currentPop = 0;
@@ -25,7 +26,7 @@ public class UIManager : Singleton<UIManager>
         // 자원
         if (EconomyManager.Instance != null)
         {
-            EconomyManager.Instance.OnCurrencyChanged += (type, amount) => 
+            EconomyManager.Instance.OnCurrencyChanged += (type, amount) =>
             {
                 if (type == CurrencyType.Gold)
                 {
@@ -42,20 +43,20 @@ public class UIManager : Singleton<UIManager>
         // 코어 체력
         if (UnitManager.Instance != null)
         {
-            UnitManager.Instance.OnUnitCountChanged += (ally, enemy) => 
+            UnitManager.Instance.OnUnitCountChanged += (ally, enemy) =>
             {
                 currentPop = ally;
                 hudView?.UpdateResources(currentGold, currentPop, maxPop);
             };
-            
-            UnitManager.Instance.OnCoreHpChanged += (cur, max) => 
+
+            UnitManager.Instance.OnCoreHpChanged += (cur, max) =>
                 hudView?.UpdateCoreInfo(cur, max);
         }
 
         // 웨이브 정보
         if (WaveManager.Instance != null)
         {
-            WaveManager.Instance.OnWaveInfoChanged += (wave, rem, total) => 
+            WaveManager.Instance.OnWaveInfoChanged += (wave, rem, total) =>
                 hudView?.UpdateWaveInfo(wave, rem, total);
         }
 
@@ -63,7 +64,7 @@ public class UIManager : Singleton<UIManager>
         if (hudView != null)
         {
             hudView.SpeedButton?.onClick.AddListener(ToggleGameSpeed);
-            hudView.StartWaveButton?.onClick.AddListener(() => 
+            hudView.StartWaveButton?.onClick.AddListener(() =>
             {
                 Debug.Log("[UI] 전투 시작 요청");
                 CloseAllPopups();
@@ -71,13 +72,14 @@ public class UIManager : Singleton<UIManager>
             });
             hudView.BagButton?.onClick.AddListener(ToggleInventory);
             hudView.ShopButton?.onClick.AddListener(ToggleShop);
+            hudView.DispatchButton?.onClick.AddListener(ToggleDispatchPanel);
         }
 
         // 상점
         if (shopView != null)
         {
             shopView.OnCloseRequested += CloseShop;
-            shopView.OnRerollRequested += () => 
+            shopView.OnRerollRequested += () =>
             {
                 if (ShopManager.Instance != null)
                     ShopManager.Instance.RerollShop();
@@ -85,9 +87,9 @@ public class UIManager : Singleton<UIManager>
         }
         if (ShopManager.Instance != null)
         {
-            ShopManager.Instance.OnShopRefreshed += () => 
+            ShopManager.Instance.OnShopRefreshed += () =>
             {
-                if (shopView != null && shopView.gameObject.activeSelf) 
+                if (shopView != null && shopView.gameObject.activeSelf)
                     shopView.RefreshShop();
             };
         }
@@ -99,7 +101,7 @@ public class UIManager : Singleton<UIManager>
         {
             if (EconomyManager.Instance) currentGold = EconomyManager.Instance.GetCurrencyAmount(CurrencyType.Gold);
             hudView.UpdateResources(currentGold, currentPop, maxPop);
-            hudView.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0); 
+            hudView.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0);
             hudView.UpdateSpeed(timeScale);
 
             // 초기 코어 정보 설정
@@ -159,18 +161,19 @@ public class UIManager : Singleton<UIManager>
     {
         if (inventoryView == null) return;
 
-        // activeSelf 대신 InventoryUIView의 공개 메서드를 사용하여 상태 제어
-        // 만약 애니메이션 중인 상태를 고려한다면 InventoryUIView에 isOpen 프로퍼티를 public으로 노출하는 것이 좋습니다.
-        if (!inventoryView.gameObject.activeSelf) 
+        if (!inventoryView.gameObject.activeSelf)
         {
             shopView?.Close();
-            inventoryView.gameObject.SetActive(true); // 오브젝트가 꺼져있다면 먼저 켬
+            inventoryView.gameObject.SetActive(true);
             inventoryView.Open();
+            // 인벤토리와 파견 패널을 함께 열기
+            dispatchPanel?.gameObject.SetActive(true);
         }
         else
         {
-            // 이미 켜져 있다면 Toggle 내 로직에 따라 Close 호출
-            inventoryView.ToggleInventory(); 
+            inventoryView.ToggleInventory();
+            // 인벤토리 닫힐 때 파견 패널도 닫기
+            dispatchPanel?.gameObject.SetActive(false);
         }
     }
 
@@ -183,8 +186,8 @@ public class UIManager : Singleton<UIManager>
     // 페이즈 전환    
     public void SwitchToMaintenancePhase()
     {
-        hudView?.SetPhaseUI(false); 
-        hudView?.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0); 
+        hudView?.SetPhaseUI(false);
+        hudView?.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0);
         CloseAllPopups();
     }
 
@@ -192,5 +195,23 @@ public class UIManager : Singleton<UIManager>
     {
         hudView?.SetPhaseUI(true);
         CloseAllPopups();
+        dispatchPanel?.gameObject.SetActive(false);
+    }
+
+    public void ToggleDispatchPanel()
+    {
+        if (dispatchPanel == null) return;
+        bool isOpen = dispatchPanel.gameObject.activeSelf;
+        if (!isOpen)
+        {
+            shopView?.Close();
+            inventoryView?.Close();
+            dispatchPanel.gameObject.SetActive(true);
+        }
+        else
+        {
+            dispatchPanel.gameObject.SetActive(false);
+        }
     }
 }
+

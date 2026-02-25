@@ -274,7 +274,7 @@ public class Unit : MonoBehaviour, IPoolable
             UnitManager.Instance.UnregisterUnit(this);
     }
 
-    private void SetDispatchMode(bool enable)
+    public void SetDispatchMode(bool enable)
     {
         IsDispatched = enable;
 

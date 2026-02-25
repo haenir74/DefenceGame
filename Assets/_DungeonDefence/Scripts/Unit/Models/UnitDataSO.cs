@@ -16,6 +16,17 @@ public enum UnitCategory
     Human
 }
 
+/// <summary>
+/// 유닛 등급. 상점의 웨이브별 등장 확률에 사용됩니다.
+/// </summary>
+public enum UnitTier
+{
+    Basic = 0,        // 초급
+    Intermediate = 1, // 중급
+    Advanced = 2,     // 상급
+    Supreme = 3       // 최상급
+}
+
 [CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Datas/Unit Data")]
 public class UnitDataSO : ScriptableObject, IStorable, ITradable
 {
@@ -32,6 +43,8 @@ public class UnitDataSO : ScriptableObject, IStorable, ITradable
     [Header("Type & Team")]
     public bool isPlayerTeam;
     public UnitCategory category;
+    [Tooltip("유닛 등급: 초급/중급/상급/최상급. 상점 웨이브별 등장 확률에 사용.")]
+    public UnitTier tier;
 
     [Header("Combat Stats")]
     public float maxHp = 100f;

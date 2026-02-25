@@ -77,8 +77,11 @@ public class ShopManager : Singleton<ShopManager>
 
     // ─── 상점 슬롯 API ────────────────────────────────────────────────
 
-    /// <summary>해금된 아이템 풀에서 activeSlotCount개를 무작위 선택해 상점 구성.</summary>
-    public void RollShopItems()
+    /// <summary>
+    /// 해금된 아이템 풀에서 activeSlotCount개를 무작위 선택해 상점 구성.
+    /// tierProbs가 있으면 티어 가중치 기반 선택, 없으면 단순 랜덤.
+    /// </summary>
+    public void RollShopItems(TierProbabilities tierProbs = null)
     {
         currentShopItems.Clear();
 
@@ -90,18 +93,102 @@ public class ShopManager : Singleton<ShopManager>
             if (stock == -1 || stock > 0) available.Add(item);
         }
 
-        // Fisher-Yates 셔플 후 슬롯 수만큼 선택
-        for (int i = available.Count - 1; i > 0; i--)
+        List<ITradable> picked;
+        if (tierProbs != null)
         {
-            int j = UnityEngine.Random.Range(0, i + 1);
-            (available[i], available[j]) = (available[j], available[i]);
+            picked = RollWithTierWeights(available, activeSlotCount, tierProbs);
+        }
+        else
+        {
+            // Fisher-Yates 셔플 후 슬롯 수만큼 선택
+            for (int i = available.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (available[i], available[j]) = (available[j], available[i]);
+            }
+            int take = Mathf.Min(activeSlotCount, available.Count);
+            picked = available.GetRange(0, take);
         }
 
-        int take = Mathf.Min(activeSlotCount, available.Count);
-        for (int i = 0; i < take; i++)
-            currentShopItems.Add(available[i]);
-
+        currentShopItems.AddRange(picked);
         OnShopRefreshed?.Invoke();
+    }
+
+    private List<ITradable> RollWithTierWeights(List<ITradable> pool, int count, TierProbabilities probs)
+    {
+        // 티어별 풀 분리
+        var byTier = new System.Collections.Generic.Dictionary<UnitTier, List<ITradable>>
+        {
+            { UnitTier.Basic,        new List<ITradable>() },
+            { UnitTier.Intermediate, new List<ITradable>() },
+            { UnitTier.Advanced,     new List<ITradable>() },
+            { UnitTier.Supreme,      new List<ITradable>() },
+        };
+
+        foreach (var item in pool)
+        {
+            // 타일은 항상 Basic 취급
+            UnitTier tier = item is UnitDataSO u ? u.tier : UnitTier.Basic;
+            byTier[tier].Add(item);
+        }
+
+        int totalWeight = probs.basicWeight + probs.intermediateWeight + probs.advancedWeight + probs.supremeWeight;
+        if (totalWeight <= 0) totalWeight = 1;
+
+        var result = new List<ITradable>();
+        var used = new HashSet<ITradable>();
+
+        for (int i = 0; i < count; i++)
+        {
+            int roll = UnityEngine.Random.Range(0, totalWeight);
+            UnitTier selected;
+            if (roll < probs.basicWeight)
+                selected = UnitTier.Basic;
+            else if (roll < probs.basicWeight + probs.intermediateWeight)
+                selected = UnitTier.Intermediate;
+            else if (roll < probs.basicWeight + probs.intermediateWeight + probs.advancedWeight)
+                selected = UnitTier.Advanced;
+            else
+                selected = UnitTier.Supreme;
+
+            ITradable candidate = PickRandom(byTier[selected], used);
+
+            // 해당 티어에 없으면 전체에서 탐색
+            if (candidate == null)
+            {
+                foreach (var kv in byTier)
+                {
+                    candidate = PickRandom(kv.Value, used);
+                    if (candidate != null) break;
+                }
+            }
+
+            if (candidate != null)
+            {
+                result.Add(candidate);
+                used.Add(candidate);
+            }
+        }
+        return result;
+    }
+
+    private ITradable PickRandom(List<ITradable> pool, HashSet<ITradable> exclude)
+    {
+        var valid = pool.FindAll(x => !exclude.Contains(x));
+        if (valid.Count == 0) return null;
+        return valid[UnityEngine.Random.Range(0, valid.Count)];
+    }
+
+    /// <summary>웨이브 클리어 시 마이웨이브 재고 초기화</summary>
+    public void ResetStocksForNewWave()
+    {
+        var keys = new List<ITradable>(stockRemaining.Keys);
+        foreach (var item in keys)
+        {
+            int stock = GetInitialStock(item);
+            stockRemaining[item] = stock <= 0 ? -1 : stock;
+        }
+        Debug.Log("[Shop] 다음 웨이브 재고 초기화 완료");
     }
 
     public void RerollShop()
