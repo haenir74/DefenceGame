@@ -15,7 +15,7 @@ MonoBehaviour:
   waveIndex: 1
   description: Wave 1
   groups:
-  - unitData: {fileID: 11400000, guid: eb2dc55f82b9224438bcb40910617288, type: 2}
+  - unitData: {fileID: 11400000, guid: e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6, type: 2}
     count: 5
     spawnInterval: 2
     initialDelay: 0

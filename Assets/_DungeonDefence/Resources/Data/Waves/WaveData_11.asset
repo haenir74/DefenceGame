@@ -15,7 +15,7 @@ MonoBehaviour:
   waveIndex: 11
   description: Wave 11
   groups:
-  - unitData: {fileID: 11400000, guid: 8179f0b1b8c561a41815064907b869b3, type: 2}
+  - unitData: {fileID: 11400000, guid: d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1, type: 2}
     count: 10
     spawnInterval: 2
     initialDelay: 0

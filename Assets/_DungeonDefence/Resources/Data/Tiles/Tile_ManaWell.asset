@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b67ab77bbe56fd34b97101eee47127f5, type: 3}
+  m_Name: Tile_ManaWell
+  m_EditorClassIdentifier: 
+  tileIdNumber: 5
+  tileId: manawell
+  tileName: 마나의 샘 (Mana Well)
+  description: "마력의 파동이 느껴지는 샘입니다. 마나 회복량을 크게 늘립니다."
+  icon: {fileID: 21300000, guid: 2fe1a8a885043f1449f37b0ad87f55ab, type: 3}
+  tileSprite: {fileID: 21300000, guid: 2fe1a8a885043f1449f37b0ad87f55ab, type: 3}
+  prefab: {fileID: 0}
+  attractivenessBonus: 30
+  MaxUnitCapacity: 1
+  tileEffect: {fileID: 11400000, guid: 433b5abe2311d092c19ac79a34438906, type: 2}
+  IsDispatchTile: 0
+  baseDispatchReward: 0
+  EfficiencyMultiplier: 1
+  costs: []
+  sellPrice: 100
+  shopStock: 5

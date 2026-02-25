@@ -34,4 +34,9 @@ public class GridTile : MonoBehaviour
     {
         if (data?.tileEffect != null) data.tileEffect.OnDeath(unit);
     }
+
+    public void OnWaveClear(Unit unit)
+    {
+        if (data?.tileEffect != null) data.tileEffect.OnWaveClear(unit);
+    }
 }

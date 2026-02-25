@@ -16,7 +16,7 @@ MonoBehaviour:
   unitId: player_slime_pool
   unitName: "\uc2ac\ub77c\uc784 \ud480"
   description: "\uace0\uc815\ud615 \uc720\ub2db. \ud0c0\uc77c\uc5d0 \ubc30\uce58\ub41c \ud6c4 \uc774\ub3d9\ud558\uc9c0 \uc54a\uace0 \uc8fc\uae30\uc801\uc73c\ub85c \ub178\ub9d0 \uc2ac\ub77c\uc784\uc744 \uc18c\ud658\ud55c\ub2e4."
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: aaccc704b6a758444ba3c2e666b468a2, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 076cfe12dc7bb0c44a5144aad8bcee66, type: 3}
   isPlayerTeam: 1
   category: 1

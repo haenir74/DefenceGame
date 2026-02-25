@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class GameState : BaseState<GameManager>
 {
-    protected GameState(GameManager manager) : base(manager) {}
+    protected GameState(GameManager manager) : base(manager) { }
 
     public virtual void OnClickNode(GridNode node) { }
     public virtual void OnRightClickNode(GridNode node) { }
@@ -23,14 +23,14 @@ public class BattleStateDTO
 
 public class MaintenanceState : GameState
 {
-    public MaintenanceState(GameManager manager) : base(manager) {}
-    
-    public override void OnEnter() 
-    { 
+    public MaintenanceState(GameManager manager) : base(manager) { }
+
+    public override void OnEnter()
+    {
         UIManager.Instance?.SwitchToMaintenancePhase();
     }
 
-    public override void OnClickNode(GridNode node) 
+    public override void OnClickNode(GridNode node)
     {
         if (node == null) return;
 
@@ -50,7 +50,7 @@ public class MaintenanceState : GameState
 
     public override void OnRightClickNode(GridNode node)
     {
-        if(GameManager.Instance.SelectedUnitToPlace != null)
+        if (GameManager.Instance.SelectedUnitToPlace != null)
         {
             GameManager.Instance.ClearSelection();
         }
@@ -63,7 +63,8 @@ public class MaintenanceState : GameState
             if (InventoryManager.Instance.TryConsumeItem(unitData))
             {
                 bool success = UnitManager.Instance.SpawnUnit(unitData, node) != null;
-                if (success) {
+                if (success)
+                {
                     Debug.Log($"[Unit] 배치 완료: {unitData.Name}");
                 }
             }
@@ -81,12 +82,7 @@ public class MaintenanceState : GameState
 
     private void PlaceTile(GridNode node, TileDataSO tileData)
     {
-        // 아군 유닛이 있는 타일은 교체 불가
-        if (UnitManager.Instance.GetUnitsOnNode(node).Count > 0)
-        {
-            Debug.LogWarning("유닛이 있는 곳의 타일은 바꿀 수 없습니다.");
-            return;
-        }
+        // 유닛 유무와 상관없이 타일 배치 가능 (기존 제한 제거)
 
         if (node.CurrentTileData != null && node.CurrentTileData.ID == tileData.ID)
         {
@@ -158,7 +154,7 @@ public class BattleState : GameState
             WaveManager.Instance.OnWaveCompleted -= HandleWaveCompleted;
     }
 
-    public override void OnClickNode(GridNode node) 
+    public override void OnClickNode(GridNode node)
     {
         if (node == null) return;
         var units = UnitManager.Instance.GetUnitsOnNode(node);
@@ -180,4 +176,20 @@ public class BattleState : GameState
         yield return new WaitForSeconds(2.0f);
         GameManager.Instance.EndBattlePhase();
     }
+}
+
+public class GameOverState : GameState
+{
+    public GameOverState(GameManager manager) : base(manager) { }
+
+    public override void OnEnter()
+    {
+        // TODO: 게임 오버 UI 표시
+        // UIManager.Instance?.ShowGameOverScreen();
+        Debug.Log("[GameOverState] 게임 오버 화면 표시");
+    }
+
+    // 게임 오버 상태에서는 노드 클릭 등 입력 무시
+    public override void OnClickNode(GridNode node) { }
+    public override void OnCancel() { }
 }

@@ -7,8 +7,8 @@ using Panex.Inventory;
 public class ShopManager : Singleton<ShopManager>
 {
     [Header("Shop Settings")]
-    [Tooltip("기본 상점 슬롯 수 (웨이브 진행에 따라 증가 가능)")]
-    [SerializeField] private int activeSlotCount = 2;
+    [Tooltip("상점 슬롯 수 (4개 고정)")]
+    [SerializeField] private int activeSlotCount = 4;
     [SerializeField] private int rerollCost = 50;
 
     [Header("Unlock System")]
@@ -106,11 +106,14 @@ public class ShopManager : Singleton<ShopManager>
 
     public void RerollShop()
     {
-        if (EconomyManager.Instance.CanAfford(new List<ResourceCost>
-            { new ResourceCost { type = CurrencyType.Gold, amount = rerollCost } }))
+        var cost = new List<ResourceCost> { new ResourceCost { type = CurrencyType.Gold, amount = rerollCost } };
+        if (EconomyManager.Instance.TrySpend(cost))
         {
-            EconomyManager.Instance.AddCurrency(CurrencyType.Gold, -rerollCost);
             RollShopItems();
+        }
+        else
+        {
+            Debug.LogWarning($"[Shop] 리롤 비용 {rerollCost}G 부족.");
         }
     }
 

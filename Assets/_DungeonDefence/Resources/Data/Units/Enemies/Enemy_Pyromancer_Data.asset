@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 315
   unitId: Enemy_Pyromancer_0
   unitName: Pyromancer
-  description: 붉은 로브를 두르고 불꽃 지팡이를 든 화염 술사. 폭발적인 마력으로 적을 불태운다.
+  description: 금지된 화염 마법을 구사하는 마법사. 광범위한 지역을 불바다로 만든다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 5635840784286720337, guid: c24b687a94d220c4e99f154bacf39875, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 130

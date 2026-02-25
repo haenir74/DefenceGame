@@ -39,8 +39,19 @@ public class GameManager : Singleton<GameManager>
         {
             yield return null;
         }
+
+        // 카메라 초기 위치를 그리드 중앙으로 설정
+        int centerX = (GridManager.Instance.Data.width - 1) / 2;
+        int centerY = (GridManager.Instance.Data.height - 1) / 2;
+        GridNode centerNode = GridManager.Instance.GetNode(centerX, centerY);
+        if (centerNode != null)
+        {
+            // SmoothDamp를 타기 위해 즉시 이동이 아닌 FocusOn 호출
+            FocusCamera(centerNode);
+        }
+
         SpawnCore();
-        EconomyManager.Instance.AddCurrency(CurrencyType.Gold, 500); // Grant starting resource
+        EconomyManager.Instance.AddCurrency(CurrencyType.Gold, 500); // 사용자 요청대로 500G 지급
     }
 
     private void Update()
@@ -151,8 +162,10 @@ public class GameManager : Singleton<GameManager>
 
     public void GameOver()
     {
-        Debug.Log("Game Over!");
+        // 현재 state의 OnExit 실행 (이벤트 구독 해제 포함)
+        stateMachine?.ChangeState(new GameOverState(this));
         Time.timeScale = 0;
+        Debug.Log("[GameManager] Game Over!");
     }
     // ***
 
@@ -192,7 +205,6 @@ public class GameManager : Singleton<GameManager>
         if (coreNode != null)
         {
             UnitManager.Instance.SpawnUnit(coreUnit, coreNode);
-            FocusCamera(coreNode);
         }
     }
 

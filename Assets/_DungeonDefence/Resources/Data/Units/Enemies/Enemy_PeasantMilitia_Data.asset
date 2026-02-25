@@ -17,7 +17,7 @@ MonoBehaviour:
   unitName: Peasant Militia
   description: 농사를 짓다 강제로 징집된 민병대. 갑옷도 무기도 변변치 않지만 수적 우위로 밀어붙인다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 5219395139811590847, guid: 2f9bbb62a67920f43aa77cb5b00c1698, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 70

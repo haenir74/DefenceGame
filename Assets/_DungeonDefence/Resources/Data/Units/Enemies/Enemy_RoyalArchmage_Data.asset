@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 324
   unitId: Enemy_RoyalArchmage_0
   unitName: Royal Archmage
-  description: 보석 박힌 푸른 로브를 두른 왕궁 대마법사. 응집된 마력이 폭발하는 순간 전장이 무너진다.
+  description: 제국 최고의 마법사. 자연의 섭리를 거스르는 강력한 마법을 구사한다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 32366994243661612, guid: 3a9c4498de2650045953663b60762013, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 250

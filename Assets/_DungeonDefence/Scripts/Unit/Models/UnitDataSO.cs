@@ -5,9 +5,15 @@ using Panex.Inventory;
 
 public enum UnitCategory
 {
+    None = 0,
     Normal,
     Tower,
-    Core
+    Core,
+    Slime,
+    Spider,
+    Undead,
+    Demon,
+    Human
 }
 
 [CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Datas/Unit Data")]
@@ -48,7 +54,7 @@ public class UnitDataSO : ScriptableObject, IStorable, ITradable
     public int populationCost;
     [Tooltip("상점에서 구매 가능한 횟수. 0 = 무한")]
     public int shopStock = 5;
-    
+
     // IStorable
     public int ID => unitIdNumber;
     public string Name => unitName;

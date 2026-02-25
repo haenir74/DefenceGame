@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 332
   unitId: Enemy_GrandKnightCommander_Boss_0
   unitName: Grand Knight Commander
-  description: "[BOSS] 눈부신 백금 갑주와 붉은 망토의 기사단장. 빛나는 대검이 전장을 휩쓰는 심판자."
+  description: 제국 기사단을 총지휘하는 인물. 그의 검술은 신의 경지에 올랐다고 일컬어진다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 1503771118589632825, guid: 72e729b6acea5a0439e0a32329c3c7cc, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 1500

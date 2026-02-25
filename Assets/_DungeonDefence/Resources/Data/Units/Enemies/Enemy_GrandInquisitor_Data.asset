@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 322
   unitId: Enemy_GrandInquisitor_0
   unitName: Grand Inquisitor
-  description: 붉은 코트를 두른 이단 심문관. 처형용 대낫이 한 번 스치면 남는 것이 없다.
+  description: 이단 심문을 담당하는 고위 성직자. 적의 정신을 뒤흔드는 신성 마법을 사용한다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 5603023728712537239, guid: 352fd6a49264cdb4c8036df47d035f2c, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 400

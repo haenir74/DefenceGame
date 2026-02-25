@@ -8,8 +8,6 @@ public class EconomyManager : Singleton<EconomyManager>
     private Dictionary<CurrencyType, int> currencies = new Dictionary<CurrencyType, int>();
     public event Action<CurrencyType, int> OnCurrencyChanged;
 
-    [Header("Settings")]
-    [SerializeField] private int startingGold = 100;
 
     protected override void Awake()
     {
@@ -19,7 +17,7 @@ public class EconomyManager : Singleton<EconomyManager>
 
     private void Start()
     {
-        AddCurrency(CurrencyType.Gold, startingGold);
+        // GameManager에서 초기 자금을 일괄 배정하므로 여기서는 비워둡니다.
     }
 
     private void Initialize()
@@ -80,8 +78,4 @@ public class EconomyManager : Singleton<EconomyManager>
         return true;
     }
 
-    internal bool CanAfford()
-    {
-        throw new NotImplementedException();
-    }
 }

@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 325
   unitId: Enemy_RoyalGuard_0
   unitName: Royal Guard
-  description: 왕실 문장이 새겨진 붉은 망토의 근위대. 거대한 미늘창으로 왕을 수호한다.
+  description: 황실을 수호하는 최정예 근위병. 죽음을 두려워하지 않는 충성심을 가졌다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 4449912767592486216, guid: 46fc71ec59444d74ebd5d1dfad760de8, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 600

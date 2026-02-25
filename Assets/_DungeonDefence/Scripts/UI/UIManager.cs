@@ -101,6 +101,16 @@ public class UIManager : Singleton<UIManager>
             hudView.UpdateResources(currentGold, currentPop, maxPop);
             hudView.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0); 
             hudView.UpdateSpeed(timeScale);
+
+            // 초기 코어 정보 설정
+            if (UnitManager.Instance != null)
+            {
+                var core = UnitManager.Instance.GetAllUnits().Find(u => u.Data != null && u.Data.category == UnitCategory.Core);
+                if (core != null)
+                {
+                    hudView.UpdateCoreInfo(core.Combat.CurrentHp, core.Data.maxHp);
+                }
+            }
         }
         CloseAllPopups();
     }

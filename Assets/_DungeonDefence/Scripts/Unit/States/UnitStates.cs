@@ -73,20 +73,40 @@ public class EnemyTurnState : UnitState
         if (neighbors != null && neighbors.Count > 0)
         {
             List<GridNode> bestNodes = new List<GridNode>();
-            int maxAttr = int.MinValue;
+            float maxScore = float.MinValue;
+
+            // 패널티 및 노이즈 설정
+            int penaltyPerVisit = 50;
+            float noiseRange = 5f;
+
             foreach (var n in neighbors)
             {
-                if (n.Attractiveness > maxAttr)
+                // 1. 기본 매력도
+                float score = n.Attractiveness;
+
+                // 2. 방문 기록 패널티 적용 (누적)
+                int visitCount = 0;
+                foreach (var visitedCoord in Self.VisitedHistory)
                 {
-                    maxAttr = n.Attractiveness;
+                    if (visitedCoord == n.Coordinate) visitCount++;
+                }
+                score -= visitCount * penaltyPerVisit;
+
+                // 3. 소량의 노이즈 추가
+                score += Random.Range(-noiseRange, noiseRange);
+
+                if (score > maxScore)
+                {
+                    maxScore = score;
                     bestNodes.Clear();
                     bestNodes.Add(n);
                 }
-                else if (n.Attractiveness == maxAttr)
+                else if (Mathf.Approximately(score, maxScore))
                 {
                     bestNodes.Add(n);
                 }
             }
+
             if (bestNodes.Count > 0)
             {
                 GridNode bestNode = bestNodes[Random.Range(0, bestNodes.Count)];

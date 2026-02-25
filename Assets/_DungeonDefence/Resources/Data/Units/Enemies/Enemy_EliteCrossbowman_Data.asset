@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 313
   unitId: Enemy_EliteCrossbowman_0
   unitName: Elite Crossbowman
-  description: 무거운 쇠뇌를 다루는 정예 사수. 느리지만 한 발 한 발이 치명적이다.
+  description: 멀리서도 적의 약점을 꿰뚫는 제국 최고의 명사수.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 4556685222720753362, guid: 0ad6a40937d24744aa366d3fe4dd99ba, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 150

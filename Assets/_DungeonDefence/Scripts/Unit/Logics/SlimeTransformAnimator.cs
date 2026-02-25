@@ -2,149 +2,152 @@ using UnityEngine;
 
 /// <summary>
 /// 슬라임 유닛 전용 Transform 애니메이션.
-/// 스프라이트 시트 없이 Scale/Position만으로 Idle 탄성, 공격 찌그러짐, 이동 늘어남을 표현한다.
-/// UnitPrefab의 자식 "Model" 오브젝트에 부착.
+/// 모든 애니메이션은 localScale 대신 localPosition(Y축)만 사용.
+///
+/// ■ Idle  : Y 방향 부드러운 바운스
+/// ■ Move  : Y 방향 빠른 바운스
+/// ■ Attack: 위로 점프 → 빠르게 내리찍기 (스탬프)
+/// ■ Death : Y를 0으로 내려 바닥에 납작해지는 연출 (Scale만 예외 허용)
 /// </summary>
 public class SlimeTransformAnimator : MonoBehaviour
 {
-    [Header("Idle Animation")]
+    [Header("Idle 바운스")]
     [SerializeField] private float idleBounceSpeed = 2.5f;
-    [SerializeField] private float idleBounceAmplitude = 0.08f;
+    [SerializeField] private float idleBounceHeight = 0.05f;   // Y 오프셋 최대치
 
-    [Header("Attack Animation")]
-    [SerializeField] private float attackSquashDuration = 0.15f;
-    [SerializeField] private Vector3 attackSquashScale = new Vector3(1.3f, 0.7f, 1f);
+    [Header("Move 바운스")]
+    [SerializeField] private float moveBounceSpeed = 5f;
+    [SerializeField] private float moveBounceHeight = 0.08f;
 
-    [Header("Move Animation")]
-    [SerializeField] private float moveStretchX = 1.15f;
-    [SerializeField] private float moveStretchY = 0.88f;
+    [Header("Attack 점프-스탬프")]
+    [SerializeField] private float jumpHeight = 0.4f;          // 점프 올라가는 높이
+    [SerializeField] private float jumpUpDuration = 0.12f;     // 올라가는 데 걸리는 시간
+    [SerializeField] private float stampDownDuration = 0.07f;  // 내려찍히는 시간 (짧을수록 강렬)
+    [SerializeField] private float recoveryDuration = 0.08f;   // 원위치 복귀 시간
 
-    [Header("Death Animation")]
+    [Header("Death")]
     [SerializeField] private float deathShrinkDuration = 0.3f;
 
-    // ─── 런타임 ──────────────────────────────────────────────────────
+    // ─── 런타임 상태 ──────────────────────────────────────────────────────
     private Unit unit;
     private Vector3 baseScale;
     private Vector3 baseLocalPos;
     private float idleTimer;
 
-    // Attack squash state
-    private bool isSquashing;
-    private float squashTimer;
+    // 공격 점프 상태
+    private enum AttackPhase { None, JumpUp, StampDown, Recovery }
+    private AttackPhase attackPhase = AttackPhase.None;
+    private float attackTimer;
 
-    // Death shrink state
+    // 사망 상태
     private bool isShrinking;
     private float shrinkTimer;
+
+    // ─────────────────────────────────────────────────────────────────────
 
     public void Initialize(Unit owner)
     {
         this.unit = owner;
         baseScale = transform.localScale;
         baseLocalPos = transform.localPosition;
+
+        attackPhase = AttackPhase.None;
+        isShrinking = false;
     }
 
     private void Update()
     {
         if (unit == null) return;
 
-        if (isShrinking)
-        {
-            UpdateDeathShrink();
-            return;
-        }
+        // ── 사망 처리 ──
+        if (isShrinking) { UpdateDeathShrink(); return; }
+        if (unit.IsDead) { StartDeathShrink(); return; }
 
-        if (unit.IsDead)
-        {
-            StartDeathShrink();
-            return;
-        }
+        // ── 공격 점프 ──
+        if (attackPhase != AttackPhase.None) { UpdateAttackJump(); return; }
 
-        if (isSquashing)
-        {
-            UpdateAttackSquash();
-            return;
-        }
-
-        // 상태별 애니메이션
-        if (unit.FSM != null && unit.FSM.CurrentState is UnitCombatState)
-        {
-            // 전투 중: 공격 타이밍에 squash
-            AnimateIdle(); // 전투 대기 중에도 살짝 탄성
-        }
-        else if (unit.Movement != null && unit.Movement.IsMoving)
-        {
+        // ── 이동 / 대기 ──
+        if (unit.Movement != null && unit.Movement.IsMoving)
             AnimateMove();
-        }
         else
-        {
             AnimateIdle();
-        }
     }
 
-    // ─── Idle: 위아래 탄성 바운스 ─────────────────────────────────────
+    // ─── Idle: 부드러운 Y 바운스 ─────────────────────────────────────────
 
     private void AnimateIdle()
     {
         idleTimer += Time.deltaTime * idleBounceSpeed;
-        float bounce = Mathf.Sin(idleTimer * Mathf.PI * 2f);
+        float bounce = Mathf.Abs(Mathf.Sin(idleTimer * Mathf.PI));   // 0~1, 항상 양수
+        float yOffset = bounce * idleBounceHeight;
 
-        float scaleX = baseScale.x + bounce * idleBounceAmplitude * 0.5f;
-        float scaleY = baseScale.y - bounce * idleBounceAmplitude;
-        transform.localScale = new Vector3(scaleX, scaleY, baseScale.z);
-
-        float yOffset = Mathf.Abs(bounce) * idleBounceAmplitude * 0.3f;
         transform.localPosition = baseLocalPos + new Vector3(0f, yOffset, 0f);
+        transform.localScale = baseScale; // 스케일 고정
     }
 
-    // ─── Move: 이동 방향으로 늘어남 ───────────────────────────────────
+    // ─── Move: 빠른 Y 바운스 ─────────────────────────────────────────────
 
     private void AnimateMove()
     {
-        idleTimer += Time.deltaTime * idleBounceSpeed * 1.5f;
-        float bounce = Mathf.Sin(idleTimer * Mathf.PI * 2f);
+        idleTimer += Time.deltaTime * moveBounceSpeed;
+        float bounce = Mathf.Abs(Mathf.Sin(idleTimer * Mathf.PI));
+        float yOffset = bounce * moveBounceHeight;
 
-        float sx = baseScale.x * moveStretchX + bounce * 0.03f;
-        float sy = baseScale.y * moveStretchY - bounce * 0.02f;
-        transform.localScale = new Vector3(sx, sy, baseScale.z);
-
-        float yOffset = Mathf.Abs(bounce) * 0.05f;
         transform.localPosition = baseLocalPos + new Vector3(0f, yOffset, 0f);
+        transform.localScale = baseScale;
     }
 
-    // ─── Attack: 찌그러짐 후 복원 ────────────────────────────────────
+    // ─── Attack: 점프 → 스탬프 ───────────────────────────────────────────
 
-    /// <summary>외부에서 공격 시점에 호출하여 squash 애니메이션 재생.</summary>
+    /// <summary>외부(UnitSpriteAnimator)에서 공격 시점에 호출.</summary>
     public void PlayAttackSquash()
     {
-        isSquashing = true;
-        squashTimer = 0f;
+        attackPhase = AttackPhase.JumpUp;
+        attackTimer = 0f;
     }
 
-    private void UpdateAttackSquash()
+    private void UpdateAttackJump()
     {
-        squashTimer += Time.deltaTime;
-        float t = squashTimer / attackSquashDuration;
+        attackTimer += Time.deltaTime;
 
-        if (t < 0.5f)
+        Vector3 jumpPeak = baseLocalPos + new Vector3(0f, jumpHeight, 0f);
+
+        switch (attackPhase)
         {
-            // 찌그러지는 단계
-            float p = t * 2f;
-            transform.localScale = Vector3.Lerp(baseScale, attackSquashScale, p);
-        }
-        else if (t < 1f)
-        {
-            // 복원 단계
-            float p = (t - 0.5f) * 2f;
-            transform.localScale = Vector3.Lerp(attackSquashScale, baseScale, p);
-        }
-        else
-        {
-            transform.localScale = baseScale;
-            isSquashing = false;
+            case AttackPhase.JumpUp:
+                {
+                    float t = Mathf.Clamp01(attackTimer / jumpUpDuration);
+                    // ease-out: 처음에 빠르고 정점에서 느리게
+                    float eased = 1f - (1f - t) * (1f - t);
+                    transform.localPosition = Vector3.Lerp(baseLocalPos, jumpPeak, eased);
+                    transform.localScale = baseScale;
+
+                    if (t >= 1f) { attackPhase = AttackPhase.StampDown; attackTimer = 0f; }
+                    break;
+                }
+            case AttackPhase.StampDown:
+                {
+                    float t = Mathf.Clamp01(attackTimer / stampDownDuration);
+                    // ease-in: 처음에 느리고 바닥 직전에 빠르게 (중력감)
+                    float eased = t * t;
+                    transform.localPosition = Vector3.Lerp(jumpPeak, baseLocalPos, eased);
+                    transform.localScale = baseScale;
+
+                    if (t >= 1f) { attackPhase = AttackPhase.Recovery; attackTimer = 0f; }
+                    break;
+                }
+            case AttackPhase.Recovery:
+                {
+                    // 이미 baseLocalPos에 도달했으므로 즉시 완료
+                    transform.localPosition = baseLocalPos;
+                    transform.localScale = baseScale;
+                    attackPhase = AttackPhase.None;
+                    break;
+                }
         }
     }
 
-    // ─── Death: 바닥으로 납작해지며 사라짐 ────────────────────────────
+    // ─── Death: Y=0으로 납작해짐 ─────────────────────────────────────────
 
     private void StartDeathShrink()
     {
@@ -157,24 +160,25 @@ public class SlimeTransformAnimator : MonoBehaviour
         shrinkTimer += Time.deltaTime;
         float t = Mathf.Clamp01(shrinkTimer / deathShrinkDuration);
 
-        float sy = Mathf.Lerp(baseScale.y, 0f, t);
-        float sx = Mathf.Lerp(baseScale.x, baseScale.x * 1.5f, t);
-        transform.localScale = new Vector3(sx, sy, baseScale.z);
-        transform.localPosition = baseLocalPos;
+        // 아래로 꺼지는 느낌: Y만 줄임
+        float yOffset = Mathf.Lerp(0f, -baseLocalPos.y - 0.1f, t);
+        transform.localPosition = baseLocalPos + new Vector3(0f, yOffset, 0f);
 
-        if (t >= 1f)
-        {
-            isShrinking = false;
-        }
+        // 크기도 천천히 줄어듦 (사망 시에만 스케일 사용)
+        transform.localScale = Vector3.Lerp(baseScale, Vector3.zero, t);
+
+        if (t >= 1f) isShrinking = false;
     }
 
-    /// <summary>풀에서 재사용 시 상태 초기화.</summary>
+    // ─── 풀 재사용 초기화 ────────────────────────────────────────────────
+
     public void ResetAnimation()
     {
-        isSquashing = false;
+        attackPhase = AttackPhase.None;
         isShrinking = false;
         idleTimer = 0f;
-        transform.localScale = baseScale;
+        attackTimer = 0f;
         transform.localPosition = baseLocalPos;
+        transform.localScale = baseScale;
     }
 }

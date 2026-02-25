@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 311
   unitId: Enemy_VeteranMercenary_0
   unitName: Veteran Mercenary
-  description: 수많은 전장을 누빈 노련한 용병. 흉터만큼 강인하며 양손검 한 번 휘두름에 전선이 무너진다.
+  description: 수많은 전장을 누비며 살아남은 베테랑 용병. 어떤 상황에서도 침착하게 대처한다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 8174972635318718826, guid: 86487a16a0726b547866cbd501dc50fe, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 200

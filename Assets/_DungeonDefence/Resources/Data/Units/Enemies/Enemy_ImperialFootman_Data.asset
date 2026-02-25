@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 303
   unitId: Enemy_ImperialFootman_0
   unitName: Imperial Footman
-  description: 제국군의 기본 보병. 투박한 갑주를 두르고 검으로 전선을 지킨다.
+  description: 제국군의 정규 보병. 단단한 방패와 갑옷으로 전열을 유지하는 데 특화되어 있다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 2204603820271525869, guid: f645e7688c73a6941a6697cd75b54fba, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 100

@@ -21,6 +21,8 @@ public class UnitCombat : MonoBehaviour
 
     public event Action OnDeath;
     public event Action<float> OnHpChanged;
+    public float MpMultiplier { get; set; } = 1.0f;
+    public float AttackMultiplier { get; set; } = 1.0f;
 
     public void Initialize(Unit unit, UnitDataSO data)
     {
@@ -31,6 +33,8 @@ public class UnitCombat : MonoBehaviour
         this.currentHp = data != null ? data.maxHp : 100f;
         this.currentMp = data != null ? data.startMp : 0f;
         this.attackTimer = 0f;
+        this.MpMultiplier = 1.0f;
+        this.AttackMultiplier = 1.0f;
     }
 
     public void OnUpdate()
@@ -88,20 +92,29 @@ public class UnitCombat : MonoBehaviour
         else
         {
             // 기본 공격
-            target.Combat.TakeDamage(data.basePower);
+            target.Combat.TakeDamage(data.basePower * AttackMultiplier);
 
             // 기본 공격 1회당 10MP 충전
             if (hasSkill)
             {
-                currentMp = Mathf.Min(currentMp + 10f, data.maxMp);
+                AddMp(10f * MpMultiplier);
             }
         }
 
         attackTimer = data.attackInterval;
 
-        // 공격 애니메이션 트리거 (슬라임 squash 등)
-        var animator = unit?.GetComponentInChildren<UnitSpriteAnimator>();
-        if (animator != null) animator.TriggerAttackAnimation();
+        // 공격 애니메이션 트리거 (슬라임 squash 또는 Mecanim 트리거)
+        var spriteAnimator = unit?.GetComponentInChildren<UnitSpriteAnimator>();
+        if (spriteAnimator != null) spriteAnimator.TriggerAttackAnimation();
+
+        var mecanimAnimator = unit?.GetComponentInChildren<UnitMecanimAnimator>();
+        if (mecanimAnimator != null) mecanimAnimator.TriggerAttackAnimation();
+    }
+
+    public void AddMp(float amount)
+    {
+        if (IsDead || data == null || data.maxMp <= 0) return;
+        currentMp = Mathf.Min(currentMp + amount, data.maxMp);
     }
 
     private void Die()

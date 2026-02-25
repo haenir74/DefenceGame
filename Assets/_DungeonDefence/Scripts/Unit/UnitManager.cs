@@ -17,15 +17,26 @@ public class UnitManager : Singleton<UnitManager>
 
     public void Initialize()
     {
-        // Any initialization needed
+        if (unitContainer == null)
+        {
+            var containerObj = GameObject.Find("UnitContainer");
+            if (containerObj == null)
+                containerObj = new GameObject("UnitContainer");
+            unitContainer = containerObj.transform;
+        }
     }
 
     private void Update()
     {
-        for (int i = activeUnits.Count - 1; i >= 0; i--)
+        // 자폭 연쇄 반응 등으로 activeUnits 리스트가 실시간 수정될 수 있으므로
+        // 리스트를 복사하여 순회함으로써 IndexOutOfRange 에러를 방지합니다.
+        var unitsToUpdate = new List<Unit>(activeUnits);
+        for (int i = unitsToUpdate.Count - 1; i >= 0; i--)
         {
-            var unit = activeUnits[i];
-            if (unit != null && unit.gameObject.activeSelf && !unit.IsDead)
+            var unit = unitsToUpdate[i];
+
+            // 유닛이 아직 유효하고(제거되지 않았고) 살아있는 경우에만 업데이트
+            if (unit != null && unit.gameObject.activeSelf && !unit.IsDead && activeUnits.Contains(unit))
             {
                 unit.OnUpdate();
             }
@@ -34,7 +45,21 @@ public class UnitManager : Singleton<UnitManager>
 
     public Unit SpawnUnit(UnitDataSO data, GridNode node)
     {
-        if (data == null || data.prefab == null || node == null) return null;
+        if (data == null)
+        {
+            Debug.LogError("[UnitManager] SpawnUnit failed: UnitDataSO is null");
+            return null;
+        }
+        if (data.prefab == null)
+        {
+            Debug.LogError($"[UnitManager] SpawnUnit failed: Prefab is null for {data.unitId}");
+            return null;
+        }
+        if (node == null)
+        {
+            Debug.LogError($"[UnitManager] SpawnUnit failed: Target node is null for {data.unitId}");
+            return null;
+        }
 
         Unit newUnit = null;
 
@@ -56,10 +81,22 @@ public class UnitManager : Singleton<UnitManager>
             newUnit.gameObject.SetActive(true);
             newUnit.transform.SetParent(this.unitContainer);
 
-            // 슬롯 배정: 빈 슬롯 위치로 스폰
-            float cellSize = GridManager.Instance?.Data?.cellSize ?? 1f;
-            Vector3? slotPos = node.TryOccupySlot(newUnit, cellSize);
-            newUnit.transform.position = slotPos ?? node.WorldPosition;
+            // 코어는 슬롯을 점유하지 않고 항상 중앙에 배치
+            bool isCore = data.category == UnitCategory.Core;
+            if (isCore)
+            {
+                Vector3 center = node.WorldPosition;
+                newUnit.transform.position = new Vector3(center.x, UnitConstants.UNIT_HEIGHT, center.z);
+                Debug.Log($"[UnitManager] Spawning Core at {newUnit.transform.position}");
+            }
+            else
+            {
+                // 일반 유닛: 빈 슬롯 위치로 스폰 (X·Z만 사용, Y는 UNIT_HEIGHT로 고정)
+                float cellSize = GridManager.Instance?.Data?.cellSize ?? 1f;
+                Vector3? slotPos = node.TryOccupySlot(newUnit, cellSize);
+                Vector3 rawPos = slotPos ?? node.WorldPosition;
+                newUnit.transform.position = new Vector3(rawPos.x, UnitConstants.UNIT_HEIGHT, rawPos.z);
+            }
 
             newUnit.Initialize(data, node);
             RegisterUnit(newUnit);
@@ -84,7 +121,8 @@ public class UnitManager : Singleton<UnitManager>
         // 코어 유닛 특수 처리
         if (unit.Data != null && unit.Data.category == UnitCategory.Core)
         {
-            NotifyCoreHp(unit.Combat.CurrentHp, unit.Combat.MaxHp);
+            Debug.Log($"[UnitManager] Core Registered: {unit.name}");
+            NotifyCoreHp(unit.Combat.CurrentHp, unit.Data.maxHp);
 
             // 기존 이벤트 제거 후 등록 (중복 방지)
             unit.Combat.OnHpChanged -= OnCoreHpChangedCallback;
@@ -95,10 +133,10 @@ public class UnitManager : Singleton<UnitManager>
     private void OnCoreHpChangedCallback(float hp)
     {
         // 모든 코어 중 첫 번째 것의 체력을 UI에 표시 (보통 코어는 1개)
-        var core = activeUnits.FirstOrDefault(u => u.Data != null && u.Data.category == UnitCategory.Core);
+        var core = activeUnits.FirstOrDefault(u => u != null && u.Data != null && u.Data.category == UnitCategory.Core);
         if (core != null)
         {
-            NotifyCoreHp(hp, core.Combat.MaxHp);
+            NotifyCoreHp(hp, core.Data.maxHp);
         }
     }
 
@@ -158,6 +196,19 @@ public class UnitManager : Singleton<UnitManager>
     }
 
     public List<Unit> GetAllUnits() => activeUnits;
+
+    public void NotifyWaveClear()
+    {
+        // 현재 맵의 모든 유닛에게 웨이브 클리어 알림 (주로 보너스 골드 지급 등)
+        for (int i = activeUnits.Count - 1; i >= 0; i--)
+        {
+            var unit = activeUnits[i];
+            if (unit != null && !unit.IsDead)
+            {
+                unit.OnWaveClear();
+            }
+        }
+    }
 
     public void MoveUnit(Unit unit, GridNode from, GridNode to)
     {

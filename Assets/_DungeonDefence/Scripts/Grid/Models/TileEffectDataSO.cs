@@ -21,4 +21,7 @@ public abstract class TileEffectDataSO : ScriptableObject
 
     /// <summary>유닛이 이 타일 위에서 사망할 때 호출.</summary>
     public virtual void OnDeath(Unit unit) { }
+
+    /// <summary>웨이브가 클리어되었을 때 이 타일 위에 유닛이 있으면 호출.</summary>
+    public virtual void OnWaveClear(Unit unit) { }
 }

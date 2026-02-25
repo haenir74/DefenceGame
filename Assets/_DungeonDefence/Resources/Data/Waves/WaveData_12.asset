@@ -15,15 +15,15 @@ MonoBehaviour:
   waveIndex: 12
   description: Wave 12
   groups:
-  - unitData: {fileID: 11400000, guid: 5e256bbe96595f2458c001c936726b49, type: 2}
+  - unitData: {fileID: 11400000, guid: d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1, type: 2}
     count: 5
     spawnInterval: 1.5
     initialDelay: 0
-  - unitData: {fileID: 11400000, guid: 8179f0b1b8c561a41815064907b869b3, type: 2}
+  - unitData: {fileID: 11400000, guid: e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2, type: 2}
     count: 5
     spawnInterval: 1.5
     initialDelay: 0
-  - unitData: {fileID: 11400000, guid: b821db14c7437004e90007c264c39928, type: 2}
+  - unitData: {fileID: 11400000, guid: f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3, type: 2}
     count: 5
     spawnInterval: 1.5
     initialDelay: 0

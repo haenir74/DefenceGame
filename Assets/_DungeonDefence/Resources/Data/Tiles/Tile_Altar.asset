@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b67ab77bbe56fd34b97101eee47127f5, type: 3}
+  m_Name: Tile_Altar
+  m_EditorClassIdentifier: 
+  tileIdNumber: 7
+  tileId: altar
+  tileName: 암흑 제단 (Altar of Shadow)
+  description: "어둠의 힘이 깃든 제단입니다. 언데드와 악마를 강화합니다."
+  icon: {fileID: 21300000, guid: 478d8e2fe5b664345b5ac27960dcb3fd, type: 3}
+  tileSprite: {fileID: 21300000, guid: 478d8e2fe5b664345b5ac27960dcb3fd, type: 3}
+  prefab: {fileID: 0}
+  attractivenessBonus: 20
+  MaxUnitCapacity: 1
+  tileEffect: {fileID: 11400000, guid: bf5589381409229a258efabf0b566b83, type: 2}
+  IsDispatchTile: 0
+  baseDispatchReward: 0
+  EfficiencyMultiplier: 1
+  costs: []
+  sellPrice: 100
+  shopStock: 5

@@ -15,11 +15,11 @@ MonoBehaviour:
   waveIndex: 21
   description: Wave 21
   groups:
-  - unitData: {fileID: 11400000, guid: f93652ec98f67cb46aa5692dd58e14ac, type: 2}
+  - unitData: {fileID: 11400000, guid: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f7, type: 2}
     count: 10
     spawnInterval: 2
     initialDelay: 0
-  - unitData: {fileID: 11400000, guid: e1b14c1d43f8c844c8346fb1b2725e46, type: 2}
+  - unitData: {fileID: 11400000, guid: d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6b8, type: 2}
     count: 5
     spawnInterval: 2
     initialDelay: 0

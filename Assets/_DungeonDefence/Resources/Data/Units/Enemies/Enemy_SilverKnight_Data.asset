@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 312
   unitId: Enemy_SilverKnight_0
   unitName: Silver Knight
-  description: 은빛 전신 갑옷을 두른 정예 기사. 묵직한 기병창이 방패를 꿰뚫는다.
+  description: 은빛 갑옷을 두른 정예 기사. 강력한 돌파력으로 적의 방어선을 무너뜨린다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 8031784776554945880, guid: b282e813a8ad3914685d6276129cc248, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 300

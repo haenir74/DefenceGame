@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 314
   unitId: Enemy_BattleCleric_0
   unitName: Battle Cleric
-  description: 십자 문양의 사제복을 두른 전투 사제. 싸우면서도 쉬임 없이 아군을 치유한다.
+  description: 신성한 힘으로 아군을 치유하고 적을 정화하는 전투 사제.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 3411364385336548188, guid: cc12815f12928284082beb0f0bee55fe, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 180

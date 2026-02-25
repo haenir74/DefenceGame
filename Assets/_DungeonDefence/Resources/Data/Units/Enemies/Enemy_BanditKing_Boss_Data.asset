@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 331
   unitId: Enemy_BanditKing_Boss_0
   unitName: Bandit King
-  description: "[BOSS] 도적 떼를 지배하는 폭군. 가시 돋친 거대 철퇴의 한 방이 주변을 모두 휩쓸어버린다."
+  description: 무법지대를 통치하는 도적들의 왕. 비열하지만 압도적인 무력을 소유했다.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 7088850525797320623, guid: 37a51c7fdb5a5f742b8b098e9d84b031, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 1000

@@ -15,11 +15,11 @@ MonoBehaviour:
   waveIndex: 26
   description: Wave 26
   groups:
-  - unitData: {fileID: 11400000, guid: 5e256bbe96595f2458c001c936726b49, type: 2}
+  - unitData: {fileID: 11400000, guid: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f7, type: 2}
     count: 15
     spawnInterval: 1
     initialDelay: 0
-  - unitData: {fileID: 11400000, guid: 8179f0b1b8c561a41815064907b869b3, type: 2}
+  - unitData: {fileID: 11400000, guid: d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6b8, type: 2}
     count: 15
     spawnInterval: 1
     initialDelay: 0

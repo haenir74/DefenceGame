@@ -15,9 +15,9 @@ MonoBehaviour:
   unitIdNumber: 321
   unitId: Enemy_PaladinCommander_0
   unitName: Paladin Commander
-  description: 황금 갑주를 두른 성기사단의 수장. 신성한 대검이 빛을 발하며 사악한 자들을 심판한다.
+  description: 성스러운 의지로 군대를 이끄는 팔라딘 지휘관.
   icon: {fileID: 0}
-  prefab: {fileID: 2573380989020623195, guid: e5ab4ddaf68d68243b464b6b42eae01f, type: 3}
+  prefab: {fileID: 3572183913930512746, guid: 7abb79e32c7f1dc4093f3a97390c2aa1, type: 3}
   isPlayerTeam: 0
   category: 0
   maxHp: 500

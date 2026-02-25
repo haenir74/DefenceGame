@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// 사망 시 발동: 같은 타일의 모든 적에게 피해를 주고, 선택 시 독 상태이상(지속 피해)을 부여.
@@ -25,15 +26,21 @@ public class DeathExplosionSkillSO : SkillDataSO
     {
         if (owner == null || owner.CurrentNode == null) return;
 
-        List<Unit> enemies = GetEnemies(owner);
-        foreach (Unit enemy in enemies)
+        // 같은 타일에 있는 유닛들 중
+        // 1. 자기 자신이 아니고 2. 아군(플레이어 팀)이 아닌 '적'에게만 피해를 줍니다.
+        var unitsOnTile = UnitManager.Instance.GetUnitsOnNode(owner.CurrentNode);
+        List<Unit> targets = unitsOnTile
+            .Where(u => u != owner && !u.IsPlayerTeam && !u.IsDead)
+            .ToList();
+
+        foreach (Unit target in targets)
         {
-            enemy.Combat.TakeDamage(explosionDamage);
-            Debug.Log($"<color=red>[DeathExplosion] {owner.Data.unitName} \uc790\ud3ed! {enemy.Data.unitName}\uc5d0\uac8c {explosionDamage} \ud53c\ud574</color>");
+            target.Combat.TakeDamage(explosionDamage);
+            Debug.Log($"<color=red>[DeathExplosion] {owner.Data.unitName} 자폭! {target.Data.unitName}에게 {explosionDamage} 피해</color>");
 
             if (isPoisonType)
             {
-                ApplyPoison(enemy);
+                ApplyPoison(target);
             }
         }
     }
