@@ -18,6 +18,9 @@ public abstract class SkillDataSO : ScriptableObject
     /// <summary>유닛의 매 Update마다 호출 (지속 효과 등)</summary>
     public virtual void OnUnitUpdate(Unit owner) { }
 
+    /// <summary>유닛이 적을 처치했을 때 호출 (처치 시 보너스 등)</summary>
+    public virtual void OnUnitKill(Unit owner, Unit victim) { }
+
     protected List<Unit> GetEnemies(Unit caster)
     {
         if (caster.CurrentNode == null) return new List<Unit>();

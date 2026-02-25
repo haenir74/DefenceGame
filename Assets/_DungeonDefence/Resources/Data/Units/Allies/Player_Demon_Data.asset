@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Player_Demon_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 200
+  unitId: player_demon
+  unitName: "\ub370\ubaac"
+  description: "\uc9c0\uc625\uc5d0\uc11c \uc628 \uac15\ub825\ud55c \ucc28\uc0ac."
+  icon: {fileID: 21300000, guid: cc75a7d60777fc340802747d46c54006, type: 3}
+  prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000101, type: 3}
+  isPlayerTeam: 1
+  category: 7
+  maxHp: 1200
+  maxMp: 0
+  startMp: 0
+  moveSpeed: 4
+  basePower: 60
+  attackInterval: 1.2
+  skill: {fileID: 0}
+  dispatchEfficiency: 0.8
+  costs:
+  - type: 0
+    amount: 1000
+  populationCost: 4
+  shopStock: 5

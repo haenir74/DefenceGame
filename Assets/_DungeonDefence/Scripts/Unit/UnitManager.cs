@@ -232,11 +232,11 @@ public class UnitManager : Singleton<UnitManager>
         }
     }
 
-    public void DamageUnit(Unit target, float amount)
+    public void DamageUnit(Unit target, float amount, Unit attacker = null)
     {
         if (target != null && !target.IsDead)
         {
-            target.Combat.TakeDamage(amount);
+            target.Combat.TakeDamage(amount, attacker);
         }
     }
 

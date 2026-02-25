@@ -23,7 +23,6 @@ public class SlimeTransformAnimator : MonoBehaviour
     [SerializeField] private float jumpHeight = 0.4f;          // 점프 올라가는 높이
     [SerializeField] private float jumpUpDuration = 0.12f;     // 올라가는 데 걸리는 시간
     [SerializeField] private float stampDownDuration = 0.07f;  // 내려찍히는 시간 (짧을수록 강렬)
-    [SerializeField] private float recoveryDuration = 0.08f;   // 원위치 복귀 시간
 
     [Header("Death")]
     [SerializeField] private float deathShrinkDuration = 0.3f;

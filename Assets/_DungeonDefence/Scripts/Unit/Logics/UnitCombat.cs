@@ -21,6 +21,7 @@ public class UnitCombat : MonoBehaviour
 
     public event Action OnDeath;
     public event Action<float> OnHpChanged;
+    public event Action<Unit> OnAttack; // target
     public float MpMultiplier { get; set; } = 1.0f;
     public float AttackMultiplier { get; set; } = 1.0f;
 
@@ -46,7 +47,7 @@ public class UnitCombat : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, Unit attacker = null)
     {
         if (IsDead || (unit != null && unit.IsDispatched)) return;
 
@@ -56,6 +57,19 @@ public class UnitCombat : MonoBehaviour
         if (currentHp <= 0)
         {
             Die();
+            if (attacker != null)
+            {
+                attacker.Combat.NotifyKill(unit);
+            }
+        }
+    }
+
+    public void NotifyKill(Unit victim)
+    {
+        // 스킬 등에 처치 알림 보냄
+        if (data != null && data.skill != null)
+        {
+            data.skill.OnUnitKill(unit, victim);
         }
     }
 
@@ -92,7 +106,7 @@ public class UnitCombat : MonoBehaviour
         else
         {
             // 기본 공격
-            target.Combat.TakeDamage(data.basePower * AttackMultiplier);
+            target.Combat.TakeDamage(data.basePower * AttackMultiplier, unit);
 
             // 기본 공격 1회당 10MP 충전
             if (hasSkill)
@@ -101,6 +115,7 @@ public class UnitCombat : MonoBehaviour
             }
         }
 
+        OnAttack?.Invoke(target);
         attackTimer = data.attackInterval;
 
         // 공격 애니메이션 트리거 (슬라임 squash 또는 Mecanim 트리거)
