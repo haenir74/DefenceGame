@@ -4,5 +4,17 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_DungeonDefence/Scenes/01_TitleScene.unity
+    guid: 63b1e19a30e8b4b44ac79f9a1bedeb53
+  - enabled: 1
+    path: Assets/_DungeonDefence/Scenes/02_LobbyScene.unity
+    guid: 489de0fa22847d94a82f074eb73783d3
+  - enabled: 1
+    path: Assets/_DungeonDefence/Scenes/03_GameScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/_DungeonDefence/Scenes/04_ResultScene.unity
+    guid: 9c47e794a465a7f40b3861e6fa84daf7
   m_configObjects: {}

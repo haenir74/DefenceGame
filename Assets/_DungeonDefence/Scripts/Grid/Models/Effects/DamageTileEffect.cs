@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "DamageEffect", menuName = "DungeonDefence/Effects/Damage")]
 public class DamageTileEffect : TileEffectDataSO
@@ -32,3 +32,6 @@ public class DamageTileEffect : TileEffectDataSO
         return false;
     }
 }
+
+
+

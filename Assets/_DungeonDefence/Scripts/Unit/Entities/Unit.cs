@@ -1,13 +1,13 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour, IPoolable
 {
-    [Header("Data")]
+    
     [SerializeField] private UnitDataSO data;
 
-    [Header("Components")]
+    
     [SerializeField] private UnitMovement movement;
     [SerializeField] private UnitCombat combat;
     [SerializeField] private SpriteRenderer modelRenderer;
@@ -35,7 +35,7 @@ public class Unit : MonoBehaviour, IPoolable
         if (combat == null) combat = GetComponent<UnitCombat>();
         if (modelRenderer == null) modelRenderer = GetComponentInChildren<SpriteRenderer>();
 
-        // 프리팹에 없으면 런타임에 자동 추가
+        
         if (GetComponent<UnitVisualController>() == null)
             gameObject.AddComponent<UnitVisualController>();
     }
@@ -66,26 +66,26 @@ public class Unit : MonoBehaviour, IPoolable
 
             if (data != null && data.category == UnitCategory.Core)
             {
-                // 코어: 타일 중앙에 배치 (슬롯 오프셋 무시)
+                
                 Vector3 center = startNode.WorldPosition;
                 transform.position = new Vector3(center.x, UnitConstants.UNIT_HEIGHT, center.z);
-                Debug.Log($"[Unit] Core initialized at center: {transform.position}");
+                
             }
             else
             {
-                // 일반 유닛: SpawnUnit()이 이미 슬롯 위치를 설정함 → X·Z 유지, Y만 보정
+                
                 Vector3 cur = transform.position;
                 transform.position = new Vector3(cur.x, UnitConstants.UNIT_HEIGHT, cur.z);
             }
 
             if (movement != null) movement.Initialize(this);
-            // Dispatch mode is now handled exclusively via the UI/DispatchManager
+            
             SetDispatchMode(false);
 
         }
 
-        // ▼ 위치 세팅 직후, 애니메이터보다 먼저 실행해야
-        //   SlimeTransformAnimator가 보정된 localPosition/Scale을 baseLocalPos로 캡처함
+        
+        
         var visualController = GetComponent<UnitVisualController>();
         if (visualController != null) visualController.Apply();
 
@@ -111,7 +111,7 @@ public class Unit : MonoBehaviour, IPoolable
 
     public void OnDespawn()
     {
-        // HandleDeath에서 이미 UnregisterUnit을 호출하므로 여기서는 비활성화만 처리
+        
         IsDead = true;
         gameObject.SetActive(false);
     }
@@ -132,7 +132,7 @@ public class Unit : MonoBehaviour, IPoolable
     private void AddVisitedNode(Vector2Int coord)
     {
         VisitedHistory.Add(coord);
-        // 필요하다면 리스트 크기 제한을 둘 수도 있음 (예: 최근 10개)
+        
         if (VisitedHistory.Count > 20) VisitedHistory.RemoveAt(0);
     }
 
@@ -141,7 +141,7 @@ public class Unit : MonoBehaviour, IPoolable
         GridNode newNode = GridManager.Instance.GetNode(coord.x, coord.y);
         if (newNode != null)
         {
-            // 이전 타일 OnExit
+            
             if (CurrentNode != null && CurrentNode.Tile != null && !CurrentNode.Equals(newNode))
             {
                 CurrentNode.Tile.OnUnitExit(this);
@@ -149,7 +149,7 @@ public class Unit : MonoBehaviour, IPoolable
 
             SetNode(newNode);
 
-            // 새 타일 OnEnter
+            
             if (CurrentNode.Tile != null)
             {
                 CurrentNode.Tile.OnUnitEnter(this);
@@ -205,13 +205,13 @@ public class Unit : MonoBehaviour, IPoolable
         if (combat != null) combat.OnUpdate();
         if (movement != null) movement.OnUpdate();
 
-        // 스킬 지속 효과 (매 업데이트 호출)
+        
         if (data != null && data.skill != null)
         {
             data.skill.OnUnitUpdate(this);
         }
 
-        // 타일 OnUpdate 이벤트 (체류 중 효과)
+        
         if (!IsDispatched && CurrentNode?.Tile != null)
         {
             CurrentNode.Tile.OnUnitUpdate(this);
@@ -220,35 +220,35 @@ public class Unit : MonoBehaviour, IPoolable
 
     private void HandleDeath()
     {
-        if (IsDead) return; // Prevent double trigger
+        if (IsDead) return; 
         IsDead = true;
 
-        // 이동 중이었다면 목적지 슬롯 해제
+        
         if (movement != null && movement.IsMoving)
             movement.CancelMove();
 
-        // 타일 OnDeath 이벤트
+        
         if (CurrentNode?.Tile != null)
         {
             CurrentNode.Tile.OnUnitDeath(this);
         }
 
-        // 사망 시 스킬 발동 (DeathExplosion / DeathSplit 등)
-        // 슬롯 해제 전에 호출해야 현재 타일 정보를 사용 가능
+        
+        
         if (data != null && data.skill != null)
         {
             data.skill.OnUnitDie(this);
         }
 
-        // 슬롯 해제
+        
         CurrentNode?.ReleaseSlot(this);
 
         if (data != null && data.category == UnitCategory.Core)
         {
-            Debug.Log($"[Unit] Core has been destroyed.");
+            
         }
 
-        // UnregisterUnit은 여기서 한 번만 호출 (OnDespawn/OnDestroy 중복 방지)
+        
         if (UnitManager.Instance != null)
             UnitManager.Instance.UnregisterUnit(this);
 
@@ -265,7 +265,7 @@ public class Unit : MonoBehaviour, IPoolable
 
     private void OnDestroy()
     {
-        // IsDead가 아닌 경우(씬 전환 등 비정상 소멸)에만 UnregisterUnit 호출
+        
         if (!IsDead && UnitManager.Instance != null)
             UnitManager.Instance.UnregisterUnit(this);
     }
@@ -284,7 +284,7 @@ public class Unit : MonoBehaviour, IPoolable
                 modelRenderer.color = color;
             }
 
-            Debug.Log($"[Unit] {Data.Name} 파견 업무 시작 (전투 제외됨)");
+            
         }
         else
         {
@@ -298,10 +298,10 @@ public class Unit : MonoBehaviour, IPoolable
         }
     }
 
-    /// <summary>
-    /// [FIX] 드래그 중이거나 클릭 상태일 때 유닛을 보이지 않게 하고 상호작용을 끕니다.
-    /// 유닛 자체가 비활성화(SetActive(false))되면 OnDrag 등이 중단되므로 이 방식을 사용합니다.
-    /// </summary>
+    
+    
+    
+    
     public void SetVisualVisible(bool visible)
     {
         if (modelRenderer != null) modelRenderer.enabled = visible;
@@ -309,6 +309,9 @@ public class Unit : MonoBehaviour, IPoolable
         var col = GetComponent<Collider>();
         if (col != null) col.enabled = visible;
 
-        // 투명도나 다른 연출이 필요하면 여기서 추가 처리
+        
     }
 }
+
+
+

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,28 +6,28 @@ using TMPro;
 
 public class HUDView : MonoBehaviour
 {
-    [Header("Core Info")]
+    
     [SerializeField] private Slider coreHpSlider;
     [SerializeField] private TextMeshProUGUI coreHpText;
 
-    [Header("Battle Status")]
+    
     [SerializeField] private TextMeshProUGUI waveText;
     [SerializeField] private TextMeshProUGUI enemyCountText;
 
-    [Header("Resources")]
+    
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI populationText;
 
-    [Header("System")]
+    
     [SerializeField] private Button speedButton;
     [SerializeField] private TextMeshProUGUI speedText;
     [SerializeField] private Button settingsButton;
 
-    [Header("Phase UI Containers")]
+    
     [SerializeField] private GameObject maintenancePanel;
     [SerializeField] private GameObject battlePanel;
 
-    [Header("Maintenance Controls")]
+    
     [SerializeField] private Button bagButton;
     [SerializeField] private Button shopButton;
     [SerializeField] private Button startWaveButton;
@@ -80,3 +80,6 @@ public class HUDView : MonoBehaviour
         if (battlePanel != null) battlePanel.SetActive(isBattlePhase);
     }
 }
+
+
+

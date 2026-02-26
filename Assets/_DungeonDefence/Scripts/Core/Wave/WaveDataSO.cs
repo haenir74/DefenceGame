@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,13 +11,10 @@ public class WaveGroup
     public float initialDelay = 0.5f;
 }
 
-/// <summary>
-/// 웨이브별 상점 티어 등장 확률 (웨이트 합산 기준, 비율 기반 무작위 선택)
-/// </summary>
 [System.Serializable]
 public class TierProbabilities
 {
-    [Tooltip("웨이트 합산 기준. 기본: 70/20/10/0")]
+    
     public int basicWeight = 70;
     public int intermediateWeight = 20;
     public int advancedWeight = 10;
@@ -45,3 +42,5 @@ public class WaveDataSO : ScriptableObject
         return total;
     }
 }
+
+

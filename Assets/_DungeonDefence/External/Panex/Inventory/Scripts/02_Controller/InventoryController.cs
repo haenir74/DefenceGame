@@ -43,13 +43,13 @@ namespace Panex.Inventory.Controller
         {
             if (settings == null) return;
 
-            // 1. Model 연결
+            
             if (model != null) model.OnInventoryUpdated -= HandleModelUpdate;
 
             model = new InventoryModel(settings.Capacity);
             model.OnInventoryUpdated += HandleModelUpdate;
 
-            // 2. View 연결
+            
             if (view == null) view = GetComponentInChildren<InventoryView>();
             if (view != null)
             {
@@ -69,9 +69,9 @@ namespace Panex.Inventory.Controller
         }
 
 
-        // ========================================================================
-        // 내부 로직
-        // ========================================================================
+        
+        
+        
         private void HandleModelUpdate(Panex.Inventory.Model.Slot[] slots)
         {
             if (view != null)
@@ -99,7 +99,7 @@ namespace Panex.Inventory.Controller
             if (!slot.IsEmpty) OnItemDroppedOutside?.Invoke(slot.ItemData, position);
         }
 
-        // 인벤토리 간 아이템 이동 처리 (복잡한 로직은 별도 함수 유지)
+        
         private void HandleTransferRequest(SlotUI sourceSlotUI, int targetIndex)
         {
             var sourceController = sourceSlotUI.GetComponentInParent<InventoryController>();
@@ -110,19 +110,19 @@ namespace Panex.Inventory.Controller
 
             var targetSlotData = model.GetSlot(targetIndex);
 
-            // 1. 빈 슬롯이면 단순 이동
+            
             if (targetSlotData.IsEmpty)
             {
                 model.SetItem(targetIndex, sourceSlotData.ItemData, sourceSlotData.Amount);
                 sourceController.RemoveItem(sourceSlotUI.SlotIndex);
             }
-            // 2. 같은 아이템이면 합치기
+            
             else if (targetSlotData.ItemData.ID == sourceSlotData.ItemData.ID)
             {
                 model.SetItem(targetIndex, sourceSlotData.ItemData, targetSlotData.Amount + sourceSlotData.Amount);
                 sourceController.RemoveItem(sourceSlotUI.SlotIndex);
             }
-            // 3. 다른 아이템이면 교환
+            
             else
             {
                 sourceController.SetItem(sourceSlotUI.SlotIndex, targetSlotData.ItemData, targetSlotData.Amount);
@@ -131,22 +131,22 @@ namespace Panex.Inventory.Controller
         }
 
 
-        // ========================================================================
-        // Public API
-        // ========================================================================
+        
+        
+        
 
-        // UI 조작
+        
         public void Open() => view?.gameObject.SetActive(true);
         public void Close() => view?.gameObject.SetActive(false);
         public void Toggle() => view?.gameObject.SetActive(!view.gameObject.activeSelf);
         public bool IsOpen => view != null && view.gameObject.activeSelf;
 
-        // 데이터 접근
+        
         public int Capacity => settings != null ? settings.Capacity : 0;
         public Slot GetSlot(int index) => model?.GetSlot(index);
         public int GetItemAmount(int itemId) => model != null ? model.GetItemAmount(itemId) : 0;
 
-        // 아이템 조작
+        
         public void SwapSlots(int indexA, int indexB)
         {
             if (settings.Draggable) model?.SwapItem(indexA, indexB);
@@ -160,9 +160,9 @@ namespace Panex.Inventory.Controller
             if (slot.IsEmpty || slot.ItemData.ID == item.ID)
             {
                 model.AddItem(index, item, amount);
-                return 0; // 성공적으로 모두 넣음
+                return 0; 
             }
-            return amount; // 실패 (넣지 못한 수량 반환)
+            return amount; 
         }
 
         public void RemoveItem(int index) => model?.RemoveItem(index);
@@ -209,7 +209,7 @@ namespace Panex.Inventory.Controller
             return -1;
         }
 
-        // 세이브 & 로드 시스템
+        
         public List<InventorySnapshot> GetSnapshot()
         {
             var snapshot = new List<InventorySnapshot>();
@@ -240,7 +240,7 @@ namespace Panex.Inventory.Controller
                 model.RemoveItem(i);
             }
 
-            // 2. 스냅샷 데이터 채우기
+            
             foreach (var data in snapshot)
             {
                 IStorable item = itemResolver(data.itemId);
@@ -250,7 +250,7 @@ namespace Panex.Inventory.Controller
                 }
             }
         }
-        // 디버그용
+        
         public void SetItem(int index, IStorable item, int amount) => model?.SetItem(index, item, amount);
     }
 }

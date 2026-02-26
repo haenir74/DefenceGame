@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,7 +39,6 @@ public class UnitIdleState : UnitState
     }
 }
 
-
 public class EnemyTurnState : UnitState
 {
     public EnemyTurnState(Unit unit) : base(unit) { }
@@ -75,16 +74,16 @@ public class EnemyTurnState : UnitState
             List<GridNode> bestNodes = new List<GridNode>();
             float maxScore = float.MinValue;
 
-            // 패널티 및 노이즈 설정
+            
             int penaltyPerVisit = 50;
             float noiseRange = 5f;
 
             foreach (var n in neighbors)
             {
-                // 1. 기본 매력도
+                
                 float score = n.Attractiveness;
 
-                // 2. 방문 기록 패널티 적용 (누적)
+                
                 int visitCount = 0;
                 foreach (var visitedCoord in Self.VisitedHistory)
                 {
@@ -92,7 +91,7 @@ public class EnemyTurnState : UnitState
                 }
                 score -= visitCount * penaltyPerVisit;
 
-                // 3. 소량의 노이즈 추가
+                
                 score += Random.Range(-noiseRange, noiseRange);
 
                 if (score > maxScore)
@@ -143,7 +142,7 @@ public class UnitCombatState : UnitState
             Self.EndCombat();
             return;
         }
-        // 같은 타일의 적 중 랜덤 공격
+        
         Unit randomTarget = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (randomTarget != null)
             UnitManager.Instance.AttackUnit(Self, randomTarget);
@@ -156,3 +155,5 @@ public class UnitCombatState : UnitState
         target = null;
     }
 }
+
+

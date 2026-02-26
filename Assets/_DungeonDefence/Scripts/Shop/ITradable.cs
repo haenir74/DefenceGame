@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Panex.Inventory;
@@ -19,3 +19,5 @@ public interface ITradable : IStorable
 {
     List<ResourceCost> GetCosts();
 }
+
+

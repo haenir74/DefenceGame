@@ -1,8 +1,7 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 타일 오브젝트에 부착되어 효과 및 로직 담당
 public class GridTile : MonoBehaviour
 {
     [SerializeField] private TileDataSO data;
@@ -13,7 +12,7 @@ public class GridTile : MonoBehaviour
         this.data = data;
     }
 
-    // ─── 타일 이벤트 위임 ──────────────────────────────────────────────
+    
 
     public void OnUnitEnter(Unit unit)
     {
@@ -40,3 +39,6 @@ public class GridTile : MonoBehaviour
         if (data?.tileEffect != null) data.tileEffect.OnWaveClear(unit);
     }
 }
+
+
+

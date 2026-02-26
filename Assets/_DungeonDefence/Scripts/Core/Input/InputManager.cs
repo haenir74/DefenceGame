@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -18,3 +18,6 @@ public class InputManager : Singleton<InputManager>
     public void TriggerHover(GridNode prev, GridNode curr) => OnHoverNodeChanged?.Invoke(prev, curr);
     public void TriggerCancel() => OnCancel?.Invoke();
 }
+
+
+

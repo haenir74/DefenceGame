@@ -1,10 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : Singleton<GridManager>
 {
-    [Header("Settings")]
+    
     [SerializeField] private GridDataSO gridData;
     [SerializeField] private GridView gridView;
     [SerializeField] private Transform tileContainer;
@@ -81,7 +81,7 @@ public class GridManager : Singleton<GridManager>
             tileView.SetDefaultPrefab(this.gridData.defaultTilePrefab);
             tileView.Setup(node, this.gridData.defaultTileData);
 
-            node.CurrentTile = tileView; // [FIX] Link TileView to node for highlights
+            node.CurrentTile = tileView; 
             node.SetTileData(this.gridData.defaultTileData);
         }
     }
@@ -172,3 +172,6 @@ public class GridManager : Singleton<GridManager>
         return tile != null ? tile.gameObject : null;
     }
 }
+
+
+

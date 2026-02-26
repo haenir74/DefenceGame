@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -13,7 +13,19 @@ public class UnitCombat : MonoBehaviour
     private float attackTimer;
 
     public float CurrentHp => currentHp;
-    public float MaxHp => data != null ? data.maxHp : 0f;
+    public float MaxHp
+    {
+        get
+        {
+            if (data == null) return 0f;
+            float baseMax = data.maxHp;
+            if (data.category == UnitCategory.Core && MetaManager.Instance != null)
+            {
+                baseMax += MetaManager.Instance.GetPerkLevel("CoreHP") * 100f; 
+            }
+            return baseMax;
+        }
+    }
     public float CurrentMp => currentMp;
     public float MaxMp => data != null ? data.maxMp : 0f;
 
@@ -21,7 +33,7 @@ public class UnitCombat : MonoBehaviour
 
     public event Action OnDeath;
     public event Action<float> OnHpChanged;
-    public event Action<Unit> OnAttack; // target
+    public event Action<Unit> OnAttack;
     public float MpMultiplier { get; set; } = 1.0f;
     public float AttackMultiplier { get; set; } = 1.0f;
 
@@ -31,7 +43,7 @@ public class UnitCombat : MonoBehaviour
         this.data = data;
 
         IsDead = false;
-        this.currentHp = data != null ? data.maxHp : 100f;
+        this.currentHp = MaxHp; 
         this.currentMp = data != null ? data.startMp : 0f;
         this.attackTimer = 0f;
         this.MpMultiplier = 1.0f;
@@ -66,7 +78,7 @@ public class UnitCombat : MonoBehaviour
 
     public void NotifyKill(Unit victim)
     {
-        // 스킬 등에 처치 알림 보냄
+
         if (data != null && data.skill != null)
         {
             data.skill.OnUnitKill(unit, victim);
@@ -99,16 +111,15 @@ public class UnitCombat : MonoBehaviour
 
         if (hasSkill && currentMp >= data.maxMp)
         {
-            // 마나 가득 → 스킬 발동 (기본 공격 대체)
+
             currentMp = 0f;
             data.skill.Cast(unit, target);
         }
         else
         {
-            // 기본 공격
+
             target.Combat.TakeDamage(data.basePower * AttackMultiplier, unit);
 
-            // 기본 공격 1회당 10MP 충전
             if (hasSkill)
             {
                 AddMp(10f * MpMultiplier);
@@ -118,7 +129,6 @@ public class UnitCombat : MonoBehaviour
         OnAttack?.Invoke(target);
         attackTimer = data.attackInterval;
 
-        // 공격 애니메이션 트리거 (슬라임 squash 또는 Mecanim 트리거)
         var spriteAnimator = unit?.GetComponentInChildren<UnitSpriteAnimator>();
         if (spriteAnimator != null) spriteAnimator.TriggerAttackAnimation();
 
@@ -138,3 +148,5 @@ public class UnitCombat : MonoBehaviour
         OnDeath?.Invoke();
     }
 }
+
+

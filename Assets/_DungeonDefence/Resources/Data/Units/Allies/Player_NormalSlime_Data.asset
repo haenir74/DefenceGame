@@ -20,7 +20,7 @@ MonoBehaviour:
   prefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60001, type: 3}
   isPlayerTeam: 1
   category: 4
-  maxHp: 100
+  maxHp: 80
   maxMp: 100
   startMp: 0
   moveSpeed: 3
@@ -30,6 +30,6 @@ MonoBehaviour:
   dispatchEfficiency: 0.5
   costs:
   - type: 0
-    amount: 40
+    amount: 30
   populationCost: 1
-  shopStock: 10
+  shopStock: 15

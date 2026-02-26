@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -6,33 +6,27 @@ using Panex.Inventory;
 
 public class ShopManager : Singleton<ShopManager>
 {
-    [Header("Shop Settings")]
-    [Tooltip("상점 슬롯 수 (4개 고정)")]
+    
+    
     [SerializeField] private int activeSlotCount = 4;
     [SerializeField] private int rerollCost = 50;
 
-    [Header("Unlock System")]
-    [Tooltip("해금 후보 풀 SO. 웨이브 클리어 시 이 풀에서 선택지 제공.")]
+    
+    
     [SerializeField] private ShopUnlockPoolSO unlockPool;
-    [Tooltip("게임 시작 시 기본으로 해금된 아이템 목록 (초기 상점에서 구매 가능)")]
+    
     [SerializeField] private List<UnitDataSO> defaultUnlockedUnits = new List<UnitDataSO>();
     [SerializeField] private List<TileDataSO> defaultUnlockedTiles = new List<TileDataSO>();
 
-    // ─── 런타임 상태 ───────────────────────────────────────────────────
-    /// <summary>현재 해금된 전체 아이템 풀 (상점 랜덤 선택 대상)</summary>
     private List<ITradable> unlockedItems = new List<ITradable>();
 
-    /// <summary>아이템별 남은 재고 (0 = 품절, -1 = 무한)</summary>
     private Dictionary<ITradable, int> stockRemaining = new Dictionary<ITradable, int>();
 
-    /// <summary>현재 상점에 표시 중인 슬롯 아이템</summary>
     private List<ITradable> currentShopItems = new List<ITradable>();
 
     public event Action<string> OnPurchaseSuccess;
     public event Action OnPurchaseFailed;
     public event Action OnShopRefreshed;
-
-    // ─── 초기화 ───────────────────────────────────────────────────────
 
     private void Start()
     {
@@ -48,17 +42,13 @@ public class ShopManager : Singleton<ShopManager>
             if (tile != null) UnlockItem(tile);
     }
 
-    // ─── 해금 API ─────────────────────────────────────────────────────
-
-    /// <summary>아이템을 해금 목록에 추가하고 재고를 등록.</summary>
     public void UnlockItem(ITradable item)
     {
         if (item == null || unlockedItems.Contains(item)) return;
         unlockedItems.Add(item);
 
-        // 재고 설정
         int stock = GetInitialStock(item);
-        stockRemaining[item] = stock <= 0 ? -1 : stock; // -1 = 무한
+        stockRemaining[item] = stock <= 0 ? -1 : stock;
     }
 
     private int GetInitialStock(ITradable item)
@@ -68,24 +58,20 @@ public class ShopManager : Singleton<ShopManager>
         return -1;
     }
 
-    /// <summary>웨이브 클리어 시 해금 후보 풀에서 count개 반환 (이미 해금된 것 제외).</summary>
     public List<ITradable> GetUnlockCandidates(int count = 3)
     {
         if (unlockPool == null) return new List<ITradable>();
         return unlockPool.GetRandomCandidates(count, unlockedItems);
     }
 
-    // ─── 상점 슬롯 API ────────────────────────────────────────────────
-
-    /// <summary>
-    /// 해금된 아이템 풀에서 activeSlotCount개를 무작위 선택해 상점 구성.
-    /// tierProbs가 있으면 티어 가중치 기반 선택, 없으면 단순 랜덤.
-    /// </summary>
     public void RollShopItems(TierProbabilities tierProbs = null)
     {
         currentShopItems.Clear();
 
-        // 재고 있는 아이템만 후보
+        
+        int perkBonus = (MetaManager.Instance != null) ? MetaManager.Instance.GetPerkLevel("ShopSlot") : 0;
+        int totalSlots = activeSlotCount + perkBonus;
+
         List<ITradable> available = new List<ITradable>();
         foreach (var item in unlockedItems)
         {
@@ -96,17 +82,16 @@ public class ShopManager : Singleton<ShopManager>
         List<ITradable> picked;
         if (tierProbs != null)
         {
-            picked = RollWithTierWeights(available, activeSlotCount, tierProbs);
+            picked = RollWithTierWeights(available, totalSlots, tierProbs);
         }
         else
         {
-            // Fisher-Yates 셔플 후 슬롯 수만큼 선택
             for (int i = available.Count - 1; i > 0; i--)
             {
                 int j = UnityEngine.Random.Range(0, i + 1);
                 (available[i], available[j]) = (available[j], available[i]);
             }
-            int take = Mathf.Min(activeSlotCount, available.Count);
+            int take = Mathf.Min(totalSlots, available.Count);
             picked = available.GetRange(0, take);
         }
 
@@ -116,7 +101,7 @@ public class ShopManager : Singleton<ShopManager>
 
     private List<ITradable> RollWithTierWeights(List<ITradable> pool, int count, TierProbabilities probs)
     {
-        // 티어별 풀 분리
+
         var byTier = new System.Collections.Generic.Dictionary<UnitTier, List<ITradable>>
         {
             { UnitTier.Basic,        new List<ITradable>() },
@@ -127,7 +112,7 @@ public class ShopManager : Singleton<ShopManager>
 
         foreach (var item in pool)
         {
-            // 타일은 항상 Basic 취급
+
             UnitTier tier = item is UnitDataSO u ? u.tier : UnitTier.Basic;
             byTier[tier].Add(item);
         }
@@ -153,7 +138,6 @@ public class ShopManager : Singleton<ShopManager>
 
             ITradable candidate = PickRandom(byTier[selected], used);
 
-            // 해당 티어에 없으면 전체에서 탐색
             if (candidate == null)
             {
                 foreach (var kv in byTier)
@@ -179,7 +163,6 @@ public class ShopManager : Singleton<ShopManager>
         return valid[UnityEngine.Random.Range(0, valid.Count)];
     }
 
-    /// <summary>웨이브 클리어 시 마이웨이브 재고 초기화</summary>
     public void ResetStocksForNewWave()
     {
         var keys = new List<ITradable>(stockRemaining.Keys);
@@ -188,7 +171,7 @@ public class ShopManager : Singleton<ShopManager>
             int stock = GetInitialStock(item);
             stockRemaining[item] = stock <= 0 ? -1 : stock;
         }
-        Debug.Log("[Shop] 다음 웨이브 재고 초기화 완료");
+        
     }
 
     public void RerollShop()
@@ -200,14 +183,12 @@ public class ShopManager : Singleton<ShopManager>
         }
         else
         {
-            Debug.LogWarning($"[Shop] 리롤 비용 {rerollCost}G 부족.");
+            
         }
     }
 
-    /// <summary>현재 상점에 표시되는 아이템 목록 (ShopUIView에서 호출).</summary>
     public List<ITradable> GetCurrentShopItems() => currentShopItems;
 
-    /// <summary>[호환] 기존 코드에서 사용 중인 GetUnitCatalog 대체용.</summary>
     public List<UnitDataSO> GetUnitCatalog()
     {
         List<UnitDataSO> result = new List<UnitDataSO>();
@@ -229,15 +210,13 @@ public class ShopManager : Singleton<ShopManager>
         return stockRemaining.TryGetValue(item, out int s) && s == 0;
     }
 
-    // ─── 구매 ─────────────────────────────────────────────────────────
-
     public void TryBuyItem(ITradable item)
     {
         if (item == null) return;
 
         if (IsOutOfStock(item))
         {
-            Debug.LogWarning($"[Shop] {item.Name} 품절!");
+            
             OnPurchaseFailed?.Invoke();
             return;
         }
@@ -248,13 +227,11 @@ public class ShopManager : Singleton<ShopManager>
         {
             InventoryManager.Instance.AddItem(item, 1);
 
-            // 재고 차감
             if (stockRemaining.TryGetValue(item, out int stock) && stock > 0)
                 stockRemaining[item] = stock - 1;
 
             OnPurchaseSuccess?.Invoke(item.Name);
 
-            // 품절 시 상점 슬롯에서 제거
             if (IsOutOfStock(item))
                 currentShopItems.Remove(item);
         }
@@ -264,8 +241,8 @@ public class ShopManager : Singleton<ShopManager>
         }
     }
 
-    // ─── 슬롯 수 조정 ─────────────────────────────────────────────────
-
     public void AddShopSlot(int amount = 1) => activeSlotCount = Mathf.Max(1, activeSlotCount + amount);
     public int ActiveSlotCount => activeSlotCount;
 }
+
+

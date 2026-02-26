@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,8 +6,8 @@ public class GameManager : Singleton<GameManager>
 {
     [SerializeField] UnitDataSO coreUnit;
 
-    [Header("Controllers")]
-    [SerializeField] private InputController inputController;
+    
+    [SerializeField] private ResultUI resultUI;
 
     private StateMachine<GameManager> stateMachine;
     public BaseState<GameManager> CurrentState => stateMachine?.CurrentState;
@@ -22,10 +22,13 @@ public class GameManager : Singleton<GameManager>
     public TileDataSO SelectedTileToPlace { get; private set; }
     public bool IsMaintenancePhase => CurrentState is MaintenanceState;
 
+    public int TotalEnemiesKilled { get; private set; }
+    public int TotalGoldEarned { get; private set; }
+    public int TotalUnitsUsed { get; private set; }
+
     protected override void Awake()
     {
         base.Awake();
-        if (this.inputController == null) this.inputController = FindObjectOfType<InputController>();
         this.stateMachine = new StateMachine<GameManager>(this);
     }
 
@@ -45,18 +48,24 @@ public class GameManager : Singleton<GameManager>
             yield return null;
         }
 
-        // 카메라 초기 위치를 그리드 중앙으로 설정
         int centerX = (GridManager.Instance.Data.width - 1) / 2;
         int centerY = (GridManager.Instance.Data.height - 1) / 2;
         GridNode centerNode = GridManager.Instance.GetNode(centerX, centerY);
         if (centerNode != null)
         {
-            // SmoothDamp를 타기 위해 즉시 이동이 아닌 FocusOn 호출
+
             FocusCamera(centerNode);
         }
 
         SpawnCore();
-        EconomyManager.Instance.AddCurrency(CurrencyType.Gold, 500); // 사용자 요청대로 500G 지급
+
+        int startGold = 500;
+        if (MetaManager.Instance != null)
+        {
+            float bonus = MetaManager.Instance.GetPerkLevel("StartGold") * 100; 
+            startGold += (int)bonus;
+        }
+        EconomyManager.Instance.AddCurrency(CurrencyType.Gold, startGold);
     }
 
     private void Update()
@@ -73,6 +82,12 @@ public class GameManager : Singleton<GameManager>
         {
             UnitManager.Instance.Initialize();
             UnitManager.Instance.OnUnitDead += HandleUnitDead;
+            UnitManager.Instance.OnUnitSpawned += HandleUnitSpawned;
+        }
+
+        if (EconomyManager.Instance != null)
+        {
+            EconomyManager.Instance.OnCurrencyChanged += HandleCurrencyChanged;
         }
 
         if (InputManager.Instance != null)
@@ -97,18 +112,29 @@ public class GameManager : Singleton<GameManager>
         if (UnitManager.Instance != null)
         {
             UnitManager.Instance.OnUnitDead -= HandleUnitDead;
+            UnitManager.Instance.OnUnitSpawned -= HandleUnitSpawned;
+        }
+        if (EconomyManager.Instance != null)
+        {
+            EconomyManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
         }
     }
 
     private void HandleUnitDead(Unit unit)
     {
-        if (unit != null && unit.Data.category == UnitCategory.Core)
+        if (unit != null)
         {
-            GameOver();
+            if (unit.Data.category == UnitCategory.Core)
+            {
+                GameOver();
+            }
+            else if (!unit.IsPlayerTeam)
+            {
+                TotalEnemiesKilled++;
+            }
         }
     }
 
-    // Input handlers
     private void HandleNodeClick(GridNode node)
     {
         if (CurrentState is GameState gameState)
@@ -138,13 +164,11 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    // FSM
     public void ChangeState(BaseState<GameManager> newState)
     {
         stateMachine?.ChangeState(newState);
     }
 
-    // ** Game Flow **
     public void StartBattlePhase()
     {
         if (IsMaintenancePhase)
@@ -189,23 +213,22 @@ public class GameManager : Singleton<GameManager>
 
     public void Victory()
     {
-        stateMachine?.ChangeState(new VictoryState(this));
-        Time.timeScale = 0;
-        Debug.Log("<color=yellow>[GameManager] 게임 클리어! 30웨이브 승리!</color>");
-        // TODO: VictoryScene으로 씬 전환
-        // SceneManager.LoadScene("VictoryScene");
+        if (MetaManager.Instance != null)
+            MetaManager.Instance.SetRunResult(true, CurrentWave, TotalEnemiesKilled, TotalGoldEarned);
+
+        if (SceneController.Instance != null)
+            SceneController.Instance.LoadResult();
     }
 
     public void GameOver()
     {
-        // 현재 state의 OnExit 실행 (이벤트 구독 해제 포함)
-        stateMachine?.ChangeState(new GameOverState(this));
-        Time.timeScale = 0;
-        Debug.Log("[GameManager] Game Over!");
-    }
-    // ***
+        if (MetaManager.Instance != null)
+            MetaManager.Instance.SetRunResult(false, CurrentWave - 1, TotalEnemiesKilled, TotalGoldEarned);
 
-    // ** Select System **
+        if (SceneController.Instance != null)
+            SceneController.Instance.LoadResult();
+    }
+
     public void SelectUnitToPlace(UnitDataSO unitData, SelectionSource source, GridNode originalNode = null, Unit originalUnit = null)
     {
         if (!IsMaintenancePhase) return;
@@ -216,7 +239,7 @@ public class GameManager : Singleton<GameManager>
         OriginalNode = originalNode;
         PickedUpUnit = originalUnit;
 
-        Debug.Log($"[GameManager] 유닛 선택: {unitData.Name} (Source: {source})");
+        
     }
 
     public void SelectTileToPlace(TileDataSO tileData, SelectionSource source, GridNode originalNode = null)
@@ -229,17 +252,15 @@ public class GameManager : Singleton<GameManager>
         OriginalNode = originalNode;
         PickedUpUnit = null;
 
-        Debug.Log($"[GameManager] 타일 선택: {tileData.Name} (Source: {source})");
+        
     }
 
     public void ClearSelection(bool useSafetyNet = true)
     {
-        // [FIX] Safety Net: If selection is cleared while a unit is "picked up" (despawned), return it.
-        // This prevents the "vaporization" bug when unexpected clears happen.
-        // [REFINE] Now optional to prevent "duplication" bug when manual handling already happened.
+
         if (useSafetyNet && PickedUpUnit != null && OriginalNode != null)
         {
-            Debug.Log($"[GameManager] ClearSelection safety: Returning {PickedUpUnit.name} to {OriginalNode.Coordinate}");
+            
             UnitManager.Instance?.SpawnUnit(PickedUpUnit.Data, OriginalNode);
         }
 
@@ -249,9 +270,7 @@ public class GameManager : Singleton<GameManager>
         OriginalNode = null;
         PickedUpUnit = null;
     }
-    // ***
 
-    // ** Helper **
     private void SpawnCore()
     {
         if (coreUnit == null) return;
@@ -267,9 +286,26 @@ public class GameManager : Singleton<GameManager>
         return CurrentState is T;
     }
 
-    // ** CameraManager **
+    private void HandleUnitSpawned(Unit unit)
+    {
+        if (unit != null && unit.IsPlayerTeam && unit.Data.category != UnitCategory.Core)
+        {
+            TotalUnitsUsed++;
+        }
+    }
+
+    private void HandleCurrencyChanged(CurrencyType type, int current, int changed)
+    {
+        if (type == CurrencyType.Gold && changed > 0)
+        {
+            TotalGoldEarned += changed;
+        }
+    }
+
     public void FocusCamera(Vector3 targetPosition) => CameraManager.Instance?.FocusOn(targetPosition);
     public void FocusCamera(GridNode node) { if (node != null) FocusCamera(node.WorldPosition); }
     public void ResetCamera() => CameraManager.Instance?.ResetPosition();
-    // ***
+
 }
+
+

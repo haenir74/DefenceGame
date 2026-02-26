@@ -1,8 +1,7 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 맵 전체 데이터를 담는 컨테이너
 [System.Serializable]
 public class GridMap
 {
@@ -35,3 +34,5 @@ public class GridMap
         return x >= 0 && x < Width && y >= 0 && y < Height;
     }
 }
+
+

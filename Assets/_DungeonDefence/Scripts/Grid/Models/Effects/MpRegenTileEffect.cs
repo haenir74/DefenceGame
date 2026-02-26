@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "MpRegenEffect", menuName = "DungeonDefence/Effects/MpRegen")]
 public class MpRegenTileEffect : TileEffectDataSO
 {
-    public float multiplier = 3.0f; // 200% increase means 3.0 total
+    public float multiplier = 3.0f; 
 
     public override void OnEnter(Unit unit)
     {
@@ -21,3 +21,6 @@ public class MpRegenTileEffect : TileEffectDataSO
         }
     }
 }
+
+
+
