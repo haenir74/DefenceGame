@@ -7,6 +7,7 @@ public abstract class GameState : BaseState<GameManager>
     protected GameState(GameManager manager) : base(manager) { }
 
     public virtual void OnClickNode(GridNode node) { }
+    public virtual void OnClickUnit(Unit unit) { }
     public virtual void OnRightClickNode(GridNode node) { }
     public virtual void OnCancel() { }
 }
@@ -30,88 +31,59 @@ public class MaintenanceState : GameState
         UIManager.Instance?.SwitchToMaintenancePhase();
     }
 
+    public override void OnExit()
+    {
+    }
+
     public override void OnClickNode(GridNode node)
     {
         if (node == null) return;
 
-        if (GameManager.Instance.SelectedUnitToPlace != null)
-        {
-            PlaceUnit(node, GameManager.Instance.SelectedUnitToPlace);
-        }
-        else if (GameManager.Instance.SelectedTileToPlace != null)
-        {
-            PlaceTile(node, GameManager.Instance.SelectedTileToPlace);
-        }
-        else
-        {
-            ShowNodeInfo(node);
-        }
+        // [REFINED] Click-to-Place removed. Clicking only shows info.
+        ShowNodeInfo(node);
     }
 
-    public override void OnRightClickNode(GridNode node)
+    public override void OnClickUnit(Unit unit)
     {
-        if (GameManager.Instance.SelectedUnitToPlace != null)
-        {
-            GameManager.Instance.ClearSelection();
-        }
-    }
+        if (unit == null) return;
 
-    private void PlaceUnit(GridNode node, UnitDataSO unitData)
-    {
-        if (node.CanPlaceUnit)
+        // [FIX] Double Click Support for Recall (Keeping this as it's a useful shortcut)
+        if (Input.GetMouseButtonDown(0) && IsDoubleClick())
         {
-            if (InventoryManager.Instance.TryConsumeItem(unitData))
-            {
-                bool success = UnitManager.Instance.SpawnUnit(unitData, node) != null;
-                if (success)
-                {
-                    Debug.Log($"[Unit] 배치 완료: {unitData.Name}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("인벤토리에 유닛이 부족합니다.");
-                GameManager.Instance.ClearSelection();
-            }
-        }
-        else
-        {
-            Debug.LogWarning("이 타일에는 유닛을 배치할 수 없습니다. (장애물 또는 이미 있음)");
-        }
-    }
-
-    private void PlaceTile(GridNode node, TileDataSO tileData)
-    {
-        // 유닛 유무와 상관없이 타일 배치 가능 (기존 제한 제거)
-
-        if (node.CurrentTileData != null && node.CurrentTileData.ID == tileData.ID)
-        {
+            Debug.Log($"[Recall] {unit.Data.Name} double-clicked. Returning to inventory.");
+            InventoryManager.Instance?.AddItem(unit.Data, 1);
+            UnitManager.Instance?.DespawnUnit(unit);
             return;
         }
 
-        if (node == GridManager.Instance.GetCoreNode() || node == GridManager.Instance.GetSpawnNode())
+        // [REFINED] Picking up via simple click removed. Only Drag-and-Drop is supported.
+        if (unit.CurrentNode != null)
         {
-            Debug.LogWarning("시작점과 코어 타일은 교체할 수 없습니다.");
-            return;
+            ShowNodeInfo(unit.CurrentNode);
         }
+    }
 
-        if (InventoryManager.Instance.TryConsumeItem(tileData))
+    private float lastClickTime = 0f;
+    private bool IsDoubleClick()
+    {
+        float time = Time.time;
+        if (time - lastClickTime < 0.3f)
         {
-            if (node.CurrentTileData != null && !node.CurrentTileData.IsDefaultTile)
-            {
-                Debug.Log($"[GameManager] 기존 타일({node.CurrentTileData.Name}) 회수.");
-                InventoryManager.Instance.AddItem(node.CurrentTileData, 1);
-            }
+            lastClickTime = 0;
+            return true;
+        }
+        lastClickTime = time;
+        return false;
+    }
 
-            GridManager.Instance.ChangeTile(node, tileData);
-            Debug.Log($"[Tile] 교체 완료: ({node.X}, {node.Y}) -> {tileData.Name}");
-            GameManager.Instance.ClearSelection();
-        }
-        else
+    public override void OnCancel()
+    {
+        // [FIX] PlacementManager가 없을 때를 대비한 안전 장치
+        if (GameManager.Instance.PickedUpUnit != null)
         {
-            Debug.LogWarning("인벤토리에 타일이 부족합니다.");
-            GameManager.Instance.ClearSelection();
+            GameManager.Instance.PickedUpUnit.SetVisualVisible(true);
         }
+        GameManager.Instance.ClearSelection(false);
     }
 
     private void ShowNodeInfo(GridNode node)
@@ -160,8 +132,14 @@ public class BattleState : GameState
         var units = UnitManager.Instance.GetUnitsOnNode(node);
         if (units.Count > 0)
         {
-            Debug.Log($"유닛 정보 확인: {units[0].name} (HP: {units[0].Combat.CurrentHp})");
+            Debug.Log($"타일 클릭 - 유닛 정보 확인: {units[0].name} (HP: {units[0].Combat.CurrentHp})");
         }
+    }
+
+    public override void OnClickUnit(Unit unit)
+    {
+        if (unit == null) return;
+        Debug.Log($"유닛 직접 클릭 - 정보 확인: {unit.name} (HP: {unit.Combat.CurrentHp})");
     }
 
     private void HandleWaveCompleted()

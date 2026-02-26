@@ -78,14 +78,10 @@ public class Unit : MonoBehaviour, IPoolable
                 transform.position = new Vector3(cur.x, UnitConstants.UNIT_HEIGHT, cur.z);
             }
 
-            if (IsPlayerTeam && startNode.CurrentTileData != null && startNode.CurrentTileData.IsDispatchTile)
-            {
-                SetDispatchMode(true);
-            }
-            else
-            {
-                SetDispatchMode(false);
-            }
+            if (movement != null) movement.Initialize(this);
+            // Dispatch mode is now handled exclusively via the UI/DispatchManager
+            SetDispatchMode(false);
+
         }
 
         // ▼ 위치 세팅 직후, 애니메이터보다 먼저 실행해야
@@ -300,5 +296,19 @@ public class Unit : MonoBehaviour, IPoolable
                 modelRenderer.color = color;
             }
         }
+    }
+
+    /// <summary>
+    /// [FIX] 드래그 중이거나 클릭 상태일 때 유닛을 보이지 않게 하고 상호작용을 끕니다.
+    /// 유닛 자체가 비활성화(SetActive(false))되면 OnDrag 등이 중단되므로 이 방식을 사용합니다.
+    /// </summary>
+    public void SetVisualVisible(bool visible)
+    {
+        if (modelRenderer != null) modelRenderer.enabled = visible;
+
+        var col = GetComponent<Collider>();
+        if (col != null) col.enabled = visible;
+
+        // 투명도나 다른 연출이 필요하면 여기서 추가 처리
     }
 }

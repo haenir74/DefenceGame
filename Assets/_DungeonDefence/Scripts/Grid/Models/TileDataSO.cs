@@ -24,11 +24,6 @@ public class TileDataSO : ScriptableObject, IStorable, ITradable
     [Tooltip("타일 진입/체류/이탈/사망 시 발동되는 효과 SO")]
     public TileEffectDataSO tileEffect;
 
-    [Header("Dispatch System")]
-    public bool IsDispatchTile;
-    [Tooltip("파견 시 획득하는 기본 골드")]
-    public int baseDispatchReward = 0;
-    public float EfficiencyMultiplier = 1.0f;
 
     [Header("Economy")]
     [SerializeField] private List<ResourceCost> costs;

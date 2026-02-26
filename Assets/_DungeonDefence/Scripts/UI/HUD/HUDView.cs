@@ -39,6 +39,7 @@ public class HUDView : MonoBehaviour
     public Button ShopButton => shopButton;
     public Button StartWaveButton => startWaveButton;
     public Button DispatchButton => dispatchButton;
+    public RectTransform MaintenancePanelRect => maintenancePanel != null ? maintenancePanel.GetComponent<RectTransform>() : null;
 
     public void UpdateCoreInfo(float current, float max)
     {
@@ -61,10 +62,10 @@ public class HUDView : MonoBehaviour
 
     public void UpdateWaveInfo(int waveIndex, int remaining, int total)
     {
-        if (waveText != null) 
+        if (waveText != null)
             waveText.text = $"WAVE {waveIndex}";
-            
-        if (enemyCountText != null) 
+
+        if (enemyCountText != null)
             enemyCountText.text = $"{remaining} / {total}";
     }
 

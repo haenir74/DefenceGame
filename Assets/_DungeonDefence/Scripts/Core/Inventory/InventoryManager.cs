@@ -9,7 +9,7 @@ public class InventoryManager : Singleton<InventoryManager>
     [Header("Settings")]
     [SerializeField] private InventoryController unitInventoryController;
     [SerializeField] private InventoryController tileInventoryController;
-    [SerializeField] private Settings unitSettings; 
+    [SerializeField] private Settings unitSettings;
     [SerializeField] private Settings tileSettings;
 
     public IStorable CurrentSelectedItem { get; private set; }
@@ -36,14 +36,8 @@ public class InventoryManager : Singleton<InventoryManager>
 
     private void OnSlotClicked(IStorable item, int index)
     {
-        if (item is UnitDataSO unitData)
-        {
-            GameManager.Instance.SelectUnitToPlace(unitData);
-        }
-        if (item is TileDataSO tileData)
-        {
-            GameManager.Instance.SelectTileToPlace(tileData);
-        }
+        // [REFINED] Click-to-Select removed to enforce Drag-and-Drop only.
+        // 드래그 앤 드롭 전용 시스템으로 전환됨에 따라 클릭 시의 배치 기능은 제거되었습니다.
     }
 
     private void SetPlacementMode(IStorable item)
@@ -53,7 +47,7 @@ public class InventoryManager : Singleton<InventoryManager>
         // 예시: InputManager나 GameManager에 '배치 모드' 시작을 알림
         // 만약 InputManager에 SetPlacementItem 같은 함수가 있다면 호출해야 합니다.
         // InputManager.Instance.BeginPlacement(item); 
-        
+
         Debug.Log($"배치 모드 활성화: {item.Name} 선택됨");
     }
 
@@ -75,7 +69,7 @@ public class InventoryManager : Singleton<InventoryManager>
     public void AddItem(IStorable item, int amount = 1)
     {
         var controller = GetControllerFor(item);
-        
+
         if (controller != null)
         {
             int remaining = controller.AddItem(item, amount);
@@ -107,7 +101,7 @@ public class InventoryManager : Singleton<InventoryManager>
         base.OnDestroy();
         if (unitInventoryController != null)
             unitInventoryController.OnSlotClicked -= OnSlotClicked;
-            
+
         if (tileInventoryController != null)
             tileInventoryController.OnSlotClicked -= OnSlotClicked;
     }

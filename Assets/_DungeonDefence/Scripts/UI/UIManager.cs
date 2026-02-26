@@ -93,6 +93,16 @@ public class UIManager : Singleton<UIManager>
                     shopView.RefreshShop();
             };
         }
+
+        // 인벤토리 상태 동기화 (파견 패널 등)
+        if (inventoryView != null)
+        {
+            inventoryView.OnOpenStatusChanged += (isOpenStatus) =>
+            {
+                if (dispatchPanel != null)
+                    dispatchPanel.gameObject.SetActive(isOpenStatus);
+            };
+        }
     }
 
     private void InitializeUI()
@@ -114,6 +124,12 @@ public class UIManager : Singleton<UIManager>
                 }
             }
         }
+
+        if (inventoryView != null && hudView != null)
+        {
+            inventoryView.AddLinkedRectTransform(hudView.MaintenancePanelRect);
+        }
+
         CloseAllPopups();
     }
 
@@ -161,19 +177,14 @@ public class UIManager : Singleton<UIManager>
     {
         if (inventoryView == null) return;
 
-        if (!inventoryView.gameObject.activeSelf)
+        if (!inventoryView.IsOpen)
         {
             shopView?.Close();
-            inventoryView.gameObject.SetActive(true);
             inventoryView.Open();
-            // 인벤토리와 파견 패널을 함께 열기
-            dispatchPanel?.gameObject.SetActive(true);
         }
         else
         {
-            inventoryView.ToggleInventory();
-            // 인벤토리 닫힐 때 파견 패널도 닫기
-            dispatchPanel?.gameObject.SetActive(false);
+            inventoryView.Close();
         }
     }
 
@@ -181,6 +192,7 @@ public class UIManager : Singleton<UIManager>
     {
         shopView?.Close();
         inventoryView?.Close();
+        dispatchPanel?.gameObject.SetActive(false);
     }
 
     // 페이즈 전환    

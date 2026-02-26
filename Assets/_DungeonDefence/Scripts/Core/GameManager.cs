@@ -12,6 +12,11 @@ public class GameManager : Singleton<GameManager>
     private StateMachine<GameManager> stateMachine;
     public BaseState<GameManager> CurrentState => stateMachine?.CurrentState;
 
+    public enum SelectionSource { Inventory, Grid, Dispatch }
+    public SelectionSource CurrentSelectionSource { get; private set; }
+    public GridNode OriginalNode { get; private set; }
+    public Unit PickedUpUnit { get; private set; }
+
     public int CurrentWave { get; private set; } = 1;
     public UnitDataSO SelectedUnitToPlace { get; private set; }
     public TileDataSO SelectedTileToPlace { get; private set; }
@@ -73,6 +78,8 @@ public class GameManager : Singleton<GameManager>
         if (InputManager.Instance != null)
         {
             InputManager.Instance.OnClickNode += HandleNodeClick;
+            InputManager.Instance.OnClickUnit += HandleUnitClick;
+            InputManager.Instance.OnCancel += HandleCancel;
             InputManager.Instance.OnRightClickNode += HandleRightClick;
         }
     }
@@ -83,6 +90,8 @@ public class GameManager : Singleton<GameManager>
         if (InputManager.Instance != null)
         {
             InputManager.Instance.OnClickNode -= HandleNodeClick;
+            InputManager.Instance.OnClickUnit -= HandleUnitClick;
+            InputManager.Instance.OnCancel -= HandleCancel;
             InputManager.Instance.OnRightClickNode -= HandleRightClick;
         }
         if (UnitManager.Instance != null)
@@ -108,7 +117,20 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    private void HandleUnitClick(Unit unit)
+    {
+        if (CurrentState is GameState gameState)
+        {
+            gameState.OnClickUnit(unit);
+        }
+    }
+
     private void HandleRightClick(GridNode node)
+    {
+        HandleCancel();
+    }
+
+    private void HandleCancel()
     {
         if (CurrentState is GameState gameState)
         {
@@ -184,43 +206,48 @@ public class GameManager : Singleton<GameManager>
     // ***
 
     // ** Select System **
-    public void SelectUnitToPlace(UnitDataSO unitData)
+    public void SelectUnitToPlace(UnitDataSO unitData, SelectionSource source, GridNode originalNode = null, Unit originalUnit = null)
     {
         if (!IsMaintenancePhase) return;
 
         SelectedUnitToPlace = unitData;
         SelectedTileToPlace = null;
+        CurrentSelectionSource = source;
+        OriginalNode = originalNode;
+        PickedUpUnit = originalUnit;
 
-        Debug.Log($"[GameManager] 유닛 선택: {unitData.Name}");
+        Debug.Log($"[GameManager] 유닛 선택: {unitData.Name} (Source: {source})");
     }
 
-    public void SelectTileToPlace(TileDataSO tileData)
+    public void SelectTileToPlace(TileDataSO tileData, SelectionSource source, GridNode originalNode = null)
     {
         if (!IsMaintenancePhase) return;
 
         SelectedTileToPlace = tileData;
         SelectedUnitToPlace = null;
+        CurrentSelectionSource = source;
+        OriginalNode = originalNode;
+        PickedUpUnit = null;
 
-        Debug.Log($"[GameManager] 타일 선택: {tileData.Name}");
+        Debug.Log($"[GameManager] 타일 선택: {tileData.Name} (Source: {source})");
     }
 
-    public void ClearSelection()
+    public void ClearSelection(bool useSafetyNet = true)
     {
+        // [FIX] Safety Net: If selection is cleared while a unit is "picked up" (despawned), return it.
+        // This prevents the "vaporization" bug when unexpected clears happen.
+        // [REFINE] Now optional to prevent "duplication" bug when manual handling already happened.
+        if (useSafetyNet && PickedUpUnit != null && OriginalNode != null)
+        {
+            Debug.Log($"[GameManager] ClearSelection safety: Returning {PickedUpUnit.name} to {OriginalNode.Coordinate}");
+            UnitManager.Instance?.SpawnUnit(PickedUpUnit.Data, OriginalNode);
+        }
+
         SelectedUnitToPlace = null;
         SelectedTileToPlace = null;
-    }
-
-    /// <summary>
-    /// 드래그 앤 드롭으로 그리드 배치 시 호출.
-    /// SelectUnitToPlace 이후에 호출해야 하며, MaintenanceState의 배치 로직을 재사용.
-    /// </summary>
-    public void TryPlaceSelectedUnit(GridNode node)
-    {
-        if (!IsMaintenancePhase || node == null) return;
-        if (CurrentState is MaintenanceState ms)
-        {
-            ms.OnClickNode(node);
-        }
+        CurrentSelectionSource = SelectionSource.Inventory;
+        OriginalNode = null;
+        PickedUpUnit = null;
     }
     // ***
 

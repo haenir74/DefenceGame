@@ -99,6 +99,30 @@ public class UnitManager : Singleton<UnitManager>
             }
 
             newUnit.Initialize(data, node);
+
+            // [FIX] 유닛 레이어 설정 (레이캐스트 우선순위 확보)
+            int interactionLayer = LayerMask.NameToLayer("Unit");
+            if (interactionLayer == -1) interactionLayer = LayerMask.NameToLayer("Allies"); // fallback
+            if (interactionLayer == -1) interactionLayer = 0; // Default
+
+            SetLayerRecursive(newUnit.gameObject, interactionLayer);
+
+            // [FIX] 충돌체 보강 (타일보다 확실히 위에 위치하도록)
+            var col = newUnit.GetComponent<Collider>();
+            if (col == null) col = newUnit.gameObject.AddComponent<BoxCollider>();
+            if (col is BoxCollider box)
+            {
+                box.center = new Vector3(0, 0.5f, 0);
+                box.size = new Vector3(0.6f, 1f, 0.6f);
+            }
+
+            // 플레이어 팀 유닛이면 드래그 핸들러 추가
+            if (newUnit.IsPlayerTeam && data.category != UnitCategory.Core)
+            {
+                if (newUnit.GetComponent<GridUnitDragHandler>() == null)
+                    newUnit.gameObject.AddComponent<GridUnitDragHandler>();
+            }
+
             RegisterUnit(newUnit);
         }
 
@@ -256,4 +280,37 @@ public class UnitManager : Singleton<UnitManager>
         }
         return 0f;
     }
+
+    /// <summary>유닛을 월드에서 안전하게 제거 (풀링 반환 또는 파괴)</summary>
+    public void DespawnUnit(Unit unit)
+    {
+        if (unit == null) return;
+
+        // 1. 노드 슬롯 해제
+        unit.CurrentNode?.ReleaseSlot(unit);
+
+        // 2. 리스트에서 제거
+        UnregisterUnit(unit);
+
+        // 3. 풀링 시스템 또는 파괴 (PoolManager가 내부적으로 처리함)
+        if (PoolManager.Instance != null)
+        {
+            PoolManager.Instance.Despawn(unit);
+        }
+        else
+        {
+            Destroy(unit.gameObject);
+        }
+    }
+
+    private void SetLayerRecursive(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursive(child.gameObject, layer);
+        }
+    }
 }
+
+

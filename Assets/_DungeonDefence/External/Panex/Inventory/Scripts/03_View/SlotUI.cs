@@ -6,10 +6,11 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System;
 
-namespace Panex.Inventory.View {
+namespace Panex.Inventory.View
+{
     public class SlotUI : MonoBehaviour,
         IPointerClickHandler,
-        IPointerEnterHandler, IPointerExitHandler, 
+        IPointerEnterHandler, IPointerExitHandler,
         IPointerDownHandler, IPointerUpHandler,
         IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
     {
@@ -22,6 +23,7 @@ namespace Panex.Inventory.View {
         private Sprite defaultIconSprite;
         private bool enableTooltip = true;
         private bool hasItem = false;
+        private IStorable currentItem;
 
         public event Action<SlotUI, SlotUI> OnDropAction;
         public event Action<int> OnClickAction;
@@ -57,16 +59,17 @@ namespace Panex.Inventory.View {
             ResetUI();
         }
 
-        public void SetItem(Sprite icon, int amount)
+        public void SetItem(IStorable item, int amount)
         {
-            if (amount <= 0)
+            this.currentItem = item;
+            if (amount <= 0 || item == null)
             {
                 ResetUI();
                 return;
             }
 
             hasItem = true;
-            Sprite displaySprite = (icon != null) ? icon : defaultIconSprite;
+            Sprite displaySprite = (item.Icon != null) ? item.Icon : defaultIconSprite;
 
             if (displaySprite != null)
             {
@@ -84,9 +87,10 @@ namespace Panex.Inventory.View {
         private void ResetUI()
         {
             hasItem = false;
+            currentItem = null;
             iconImage.sprite = null;
             iconImage.enabled = false;
-            
+
             if (amountText) amountText.text = "";
         }
 
@@ -112,7 +116,13 @@ namespace Panex.Inventory.View {
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!eventData.dragging) OnClickAction?.Invoke(SlotIndex);
+            if (!eventData.dragging)
+            {
+                OnClickAction?.Invoke(SlotIndex);
+
+                // [REFINED] Click-to-Select removed to enforce Drag-and-Drop only.
+                // Placement logic should only be triggered by OnBeginDrag.
+            }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -129,36 +139,49 @@ namespace Panex.Inventory.View {
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if(iconImage != null) iconImage.transform.localScale = Vector3.one * 0.95f;
+            if (iconImage != null) iconImage.transform.localScale = Vector3.one * 0.95f;
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if(iconImage != null) iconImage.transform.localScale = Vector3.one;
+            if (iconImage != null) iconImage.transform.localScale = Vector3.one;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (!hasItem) return;
+            if (!hasItem || currentItem == null) return;
 
             isDragging = true;
 
-            originalParent = iconImage.transform.parent;
+            // 유출된 유니티 시스템과의 통합: DragDropManager 사용
+            if (DragDropManager.Instance != null)
+            {
+                var payload = new DragPayload();
+                payload.Source = DragPayload.SourceType.Inventory;
 
-            iconImage.transform.SetParent(parentCanvas.transform, true); 
-            iconImage.transform.SetAsLastSibling();
+                if (currentItem is UnitDataSO unitData)
+                {
+                    payload.UnitData = unitData;
+                    GameManager.Instance?.SelectUnitToPlace(unitData, GameManager.SelectionSource.Inventory);
+                }
+                else if (currentItem is TileDataSO tileData)
+                {
+                    payload.TileData = tileData;
+                    GameManager.Instance?.SelectTileToPlace(tileData, GameManager.SelectionSource.Inventory);
+                }
+
+                DragDropManager.Instance.BeginDrag(payload, iconImage.sprite);
+            }
+
+            // 기존 아이콘 이동 로직은 비활성화 (고스트 이미지가 대신함)
             iconImage.raycastTarget = false;
-
-            Color color = iconImage.color;
-            color.a = 0.5f;
-            iconImage.color = color;
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (isDragging)
+            if (isDragging && DragDropManager.Instance != null)
             {
-                iconImage.transform.position = eventData.position;
+                DragDropManager.Instance.UpdateGhostPosition(eventData.position);
             }
         }
 
@@ -166,16 +189,14 @@ namespace Panex.Inventory.View {
         {
             if (!isDragging) return;
             isDragging = false;
-            if (originalParent != null)
-            {
-                iconImage.transform.SetParent(originalParent, true);
-                iconImage.rectTransform.anchoredPosition = Vector2.zero;
-            }
+
             iconImage.raycastTarget = true;
-            Color color = iconImage.color;
-            color.a = 1.0f;
-            iconImage.color = color;
-            
+
+            if (DragDropManager.Instance != null)
+            {
+                DragDropManager.Instance.EndDrag();
+            }
+
             if (eventData.pointerEnter == null)
             {
                 OnDragEndAction?.Invoke(SlotIndex, eventData.position);

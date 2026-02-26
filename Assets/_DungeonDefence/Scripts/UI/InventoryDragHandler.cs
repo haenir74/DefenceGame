@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Panex.Inventory;
 
 /// <summary>
@@ -10,23 +11,49 @@ public class InventoryDragHandler : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     // 이 슬롯에 저장된 아이템 (InventoryController가 세팅해줘야 함)
+    // [FIX] 유닛 뿐만 아니라 타일 데이터도 지원하도록 확장
     public UnitDataSO UnitData { get; set; }
+    public TileDataSO TileData { get; set; }
 
-    private bool wasDragging = false;
+    private Image slotIconImage;
+
+    private void Awake()
+    {
+        // [FIX] Try to find the icon image in children. 
+        // In CardSlotUI prefab, it's typically named "Icon" or found via GetComponentInChildren.
+        var images = GetComponentsInChildren<Image>(true);
+        foreach (var img in images)
+        {
+            if (img.gameObject.name == "Icon" || img.gameObject.name == "iconImage")
+            {
+                slotIconImage = img;
+                break;
+            }
+        }
+
+        // Fallback: first image that isn't the background (this component is usually on the button/root)
+        if (slotIconImage == null && images.Length > 0)
+            slotIconImage = images[images.Length - 1];
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (UnitData == null) return;
+        if (UnitData == null && TileData == null) return;
         if (!GameManager.Instance.IsMaintenancePhase) return;
-
-        wasDragging = true;
 
         var payload = new DragPayload
         {
             Source = DragPayload.SourceType.Inventory,
-            UnitData = UnitData
+            UnitData = UnitData,
+            TileData = TileData
         };
-        DragDropManager.Instance.BeginDrag(payload, UnitData.icon);
+
+        Sprite icon = (UnitData != null) ? UnitData.icon : TileData.icon;
+        DragDropManager.Instance.BeginDrag(payload, icon);
+
+        // [FIX] Hide the icon in the inventory slot during drag
+        if (slotIconImage != null)
+            slotIconImage.gameObject.SetActive(false);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -37,17 +64,18 @@ public class InventoryDragHandler : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        wasDragging = false;
         DragDropManager.Instance.EndDrag();
+
+        // [FIX] Show the icon back
+        if (slotIconImage != null)
+            slotIconImage.gameObject.SetActive(true);
     }
+
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 드래그가 아닌 단순 클릭이면 기존 선택 로직 유지
-        if (wasDragging) return;
-        if (UnitData == null) return;
-        if (!GameManager.Instance.IsMaintenancePhase) return;
-
-        GameManager.Instance.SelectUnitToPlace(UnitData);
+        // [REFINED] Click-to-Select removed to enforce Drag-and-Drop only.
+        // Optional: Show item description or info here.
     }
 }
+

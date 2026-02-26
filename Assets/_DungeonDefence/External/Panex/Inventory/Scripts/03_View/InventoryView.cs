@@ -6,7 +6,8 @@ using Panex.Inventory;
 using Panex.Inventory.Model;
 using System;
 
-namespace Panex.Inventory.View {
+namespace Panex.Inventory.View
+{
     public class InventoryView : MonoBehaviour
     {
         [SerializeField] private Image backgroundImage;
@@ -14,11 +15,11 @@ namespace Panex.Inventory.View {
         [SerializeField] private SlotUI slotPrefab;
         [SerializeField] private bool hideEmptySlots = false;
 
-        public event Action<int, int> OnSwapRequest;        
-        public event Action<SlotUI, int> OnTransferRequest; 
-        public event Action<int> OnClickSlot;               
-        public event Action<int, Vector2> OnDragEnd;        
-        public event Action<int> OnSlotHoverEnter;          
+        public event Action<int, int> OnSwapRequest;
+        public event Action<SlotUI, int> OnTransferRequest;
+        public event Action<int> OnClickSlot;
+        public event Action<int, Vector2> OnDragEnd;
+        public event Action<int> OnSlotHoverEnter;
         public event Action<int> OnSlotHoverExit;
 
         private List<SlotUI> uiSlots = new List<SlotUI>();
@@ -76,12 +77,12 @@ namespace Panex.Inventory.View {
             }
         }
 
-        public void UpdateSlot(int index, Sprite icon, int amount)
+        public void UpdateSlot(int index, IStorable item, int amount)
         {
             if (index < 0 || index >= uiSlots.Count) return;
 
             SlotUI slotUI = uiSlots[index];
-            bool isEmpty = (amount <= 0);
+            bool isEmpty = (amount <= 0 || item == null);
 
             if (hideEmptySlots && isEmpty)
             {
@@ -90,13 +91,13 @@ namespace Panex.Inventory.View {
             else
             {
                 slotUI.gameObject.SetActive(true);
-                slotUI.SetItem(icon, amount);
+                slotUI.SetItem(item, amount);
             }
         }
 
         private void ApplyTheme(Settings settings)
         {
-             if (backgroundImage != null && settings.ContainerBackground != null)
+            if (backgroundImage != null && settings.ContainerBackground != null)
                 backgroundImage.sprite = settings.ContainerBackground;
         }
 

@@ -1,12 +1,12 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 파견 슬롯 하나. 그리드 유닛 or 인벤토리 유닛 데이터를 받는다.
 /// </summary>
-public class DispatchSlotUI : MonoBehaviour
+public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("UI References")]
     [SerializeField] private Image unitIconImage;
@@ -61,43 +61,54 @@ public class DispatchSlotUI : MonoBehaviour
     {
         if (assignedUnit != null)
         {
-            // 그리드 유닛: 파견 해제만
             assignedUnit.SetDispatchMode(false);
             assignedUnit = null;
         }
         else if (assignedData != null)
         {
-            // 인벤토리 기반: 인벤토리에 반환
-            InventoryManager.Instance.AddItem(assignedData, 1);
+            InventoryManager.Instance?.AddItem(assignedData, 1);
             assignedData = null;
         }
 
-        Refresh();
         panel?.OnSlotChanged();
+
+        // [FIX] In dynamic system, the slot object should be destroyed when empty
+        if (transform.parent != null)
+            Destroy(transform.parent.gameObject); // Destroy DispatchSlot root
+        else
+            Destroy(gameObject);
     }
 
-    public void ClearSlot()
+    public void ClearSlot(bool returnToInventory = true)
     {
-        if (assignedUnit != null) assignedUnit.SetDispatchMode(false);
-        else if (assignedData != null) InventoryManager.Instance?.AddItem(assignedData, 1);
+        if (assignedUnit != null)
+        {
+            assignedUnit.SetDispatchMode(false);
+        }
+        else if (assignedData != null && returnToInventory)
+        {
+            InventoryManager.Instance?.AddItem(assignedData, 1);
+        }
 
         assignedUnit = null;
         assignedData = null;
-        Refresh();
+
+        // [FIX] In dynamic system, the slot object should be destroyed when empty
+        if (transform.parent != null)
+            Destroy(transform.parent.gameObject);
+        else
+            Destroy(gameObject);
     }
+
 
     // ─── 파견 보너스 계산 ──────────────────────────────────────────
 
     public int GetDispatchBonus()
     {
-        float baseReward = 100f; // 슬롯 기본 골드
-        float efficiency = 1f;
-
-        if (assignedUnit != null) efficiency = assignedUnit.Data.dispatchEfficiency;
-        else if (assignedData != null) efficiency = assignedData.dispatchEfficiency;
-
-        return Mathf.RoundToInt(baseReward * efficiency);
+        if (DispatchManager.Instance == null) return 0;
+        return DispatchManager.Instance.CalculateUnitBonus(assignedUnit, assignedData);
     }
+
 
     // ─── UI 갱신 ───────────────────────────────────────────────────
 
@@ -129,5 +140,68 @@ public class DispatchSlotUI : MonoBehaviour
 
         if (emptyIndicator != null)
             emptyIndicator.gameObject.SetActive(!hasUnit);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // [REFINED] Click-to-Select removed.
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (IsEmpty) return;
+
+        UnitDataSO data = assignedUnit?.Data ?? assignedData;
+        if (data != null && DragDropManager.Instance != null)
+        {
+            Debug.Log($"[Dispatch] Picking up unit via drag: {data.Name}");
+
+            var payload = new DragPayload();
+            payload.Source = DragPayload.SourceType.Dispatch;
+            payload.UnitData = data;
+            payload.FromSlot = this; // [IMPORTANT] Store origin for cleanup/restore
+
+            DragDropManager.Instance.BeginDrag(payload, unitIconImage.sprite);
+
+            // [FIX] DO NOT destroy/clear yet. Just hide visuals to keep event chain alive.
+            SetVisualVisible(false);
+
+            // Ensure GameManager knows this unit is "picked up" for potential cancellation
+            GameManager.Instance?.SelectUnitToPlace(data, GameManager.SelectionSource.Dispatch);
+        }
+    }
+
+    private void SetVisualVisible(bool visible)
+    {
+        if (unitIconImage != null) unitIconImage.gameObject.SetActive(visible);
+        if (unitNameText != null) unitNameText.gameObject.SetActive(visible);
+        if (bonusText != null) bonusText.gameObject.SetActive(visible);
+        if (recallButton != null) recallButton.gameObject.SetActive(visible && !IsEmpty);
+        if (emptyIndicator != null) emptyIndicator.gameObject.SetActive(visible && IsEmpty);
+
+        // Disable raycast on icon so we can drop "through" it if needed, 
+        // though usually the background panel handles it.
+        if (unitIconImage != null) unitIconImage.raycastTarget = visible;
+    }
+
+    /// <summary>취소 시 슬롯 비주얼을 복구합니다.</summary>
+    public void RestoreSlot()
+    {
+        SetVisualVisible(true);
+        Refresh();
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (DragDropManager.Instance != null)
+            DragDropManager.Instance.UpdateGhostPosition(eventData.position);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        // [FIX] Always call EndDrag on manager. 
+        // PlacementManager will call either ClearSlot(false) on success or RestoreSlot() on cancel.
+        if (DragDropManager.Instance != null)
+            DragDropManager.Instance.EndDrag();
     }
 }

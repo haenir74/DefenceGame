@@ -42,14 +42,26 @@ public class CameraManager : Singleton<CameraManager>
 
     private void HandleInput()
     {
-        float scroll = Input.mouseScrollDelta.y;
-        if (Mathf.Abs(scroll) > 0.01f)
+        // [FIX] 마우스가 UI 위에 있을 때는 카메라 줌(휠)을 무시하여 UI 스크롤이 가능하게 함
+        if (UnityEngine.EventSystems.EventSystem.current != null && 
+            UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
-            float newSize = this.cam.orthographicSize - scroll * this.zoomSpeed;
-            this.cam.orthographicSize = Mathf.Clamp(newSize, this.minZoom, this.maxZoom);
+            // 단, 드래그 중이거나 우클릭 팬 중일 때는 예외로 둘 수 있으나
+            // 기본적으로 UI 위에서의 휠은 UI 스크롤을 위해 비워둠
+            // 우클릭 팬 로직은 아래에서 계속 진행
+        }
+        else
+        {
+            float scroll = Input.mouseScrollDelta.y;
+            if (Mathf.Abs(scroll) > 0.01f)
+            {
+                float newSize = this.cam.orthographicSize - scroll * this.zoomSpeed;
+                this.cam.orthographicSize = Mathf.Clamp(newSize, this.minZoom, this.maxZoom);
+            }
         }
 
         if (Input.GetMouseButton(1))
+
         {
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");

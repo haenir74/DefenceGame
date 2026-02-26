@@ -15,11 +15,12 @@ public class RewardManager : Singleton<RewardManager>
         int dispatchBonus = 0;
         if (DispatchManager.Instance != null)
         {
-            dispatchBonus = DispatchManager.Instance.CalculateDispatchBonus();
+            dispatchBonus = DispatchManager.Instance.CalculateTotalBonus();
         }
+
         else
         {
-            Debug.LogWarning("[RewardManager] DispatchManager가 존재하지 않습니다.");
+            Debug.LogWarning("[RewardManager] DispatchPanelUI가 존재하지 않습니다.");
         }
 
         int totalGold = baseGold + dispatchBonus;

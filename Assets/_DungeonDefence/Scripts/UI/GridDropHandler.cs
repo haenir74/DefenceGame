@@ -9,23 +9,10 @@ using UnityEngine.EventSystems;
 /// 
 /// 실제 배치 판단은 MaintenanceState.PlaceUnit()에 위임.
 /// </summary>
-public class GridDropHandler : MonoBehaviour, IDropHandler
+public class GridDropHandler : UniversalDropHandler
 {
     [Tooltip("이 오브젝트가 대응하는 그리드 노드 (GridView에서 세팅)")]
     public GridNode TargetNode;
 
-    public void OnDrop(PointerEventData eventData)
-    {
-        if (!DragDropManager.Instance.IsDragging) return;
-        if (!GameManager.Instance.IsMaintenancePhase) return;
-
-        var payload = DragDropManager.Instance.CurrentPayload;
-
-        if (payload.Source == DragPayload.SourceType.Inventory && payload.UnitData != null)
-        {
-            // 인벤토리 유닛 → 그리드 배치
-            GameManager.Instance.SelectUnitToPlace(payload.UnitData);
-            GameManager.Instance.TryPlaceSelectedUnit(TargetNode);
-        }
-    }
+    // OnDrop is inherited from UniversalDropHandler
 }

@@ -72,6 +72,8 @@ public class GridManager : Singleton<GridManager>
 
             GridTile tileComp = cellObj.AddComponent<GridTile>();
             TileView tileView = cellObj.AddComponent<TileView>();
+            GridDropHandler dropHandler = cellObj.AddComponent<GridDropHandler>();
+            dropHandler.TargetNode = node;
 
             node.Tile = tileComp;
             tileComp.Setup(this.gridData.defaultTileData);
@@ -79,6 +81,7 @@ public class GridManager : Singleton<GridManager>
             tileView.SetDefaultPrefab(this.gridData.defaultTilePrefab);
             tileView.Setup(node, this.gridData.defaultTileData);
 
+            node.CurrentTile = tileView; // [FIX] Link TileView to node for highlights
             node.SetTileData(this.gridData.defaultTileData);
         }
     }
@@ -161,5 +164,11 @@ public class GridManager : Singleton<GridManager>
             }
         }
         return neighbors;
+    }
+    public GameObject GetTileGameObject(Vector2Int coord)
+    {
+        if (tileContainer == null) return null;
+        Transform tile = tileContainer.Find($"Cell_{coord.x}_{coord.y}");
+        return tile != null ? tile.gameObject : null;
     }
 }

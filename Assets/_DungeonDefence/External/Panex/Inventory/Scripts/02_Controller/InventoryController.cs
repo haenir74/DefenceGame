@@ -6,7 +6,8 @@ using Panex.Inventory.Model;
 using Panex.Inventory.View;
 
 
-namespace Panex.Inventory.Controller {
+namespace Panex.Inventory.Controller
+{
     public class InventoryController : MonoBehaviour
     {
         [Header("Configuration")]
@@ -22,7 +23,7 @@ namespace Panex.Inventory.Controller {
         private void OnDestroy()
         {
             if (model != null) model.OnInventoryUpdated -= HandleModelUpdate;
-            
+
             if (view != null)
             {
                 view.OnSwapRequest -= SwapSlots;
@@ -57,7 +58,7 @@ namespace Panex.Inventory.Controller {
                 view.OnSwapRequest -= SwapSlots;
                 view.OnTransferRequest -= HandleTransferRequest;
                 view.OnClickSlot -= HandleViewClick;
-                view.OnDragEnd -= HandleDragEnd;            
+                view.OnDragEnd -= HandleDragEnd;
 
                 view.OnSwapRequest += SwapSlots;
                 view.OnTransferRequest += HandleTransferRequest;
@@ -77,10 +78,10 @@ namespace Panex.Inventory.Controller {
             {
                 for (int i = 0; i < slots.Length; i++)
                 {
-                    if (slots[i].IsEmpty) 
+                    if (slots[i].IsEmpty)
                         view.UpdateSlot(i, null, 0);
-                    else 
-                        view.UpdateSlot(i, slots[i].ItemData.Icon, slots[i].Amount);
+                    else
+                        view.UpdateSlot(i, slots[i].ItemData, slots[i].Amount);
                 }
             }
             OnInventoryChanged?.Invoke();
@@ -129,7 +130,7 @@ namespace Panex.Inventory.Controller {
             }
         }
 
-        
+
         // ========================================================================
         // Public API
         // ========================================================================
@@ -152,7 +153,7 @@ namespace Panex.Inventory.Controller {
         }
 
         public int AddItem(IStorable item, int amount) => model != null ? model.AddItem(item, amount) : amount;
-        
+
         public int AddItem(int index, IStorable item, int amount)
         {
             var slot = model.GetSlot(index);
@@ -173,7 +174,7 @@ namespace Panex.Inventory.Controller {
 
             if (slot.Amount == amount) model.RemoveItem(index);
             else model.SetItem(index, slot.ItemData, slot.Amount - amount);
-            
+
             return true;
         }
 
@@ -181,7 +182,7 @@ namespace Panex.Inventory.Controller {
         {
             int index = FindIndex(item);
             if (index == -1) return false;
-            
+
             int remaining = amount;
             while (remaining > 0)
             {
@@ -190,7 +191,7 @@ namespace Panex.Inventory.Controller {
 
                 var slot = model.GetSlot(index);
                 int take = Mathf.Min(slot.Amount, remaining);
-                
+
                 RemoveItem(index, take);
                 remaining -= take;
             }
@@ -219,11 +220,11 @@ namespace Panex.Inventory.Controller {
                 var slot = model.GetSlot(i);
                 if (slot != null && !slot.IsEmpty)
                 {
-                    snapshot.Add(new InventorySnapshot 
-                    { 
-                        slotIndex = i, 
-                        itemId = slot.ItemData.ID, 
-                        amount = slot.Amount 
+                    snapshot.Add(new InventorySnapshot
+                    {
+                        slotIndex = i,
+                        itemId = slot.ItemData.ID,
+                        amount = slot.Amount
                     });
                 }
             }
@@ -233,7 +234,7 @@ namespace Panex.Inventory.Controller {
         public void LoadSnapshot(List<InventorySnapshot> snapshot, Func<int, IStorable> itemResolver)
         {
             if (model == null) return;
-            
+
             for (int i = 0; i < settings.Capacity; i++)
             {
                 model.RemoveItem(i);
