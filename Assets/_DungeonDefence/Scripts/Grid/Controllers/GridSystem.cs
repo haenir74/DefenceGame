@@ -66,5 +66,35 @@ public class GridSystem
         }
         return neighbors;
     }
+
+    public void CalculateFlowField(GridMap map, GridNode coreNode)
+    {
+        if (map == null || coreNode == null) return;
+        
+        foreach (var node in map.Nodes)
+        {
+            node.DistanceToCore = int.MaxValue;
+        }
+
+        Queue<GridNode> queue = new Queue<GridNode>();
+        coreNode.DistanceToCore = 0;
+        queue.Enqueue(coreNode);
+
+        while (queue.Count > 0)
+        {
+            GridNode current = queue.Dequeue();
+            int currentDist = current.DistanceToCore;
+
+            List<GridNode> neighbors = GetNeighbors(map, current);
+            foreach (var neighbor in neighbors)
+            {
+                if (neighbor.DistanceToCore > currentDist + 1)
+                {
+                    neighbor.DistanceToCore = currentDist + 1;
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+    }
 }
 

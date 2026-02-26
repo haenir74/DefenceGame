@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Player_NormalSlime_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 100
+  unitId: player_normal_slime
+  unitName: "\ub178\ub9d0 \uc2ac\ub77c\uc784"
+  description: "\uAC00\uC7A5 \uAE30\uBCF8\uC801\uC778 \uc2ac\ub77c\uc784. \uAC00\uACA9\uC774 \uC800\uB834\uD558\uACE0 \uBB3C\uB7C9\uC73C\uB85C \uC2B9\uBD80\uD558\uB294 \uC720\uB2DB."
+  icon: {fileID: 21300000, guid: 0182bc50877de204591252d90d4eb456, type: 3}
+  prefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60001, type: 3}
+  isPlayerTeam: 1
+  category: 4
+  maxHp: 100
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 3
+  basePower: 10
+  attackInterval: 1.0
+  skill: {fileID: 11400000, guid: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6, type: 2}
+  dispatchEfficiency: 0.5
+  costs:
+  - type: 0
+    amount: 40
+  populationCost: 1
+  shopStock: 10

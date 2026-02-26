@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_BanditKing_Boss_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 331
+  unitId: Enemy_BanditKing_Boss_0
+  unitName: Bandit King
+  description: 무법지대를 통치하는 도적들의 왕. 비열하지만 압도적인 무력을 소유했다.
+  icon: {fileID: 0}
+  prefab: {fileID: 7088850525797320623, guid: 37a51c7fdb5a5f742b8b098e9d84b031, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 1000
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 4
+  basePower: 50
+  attackInterval: 0.8
+  skill: {fileID: 11400000, guid: a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0

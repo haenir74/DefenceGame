@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_PeasantMilitia_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 301
+  unitId: Enemy_PeasantMilitia_0
+  unitName: Peasant Militia
+  description: 농사를 짓다 강제로 징집된 민병대. 갑옷도 무기도 변변치 않지만 수적 우위로 밀어붙인다.
+  icon: {fileID: 0}
+  prefab: {fileID: 5219395139811590847, guid: 2f9bbb62a67920f43aa77cb5b00c1698, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 70
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 3.5
+  basePower: 8
+  attackInterval: 1.2
+  skill: {fileID: 11400000, guid: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0

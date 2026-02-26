@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b67ab77bbe56fd34b97101eee47127f5, type: 3}
+  m_Name: TileData
+  m_EditorClassIdentifier: 
+  tileIdNumber: 0
+  tileId: default
+  tileName: Default
+  description: 
+  icon: {fileID: 0}
+  tileSprite: {fileID: 21300000, guid: e0ab1fe94a3af044e8080867af6b6813, type: 3}
+  prefab: {fileID: 4933445558535422339, guid: cbbd2bdf84b17284ca7c921a9f588ba8, type: 3}
+  attractivenessBonus: 0
+  MaxUnitCapacity: 1
+  tileEffect: {fileID: 0}
+  IsDispatchTile: 0
+  baseDispatchReward: 0
+  EfficiencyMultiplier: 1
+  costs: []
+  sellPrice: 0
+  shopStock: 0

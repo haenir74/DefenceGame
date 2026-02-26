@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_RoyalGuard_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 325
+  unitId: Enemy_RoyalGuard_0
+  unitName: Royal Guard
+  description: 황실을 수호하는 최정예 근위병. 죽음을 두려워하지 않는 충성심을 가졌다.
+  icon: {fileID: 0}
+  prefab: {fileID: 4449912767592486216, guid: 46fc71ec59444d74ebd5d1dfad760de8, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 600
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 2.5
+  basePower: 30
+  attackInterval: 1
+  skill: {fileID: 11400000, guid: f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0

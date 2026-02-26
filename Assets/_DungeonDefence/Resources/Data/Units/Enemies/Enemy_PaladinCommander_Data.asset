@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_PaladinCommander_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 321
+  unitId: Enemy_PaladinCommander_0
+  unitName: Paladin Commander
+  description: 성스러운 의지로 군대를 이끄는 팔라딘 지휘관.
+  icon: {fileID: 0}
+  prefab: {fileID: 3572183913930512746, guid: 7abb79e32c7f1dc4093f3a97390c2aa1, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 500
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 3
+  basePower: 35
+  attackInterval: 1
+  skill: {fileID: 11400000, guid: f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0

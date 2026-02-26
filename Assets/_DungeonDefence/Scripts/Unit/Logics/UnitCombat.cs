@@ -9,24 +9,33 @@ public class UnitCombat : MonoBehaviour
     private UnitDataSO data;
 
     private float currentHp;
+    private float currentMp;
     private float attackTimer;
 
     public float CurrentHp => currentHp;
     public float MaxHp => data != null ? data.maxHp : 0f;
+    public float CurrentMp => currentMp;
+    public float MaxMp => data != null ? data.maxMp : 0f;
 
     public bool IsDead { get; private set; }
 
     public event Action OnDeath;
     public event Action<float> OnHpChanged;
+    public event Action<Unit> OnAttack; // target
+    public float MpMultiplier { get; set; } = 1.0f;
+    public float AttackMultiplier { get; set; } = 1.0f;
 
     public void Initialize(Unit unit, UnitDataSO data)
     {
         this.unit = unit;
         this.data = data;
-        
-        this.currentHp = data.maxHp;
-        this.attackTimer = 0f;
+
         IsDead = false;
+        this.currentHp = data != null ? data.maxHp : 100f;
+        this.currentMp = data != null ? data.startMp : 0f;
+        this.attackTimer = 0f;
+        this.MpMultiplier = 1.0f;
+        this.AttackMultiplier = 1.0f;
     }
 
     public void OnUpdate()
@@ -38,15 +47,29 @@ public class UnitCombat : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, Unit attacker = null)
     {
-        if (IsDead) return;
+        if (IsDead || (unit != null && unit.IsDispatched)) return;
+
         currentHp -= amount;
         OnHpChanged?.Invoke(this.currentHp);
 
         if (currentHp <= 0)
         {
             Die();
+            if (attacker != null)
+            {
+                attacker.Combat.NotifyKill(unit);
+            }
+        }
+    }
+
+    public void NotifyKill(Unit victim)
+    {
+        // 스킬 등에 처치 알림 보냄
+        if (data != null && data.skill != null)
+        {
+            data.skill.OnUnitKill(unit, victim);
         }
     }
 
@@ -55,7 +78,7 @@ public class UnitCombat : MonoBehaviour
         if (this.IsDead) return;
 
         this.currentHp += amount;
-        if (this.currentHp > this.data.maxHp) 
+        if (this.currentHp > this.data.maxHp)
             this.currentHp = this.data.maxHp;
 
         OnHpChanged?.Invoke(this.currentHp);
@@ -69,9 +92,44 @@ public class UnitCombat : MonoBehaviour
 
     public void Attack(Unit target)
     {
+        if (unit != null && unit.IsDispatched) return;
         if (attackTimer > 0 || target == null || target.IsDead) return;
-        target.Combat.TakeDamage(data.basePower);
+
+        bool hasSkill = data.skill != null && data.maxMp > 0;
+
+        if (hasSkill && currentMp >= data.maxMp)
+        {
+            // 마나 가득 → 스킬 발동 (기본 공격 대체)
+            currentMp = 0f;
+            data.skill.Cast(unit, target);
+        }
+        else
+        {
+            // 기본 공격
+            target.Combat.TakeDamage(data.basePower * AttackMultiplier, unit);
+
+            // 기본 공격 1회당 10MP 충전
+            if (hasSkill)
+            {
+                AddMp(10f * MpMultiplier);
+            }
+        }
+
+        OnAttack?.Invoke(target);
         attackTimer = data.attackInterval;
+
+        // 공격 애니메이션 트리거 (슬라임 squash 또는 Mecanim 트리거)
+        var spriteAnimator = unit?.GetComponentInChildren<UnitSpriteAnimator>();
+        if (spriteAnimator != null) spriteAnimator.TriggerAttackAnimation();
+
+        var mecanimAnimator = unit?.GetComponentInChildren<UnitMecanimAnimator>();
+        if (mecanimAnimator != null) mecanimAnimator.TriggerAttackAnimation();
+    }
+
+    public void AddMp(float amount)
+    {
+        if (IsDead || data == null || data.maxMp <= 0) return;
+        currentMp = Mathf.Min(currentMp + amount, data.maxMp);
     }
 
     private void Die()

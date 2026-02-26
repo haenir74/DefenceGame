@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Enemy_ImperialFootman_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 303
+  unitId: Enemy_ImperialFootman_0
+  unitName: Imperial Footman
+  description: 제국군의 정규 보병. 단단한 방패와 갑옷으로 전열을 유지하는 데 특화되어 있다.
+  icon: {fileID: 0}
+  prefab: {fileID: 2204603820271525869, guid: f645e7688c73a6941a6697cd75b54fba, type: 3}
+  isPlayerTeam: 0
+  category: 0
+  maxHp: 100
+  maxMp: 100
+  startMp: 0
+  moveSpeed: 3
+  basePower: 12
+  attackInterval: 1
+  skill: {fileID: 11400000, guid: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6, type: 2}
+  dispatchEfficiency: 1
+  costs: []
+  populationCost: 0

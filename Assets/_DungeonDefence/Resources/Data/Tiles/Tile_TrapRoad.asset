@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b67ab77bbe56fd34b97101eee47127f5, type: 3}
+  m_Name: Tile_TrapRoad
+  m_EditorClassIdentifier: 
+  tileIdNumber: 9
+  tileId: traproad
+  tileName: 함정 도로 (Trap-Road)
+  description: "바닥에 쐐기가 박힌 길입니다. 지나가는 적에게 피해를 줍니다."
+  icon: {fileID: 21300000, guid: e459ec2cf3ed89c45acc42023941d459, type: 3}
+  tileSprite: {fileID: 21300000, guid: e459ec2cf3ed89c45acc42023941d459, type: 3}
+  prefab: {fileID: 0}
+  attractivenessBonus: -20
+  MaxUnitCapacity: 1
+  tileEffect: {fileID: 11400000, guid: 3964b348a377d49e265f43d64565ad73, type: 2}
+  IsDispatchTile: 0
+  baseDispatchReward: 0
+  EfficiencyMultiplier: 1
+  costs: []
+  sellPrice: 100
+  shopStock: 5

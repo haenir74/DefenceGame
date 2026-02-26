@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Panex.Inventory;
 
-[CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Tiles/Tile Data")]
-public class TileDataSO : ScriptableObject, IStorable
+[CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Datas/Tile Data")]
+public class TileDataSO : ScriptableObject, IStorable, ITradable
 {
     [Header("Basic Info")]
     public int tileIdNumber;
@@ -15,19 +15,27 @@ public class TileDataSO : ScriptableObject, IStorable
     [Header("Visuals")]
     public Sprite icon;
     public Sprite tileSprite;
+    public GameObject prefab;
 
     [Header("Game Logic")]
     public int attractivenessBonus;
-    // public SkillDataSO tileEffect; // 타일을 밟았을 때 지속 효과
+    public int MaxUnitCapacity = 1;
+    public bool IsDefaultTile => tileIdNumber == 0;
+    [Tooltip("타일 진입/체류/이탈/사망 시 발동되는 효과 SO")]
+    public TileEffectDataSO tileEffect;
+
 
     [Header("Economy")]
-    public int cost;
+    [SerializeField] private List<ResourceCost> costs;
+    public List<ResourceCost> GetCosts() => costs;
     public int sellPrice;
+    [Tooltip("상점에서 구매 가능한 횟수. 0 = 무한")]
+    public int shopStock = 5;
 
     // IStorable
     public int ID => tileIdNumber;
     public string Name => tileName;
     public string Description => description;
     public Sprite Icon => icon;
-    public int MaxStack => 1;
+    public int MaxStack => 999;
 }

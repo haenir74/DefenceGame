@@ -12,6 +12,15 @@ public abstract class SkillDataSO : ScriptableObject
     // 스킬 실행 로직 (각 스킬이 오버라이드)
     public abstract void Cast(Unit caster, Unit target);
 
+    /// <summary>유닛 사망 시 호출 (자폭, 분열 등 사망 시 발동 효과용)</summary>
+    public virtual void OnUnitDie(Unit owner) { }
+
+    /// <summary>유닛의 매 Update마다 호출 (지속 효과 등)</summary>
+    public virtual void OnUnitUpdate(Unit owner) { }
+
+    /// <summary>유닛이 적을 처치했을 때 호출 (처치 시 보너스 등)</summary>
+    public virtual void OnUnitKill(Unit owner, Unit victim) { }
+
     protected List<Unit> GetEnemies(Unit caster)
     {
         if (caster.CurrentNode == null) return new List<Unit>();

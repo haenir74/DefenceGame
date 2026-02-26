@@ -7,17 +7,12 @@ using Panex.Inventory.Controller;
 public class InventoryManager : Singleton<InventoryManager>
 {
     [Header("Settings")]
-    [SerializeField] private Settings unitInventorySettings; 
-    [SerializeField] private Settings tileInventorySettings;
-    [SerializeField] private InventoryController unitInventoryPrefab;
-    [SerializeField] private InventoryController tileInventoryPrefab;
+    [SerializeField] private InventoryController unitInventoryController;
+    [SerializeField] private InventoryController tileInventoryController;
+    [SerializeField] private Settings unitSettings;
+    [SerializeField] private Settings tileSettings;
 
-    [Header("UI")]
-    [SerializeField] private Transform unitListParent;
-    [SerializeField] private Transform tileListParent;
-
-    private Inventory unitInventory;
-    private Inventory tileInventory;
+    public IStorable CurrentSelectedItem { get; private set; }
 
     protected override void Awake()
     {
@@ -27,75 +22,87 @@ public class InventoryManager : Singleton<InventoryManager>
 
     private void Initialize()
     {
-        unitInventory = CreateListInventory("UnitInventory", unitInventorySettings, unitInventoryPrefab, unitListParent);
-        tileInventory = CreateListInventory("TileInventory", tileInventorySettings, tileInventoryPrefab, tileListParent);
+        if (unitInventoryController != null && unitSettings != null)
+        {
+            unitInventoryController.Configure(unitSettings);
+            unitInventoryController.OnSlotClicked += OnSlotClicked;
+        }
+        if (tileInventoryController != null && tileSettings != null)
+        {
+            tileInventoryController.Configure(tileSettings);
+            tileInventoryController.OnSlotClicked += OnSlotClicked;
+        }
     }
 
-    private Inventory CreateListInventory(string id, Settings settings, InventoryController prefab, Transform parent)
+    private void OnSlotClicked(IStorable item, int index)
     {
-        var inv = new Inventory(id, settings, prefab, parent);
+        // [REFINED] Click-to-Select removed to enforce Drag-and-Drop only.
+        // 드래그 앤 드롭 전용 시스템으로 전환됨에 따라 클릭 시의 배치 기능은 제거되었습니다.
+    }
 
-        var helper = parent.GetComponent<InventoryListHelper>();
-        if (helper == null)
+    private void SetPlacementMode(IStorable item)
+    {
+        CurrentSelectedItem = item;
+
+        // 예시: InputManager나 GameManager에 '배치 모드' 시작을 알림
+        // 만약 InputManager에 SetPlacementItem 같은 함수가 있다면 호출해야 합니다.
+        // InputManager.Instance.BeginPlacement(item); 
+
+        Debug.Log($"배치 모드 활성화: {item.Name} 선택됨");
+    }
+
+    private InventoryController GetControllerFor(IStorable item)
+    {
+        if (item == null) return null;
+
+        if (item is UnitDataSO)
         {
-            helper = parent.gameObject.AddComponent<InventoryListHelper>();
+            return unitInventoryController;
         }
-
-        inv.OnSlotClicked += HandleSlotClicked;
-        inv.OnInventoryChanged += () => helper.RefreshSlots();
-
-        inv.Open();
-        helper.RefreshSlots();
-
-        return inv;
+        else if (item is TileDataSO)
+        {
+            return tileInventoryController;
+        }
+        return null;
     }
 
     public void AddItem(IStorable item, int amount = 1)
     {
-        if (item is UnitDataSO)
+        var controller = GetControllerFor(item);
+
+        if (controller != null)
         {
-            unitInventory?.AddItem(item, amount);
-            Debug.Log($"[Unit List] {item.Name} 획득");
-        }
-        else if (item is TileDataSO)
-        {
-            tileInventory?.AddItem(item, amount);
-            Debug.Log($"[Tile List] {item.Name} 획득");
+            int remaining = controller.AddItem(item, amount);
         }
     }
 
-    public void RemoveItem(IStorable item, int amount = 1)
+    public bool TryConsumeItem(IStorable item, int amount = 1)
     {
-        if (item is UnitDataSO)
-            unitInventory?.RemoveItem(item, amount);
-        else if (item is TileDataSO)
-            tileInventory?.RemoveItem(item, amount);
+        var controller = GetControllerFor(item);
+        if (controller != null)
+        {
+            return controller.RemoveItem(item, amount);
+        }
+        return false;
     }
 
-    public void ToggleAllInventories()
+    public int GetItemAmount(IStorable item)
     {
-        unitInventory?.Toggle();
-        tileInventory?.Toggle();
-    }
-
-    private void HandleSlotClicked(IStorable item, int amount)
-    {
-        if (item is UnitDataSO unitData)
+        var controller = GetControllerFor(item);
+        if (controller != null)
         {
-            Debug.Log($"[Unit] 유닛 배치: {unitData.Name}");
-            // GameManager.Instance.StartUnitPlacement(unitData);
+            return controller.GetItemAmount(item.ID);
         }
-        else if (item is TileDataSO tileData)
-        {
-            Debug.Log($"[Tile] 타일 배치: {tileData.Name}");
-            // GameManager.Instance.StartTilePlacement(tileData);
-        }
+        return 0;
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        if (unitInventory != null) unitInventory.Destroy();
-        if (tileInventory != null) tileInventory.Destroy();
+        if (unitInventoryController != null)
+            unitInventoryController.OnSlotClicked -= OnSlotClicked;
+
+        if (tileInventoryController != null)
+            tileInventoryController.OnSlotClicked -= OnSlotClicked;
     }
 }

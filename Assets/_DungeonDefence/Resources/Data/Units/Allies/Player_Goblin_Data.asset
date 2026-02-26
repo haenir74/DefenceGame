@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047fa6611461758478a17fdc4590acfd, type: 3}
+  m_Name: Player_Goblin_Data
+  m_EditorClassIdentifier: 
+  unitIdNumber: 102
+  unitId: player_goblin
+  unitName: "\uace0\ube14\ub9b0"
+  description: "\uc544\uad70 \uc720\ub2db \uace0\ube14\ub9b0."
+  icon: {fileID: 21300000, guid: a57c5bd54c483a244ad8885fb1379179, type: 3}
+  prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000102, type: 3}
+  isPlayerTeam: 1
+  category: 7
+  maxHp: 130
+  maxMp: 0
+  startMp: 0
+  moveSpeed: 5
+  basePower: 14
+  attackInterval: 0.9
+  skill: {fileID: 0}
+  dispatchEfficiency: 0.7
+  costs:
+  - type: 0
+    amount: 55
+  populationCost: 1
+  shopStock: 10

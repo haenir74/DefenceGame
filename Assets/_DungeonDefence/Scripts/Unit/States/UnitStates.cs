@@ -1,78 +1,158 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
-public class UnitIdleState : BaseState<Unit>
+public abstract class UnitState : BaseState<Unit>
 {
-    public override void OnEnter(Unit unit) { }
+    protected Unit Self => Controller;
+    protected UnitState(Unit unit) : base(unit) { }
 
-    public override void OnUpdate(Unit unit)
+    public virtual void OnStepFinished() { }
+}
+
+public class UnitIdleState : UnitState
+{
+    public UnitIdleState(Unit unit) : base(unit) { }
+
+    public override void OnEnter()
     {
-        CheckCombatCondition(unit);
+        CheckCombat();
     }
 
-    public override void OnExit(Unit unit) { }
-
-    private void CheckCombatCondition(Unit unit)
+    public override void OnUpdate()
     {
-        Unit target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
-        
+        CheckCombat();
+    }
+
+    public override void OnExit() { }
+
+    private void CheckCombat()
+    {
+        if (Self.IsDead) return;
+        if (Self.IsDispatched) return;
+
+        Unit target = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (target != null)
         {
-            unit.StartCombat();
+            Self.StartCombat();
         }
     }
 }
 
 
-public class EnemyTurnState : BaseState<Unit>
+public class EnemyTurnState : UnitState
 {
-    public override void OnEnter(Unit unit) { }
+    public EnemyTurnState(Unit unit) : base(unit) { }
 
-    public override void OnUpdate(Unit unit)
+    public override void OnEnter() { }
+
+    public override void OnUpdate()
     {
-        if (CheckCombatCondition(unit)) return;
+        Act();
     }
 
-    public override void OnExit(Unit unit) { }
-
-    private bool CheckCombatCondition(Unit unit)
+    public override void OnStepFinished()
     {
-        Unit target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
-        
+        Act();
+    }
+
+    public override void OnExit() { }
+
+    private void Act()
+    {
+        if (Self.IsDead) return;
+        if (Self.Movement.IsMoving) return;
+        Unit target = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (target != null)
         {
-            unit.StartCombat();
-            return true;
+            Self.StartCombat();
+            return;
         }
-        return false;
+
+        List<GridNode> neighbors = GridManager.Instance.GetNeighbors(Self.CurrentNode);
+        if (neighbors != null && neighbors.Count > 0)
+        {
+            List<GridNode> bestNodes = new List<GridNode>();
+            float maxScore = float.MinValue;
+
+            // 패널티 및 노이즈 설정
+            int penaltyPerVisit = 50;
+            float noiseRange = 5f;
+
+            foreach (var n in neighbors)
+            {
+                // 1. 기본 매력도
+                float score = n.Attractiveness;
+
+                // 2. 방문 기록 패널티 적용 (누적)
+                int visitCount = 0;
+                foreach (var visitedCoord in Self.VisitedHistory)
+                {
+                    if (visitedCoord == n.Coordinate) visitCount++;
+                }
+                score -= visitCount * penaltyPerVisit;
+
+                // 3. 소량의 노이즈 추가
+                score += Random.Range(-noiseRange, noiseRange);
+
+                if (score > maxScore)
+                {
+                    maxScore = score;
+                    bestNodes.Clear();
+                    bestNodes.Add(n);
+                }
+                else if (Mathf.Approximately(score, maxScore))
+                {
+                    bestNodes.Add(n);
+                }
+            }
+
+            if (bestNodes.Count > 0)
+            {
+                GridNode bestNode = bestNodes[Random.Range(0, bestNodes.Count)];
+                Self.Movement.MoveTo(bestNode.Coordinate);
+            }
+        }
     }
 }
 
-public class UnitCombatState : BaseState<Unit>
+public class UnitCombatState : UnitState
 {
     private Unit target;
 
-    public override void OnEnter(Unit unit)
-    {
-        this.target = UnitManager.Instance.GetOpponentAt(unit.Coordinate, unit.IsPlayerTeam);
+    public UnitCombatState(Unit unit) : base(unit) { }
 
-        if (this.target == null)
-        {
-            unit.EndCombat();
-        }
-    }
-
-    public override void OnUpdate(Unit unit)
+    public override void OnEnter()
     {
-        if (target == null || target.IsDead || target.Coordinate != unit.Coordinate)
+        this.target = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
+        if (Self.IsDispatched)
         {
-            unit.EndCombat();
+            Self.EndCombat();
             return;
         }
-        UnitManager.Instance.AttackUnit(unit, this.target);
+        if (this.target == null)
+        {
+            Self.EndCombat();
+        }
     }
 
-    public override void OnExit(Unit unit) { }
+    public override void OnUpdate()
+    {
+        if (target == null || target.IsDead || target.Coordinate != Self.Coordinate)
+        {
+            Self.EndCombat();
+            return;
+        }
+        // 같은 타일의 적 중 랜덤 공격
+        Unit randomTarget = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
+        if (randomTarget != null)
+            UnitManager.Instance.AttackUnit(Self, randomTarget);
+        else
+            Self.EndCombat();
+    }
+
+    public override void OnExit()
+    {
+        target = null;
+    }
 }

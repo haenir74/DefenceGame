@@ -1,0 +1,47 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[System.Serializable]
+public class WaveGroup
+{
+    public UnitDataSO unitData;
+    public int count;
+    public float spawnInterval = 1.0f;
+    public float initialDelay = 0.5f;
+}
+
+/// <summary>
+/// 웨이브별 상점 티어 등장 확률 (웨이트 합산 기준, 비율 기반 무작위 선택)
+/// </summary>
+[System.Serializable]
+public class TierProbabilities
+{
+    [Tooltip("웨이트 합산 기준. 기본: 70/20/10/0")]
+    public int basicWeight = 70;
+    public int intermediateWeight = 20;
+    public int advancedWeight = 10;
+    public int supremeWeight = 0;
+}
+
+[CreateAssetMenu(fileName = "WaveData_01", menuName = "DungeonDefence/Datas/Wave Data")]
+public class WaveDataSO : ScriptableObject
+{
+    public int waveIndex;
+    [TextArea] public string description;
+    public TierProbabilities shopTierWeights = new TierProbabilities();
+    public List<WaveGroup> groups;
+
+    public int GetTotalEnemyCount()
+    {
+        int total = 0;
+        if (groups != null)
+        {
+            foreach (var group in groups)
+            {
+                total += group.count;
+            }
+        }
+        return total;
+    }
+}

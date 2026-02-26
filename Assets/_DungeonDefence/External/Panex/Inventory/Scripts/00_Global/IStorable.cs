@@ -9,5 +9,6 @@ namespace Panex.Inventory {
         string Name { get; }
         string Description { get; }
         Sprite Icon { get; }
+        int MaxStack { get; }
     }
 }

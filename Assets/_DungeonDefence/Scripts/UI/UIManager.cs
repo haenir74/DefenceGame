@@ -6,6 +6,8 @@ public class UIManager : Singleton<UIManager>
 {
     [SerializeField] private HUDView hudView;
     [SerializeField] private InventoryUIView inventoryView;
+    [SerializeField] private ShopUIView shopView;
+    [SerializeField] private DispatchPanelUI dispatchPanel;
 
     private int currentGold = 0;
     private int currentPop = 0;
@@ -24,61 +26,111 @@ public class UIManager : Singleton<UIManager>
         // 자원
         if (EconomyManager.Instance != null)
         {
-            EconomyManager.Instance.OnGoldChanged += (gold) => 
+            EconomyManager.Instance.OnCurrencyChanged += (type, amount) =>
             {
-                currentGold = gold;
-                hudView.UpdateResources(currentGold, currentPop, maxPop);
-            };
-        }
-
-        if (UnitManager.Instance != null)
-        {
-            UnitManager.Instance.OnUnitCountChanged += (ally, enemy) => 
-            {
-                currentPop = ally;
-                hudView.UpdateResources(currentGold, currentPop, maxPop);
+                if (type == CurrencyType.Gold)
+                {
+                    currentGold = amount;
+                    hudView?.UpdateResources(currentGold, currentPop, maxPop);
+                    if (shopView != null && shopView.gameObject.activeSelf)
+                    {
+                        shopView.UpdateGoldText(currentGold);
+                    }
+                }
             };
         }
 
         // 코어 체력
         if (UnitManager.Instance != null)
         {
-            UnitManager.Instance.OnCoreHpChanged += (cur, max) => 
-                hudView.UpdateCoreInfo(cur, max);
+            UnitManager.Instance.OnUnitCountChanged += (ally, enemy) =>
+            {
+                currentPop = ally;
+                hudView?.UpdateResources(currentGold, currentPop, maxPop);
+            };
+
+            UnitManager.Instance.OnCoreHpChanged += (cur, max) =>
+                hudView?.UpdateCoreInfo(cur, max);
         }
 
         // 웨이브 정보
         if (WaveManager.Instance != null)
         {
-            WaveManager.Instance.OnWaveInfoChanged += (wave, rem, total) => 
-                hudView.UpdateWaveInfo(wave, rem, total);
+            WaveManager.Instance.OnWaveInfoChanged += (wave, rem, total) =>
+                hudView?.UpdateWaveInfo(wave, rem, total);
         }
 
         // 시스템 버튼
         if (hudView != null)
         {
             hudView.SpeedButton?.onClick.AddListener(ToggleGameSpeed);
-            // hudView.SettingsButton?.onClick.AddListener(OnSettingsClick);
+            hudView.StartWaveButton?.onClick.AddListener(() =>
+            {
+                Debug.Log("[UI] 전투 시작 요청");
+                CloseAllPopups();
+                GameManager.Instance.StartBattlePhase();
+            });
+            hudView.BagButton?.onClick.AddListener(ToggleInventory);
+            hudView.ShopButton?.onClick.AddListener(ToggleShop);
+            hudView.DispatchButton?.onClick.AddListener(ToggleDispatchPanel);
         }
 
-        // 인벤토리 버튼
-        if (hudView != null && hudView.BagButton != null)
+        // 상점
+        if (shopView != null)
         {
-            hudView.BagButton.onClick.AddListener(() => 
+            shopView.OnCloseRequested += CloseShop;
+            shopView.OnRerollRequested += () =>
             {
-                inventoryView.ToggleInventory();
-            });
+                if (ShopManager.Instance != null)
+                    ShopManager.Instance.RerollShop();
+            };
+        }
+        if (ShopManager.Instance != null)
+        {
+            ShopManager.Instance.OnShopRefreshed += () =>
+            {
+                if (shopView != null && shopView.gameObject.activeSelf)
+                    shopView.RefreshShop();
+            };
+        }
+
+        // 인벤토리 상태 동기화 (파견 패널 등)
+        if (inventoryView != null)
+        {
+            inventoryView.OnOpenStatusChanged += (isOpenStatus) =>
+            {
+                if (dispatchPanel != null)
+                    dispatchPanel.gameObject.SetActive(isOpenStatus);
+            };
         }
     }
 
     private void InitializeUI()
     {
-        if (hudView == null) return;
-        if (EconomyManager.Instance) currentGold = EconomyManager.Instance.CurrentGold;
-        
-        hudView.UpdateResources(currentGold, currentPop, maxPop);
-        hudView.UpdateWaveInfo(1, 0, 0); 
-        hudView.UpdateSpeed(timeScale);
+        if (hudView != null)
+        {
+            if (EconomyManager.Instance) currentGold = EconomyManager.Instance.GetCurrencyAmount(CurrencyType.Gold);
+            hudView.UpdateResources(currentGold, currentPop, maxPop);
+            hudView.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0);
+            hudView.UpdateSpeed(timeScale);
+
+            // 초기 코어 정보 설정
+            if (UnitManager.Instance != null)
+            {
+                var core = UnitManager.Instance.GetAllUnits().Find(u => u.Data != null && u.Data.category == UnitCategory.Core);
+                if (core != null)
+                {
+                    hudView.UpdateCoreInfo(core.Combat.CurrentHp, core.Data.maxHp);
+                }
+            }
+        }
+
+        if (inventoryView != null && hudView != null)
+        {
+            inventoryView.AddLinkedRectTransform(hudView.MaintenancePanelRect);
+        }
+
+        CloseAllPopups();
     }
 
     private void ToggleGameSpeed()
@@ -88,17 +140,90 @@ public class UIManager : Singleton<UIManager>
         hudView?.UpdateSpeed(timeScale);
     }
 
-    // 페이즈 전환
-    
+    public void ToggleShop()
+    {
+        if (shopView == null) return;
+
+        if (!shopView.gameObject.activeSelf)
+        {
+            inventoryView?.Close();
+            shopView.Open();
+            shopView.UpdateGoldText(currentGold);
+            shopView.RefreshShop();
+        }
+        else
+        {
+            shopView.Close();
+        }
+    }
+
+    public void OpenShop()
+    {
+        inventoryView?.Close();
+        if (shopView != null)
+        {
+            shopView.Open();
+            shopView.UpdateGoldText(currentGold);
+            shopView.RefreshShop();
+        }
+    }
+
+    public void CloseShop()
+    {
+        shopView?.Close();
+    }
+
+    public void ToggleInventory()
+    {
+        if (inventoryView == null) return;
+
+        if (!inventoryView.IsOpen)
+        {
+            shopView?.Close();
+            inventoryView.Open();
+        }
+        else
+        {
+            inventoryView.Close();
+        }
+    }
+
+    public void CloseAllPopups()
+    {
+        shopView?.Close();
+        inventoryView?.Close();
+        dispatchPanel?.gameObject.SetActive(false);
+    }
+
+    // 페이즈 전환    
     public void SwitchToMaintenancePhase()
     {
-        hudView.SetPhaseUI(false); 
-        // inventoryView.CloseInventory(); 
+        hudView?.SetPhaseUI(false);
+        hudView?.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0);
+        CloseAllPopups();
     }
 
     public void SwitchToBattlePhase()
     {
-        hudView.SetPhaseUI(true);
-        inventoryView.CloseInventory();
+        hudView?.SetPhaseUI(true);
+        CloseAllPopups();
+        dispatchPanel?.gameObject.SetActive(false);
+    }
+
+    public void ToggleDispatchPanel()
+    {
+        if (dispatchPanel == null) return;
+        bool isOpen = dispatchPanel.gameObject.activeSelf;
+        if (!isOpen)
+        {
+            shopView?.Close();
+            inventoryView?.Close();
+            dispatchPanel.gameObject.SetActive(true);
+        }
+        else
+        {
+            dispatchPanel.gameObject.SetActive(false);
+        }
     }
 }
+
