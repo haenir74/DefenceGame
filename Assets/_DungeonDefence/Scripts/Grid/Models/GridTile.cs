@@ -11,29 +11,43 @@ public class GridTile : MonoBehaviour
     {
         this.data = data;
     }
+
     public void OnUnitEnter(Unit unit)
     {
-        if (data?.tileEffect is ITileEffectHandler effectHandler) effectHandler.ExecuteEnterEffect(unit);
+        if (data != null && data.tileEffect != null)
+        {
+            var handler = unit.GetComponent<StatusEffectHandler>();
+            if (handler == null) handler = unit.gameObject.AddComponent<StatusEffectHandler>();
+            handler.AddEffect(data.tileEffect as TileEffectDataSO);
+        }
     }
 
     public void OnUnitUpdate(Unit unit)
     {
-        if (data?.tileEffect is ITileEffectHandler effectHandler) effectHandler.ExecuteUpdateEffect(unit);
+
     }
 
     public void OnUnitExit(Unit unit)
     {
-        if (data?.tileEffect is ITileEffectHandler effectHandler) effectHandler.ExecuteExitEffect(unit);
+
     }
 
     public void OnUnitDeath(Unit unit)
     {
-        if (data?.tileEffect is ITileEffectHandler effectHandler) effectHandler.ExecuteDeathEffect(unit);
+        if (data != null && data.tileEffect != null)
+        {
+            var handler = unit.GetComponent<StatusEffectHandler>();
+            if (handler != null) handler.RemoveEffect(data.tileEffect as TileEffectDataSO);
+        }
     }
 
     public void OnWaveClear(Unit unit)
     {
-        if (data?.tileEffect is ITileEffectHandler effectHandler) effectHandler.ExecuteWaveClearEffect(unit);
+        if (data != null && data.tileEffect != null)
+        {
+            var handler = unit.GetComponent<StatusEffectHandler>();
+            if (handler != null) handler.RemoveEffect(data.tileEffect as TileEffectDataSO);
+        }
     }
 }
 

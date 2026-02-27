@@ -7,38 +7,19 @@ public class ResourceTileEffect : TileEffectDataSO
     public int goldOnWaveClear = 0;
     public bool onlyDispatched = true;
 
-    public override void ExecuteUpdateEffect(Unit unit)
+    public override void ApplyEffect(Unit targetUnit, int currentStacks)
     {
-        if (goldPerSecond > 0 && IsValid(unit))
+        if (goldPerSecond > 0 && IsValid(targetUnit))
         {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            if (Random.value < Time.deltaTime * goldPerSecond)
-            {
-                EconomyManager.Instance.AddCurrency(CurrencyType.Gold, 1);
-            }
+            EconomyManager.Instance.AddCurrency(CurrencyType.Gold, 1);
         }
     }
 
-    public override void ExecuteWaveClearEffect(Unit unit)
+    public override void RemoveEffect(Unit targetUnit, int currentStacks)
     {
-        if (goldOnWaveClear > 0 && IsValid(unit))
+        if (goldOnWaveClear > 0 && IsValid(targetUnit))
         {
             EconomyManager.Instance.AddCurrency(CurrencyType.Gold, goldOnWaveClear);
-
         }
     }
 

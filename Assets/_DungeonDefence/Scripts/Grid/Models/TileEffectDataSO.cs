@@ -2,28 +2,20 @@
 
 using System;
 
-public abstract class TileEffectDataSO : ScriptableObject, ITileEffectHandler
+public abstract class TileEffectDataSO : ScriptableObject
 {
     public string effectName;
     [TextArea] public string description;
 
+    [Header("Stack Rules")]
+    public float baseDuration = 5f;
+    public bool isStackable = false;
+    public int maxStacks = 1;
 
-    [Obsolete("ExecuteEnterEffect를 대신 사용하십시오.")]
-    public virtual void OnEnter(Unit unit) { }
-    [Obsolete("ExecuteUpdateEffect를 대신 사용하십시오.")]
-    public virtual void OnUpdate(Unit unit) { }
-    [Obsolete("ExecuteExitEffect를 대신 사용하십시오.")]
-    public virtual void OnExit(Unit unit) { }
-    [Obsolete("ExecuteDeathEffect를 대신 사용하십시오.")]
-    public virtual void OnDeath(Unit unit) { }
-    [Obsolete("ExecuteWaveClearEffect를 대신 사용하십시오.")]
-    public virtual void OnWaveClear(Unit unit) { }
+    public abstract void ApplyEffect(Unit target, int currentStacks);
+    public abstract void RemoveEffect(Unit target, int currentStacks);
 
-    public virtual void ExecuteEnterEffect(Unit targetUnit) { OnEnter(targetUnit); }
-    public virtual void ExecuteUpdateEffect(Unit targetUnit) { OnUpdate(targetUnit); }
-    public virtual void ExecuteExitEffect(Unit targetUnit) { OnExit(targetUnit); }
-    public virtual void ExecuteDeathEffect(Unit targetUnit) { OnDeath(targetUnit); }
-    public virtual void ExecuteWaveClearEffect(Unit targetUnit) { OnWaveClear(targetUnit); }
+    public virtual void ExecuteDeathEffect(Unit target, int currentStacks) { }
 }
 
 

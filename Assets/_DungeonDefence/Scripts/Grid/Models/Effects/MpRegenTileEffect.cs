@@ -5,19 +5,19 @@ public class MpRegenTileEffect : TileEffectDataSO
 {
     public float multiplier = 3.0f;
 
-    public override void ExecuteEnterEffect(Unit unit)
+    public override void ApplyEffect(Unit targetUnit, int currentStacks)
     {
-        if (unit != null && unit.Combat != null)
+        if (targetUnit != null && targetUnit.Combat != null)
         {
-            unit.Combat.MpMultiplier = multiplier;
+            targetUnit.Combat.MpMultiplier = multiplier;
         }
     }
 
-    public override void ExecuteExitEffect(Unit unit)
+    public override void RemoveEffect(Unit targetUnit, int currentStacks)
     {
-        if (unit != null && unit.Combat != null)
+        if (targetUnit != null && targetUnit.Combat != null)
         {
-            unit.Combat.MpMultiplier = 1.0f;
+            targetUnit.Combat.MpMultiplier = 1.0f;
         }
     }
 }

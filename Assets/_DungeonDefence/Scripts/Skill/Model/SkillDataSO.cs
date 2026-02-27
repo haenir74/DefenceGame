@@ -9,6 +9,10 @@ public abstract class SkillDataSO : ScriptableObject
     [TextArea] public string description;
     public Sprite icon;
 
+    [Header("Skill Basics")]
+    public float baseCooldown = 10f;
+    public float manaCost = 0f;
+
     
     public abstract void Cast(Unit caster, Unit target);
 

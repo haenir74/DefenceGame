@@ -37,7 +37,7 @@ public class UnitCombat : MonoBehaviour
     public event Action<Unit, float> OnAttackHit;
     public event Action OnMaxMpReached;
     public float MpMultiplier { get; set; } = 1.0f;
-    public float AttackMultiplier { get; set; } = 1.0f;
+    public CharacterStat AttackPower { get; private set; }
 
     public void Initialize(Unit unit, UnitDataSO data)
     {
@@ -49,7 +49,9 @@ public class UnitCombat : MonoBehaviour
         this.currentMp = data != null ? data.startMp : 0f;
         this.attackTimer = 0f;
         this.MpMultiplier = 1.0f;
-        this.AttackMultiplier = 1.0f;
+
+        float basePower = data != null ? data.basePower : 0f;
+        this.AttackPower = new CharacterStat(basePower);
     }
 
     public void OnUpdate()
@@ -109,7 +111,7 @@ public class UnitCombat : MonoBehaviour
         if (unit != null && unit.IsDispatched) return;
         if (attackTimer > 0 || target == null || target.IsDead) return;
 
-        float damageDealt = data.basePower * AttackMultiplier;
+        float damageDealt = AttackPower != null ? AttackPower.Value : (data != null ? data.basePower : 0f);
         target.Combat.TakeDamage(damageDealt, unit);
 
         OnAttackHit?.Invoke(target, damageDealt);

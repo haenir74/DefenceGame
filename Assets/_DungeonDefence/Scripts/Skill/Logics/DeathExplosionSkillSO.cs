@@ -11,6 +11,10 @@ public class DeathExplosionSkillSO : SkillDataSO
     public float poisonDamagePerTick = 10f;
     public float poisonDuration = 3f;
 
+    public float explosionRadius = 2f;
+    [Tooltip("Damage multiplier based on the caster's AttackPower.")]
+    public float attackPowerMultiplierMultiplier = 1.0f;
+
     public override void Cast(Unit caster, Unit target) { }
 
     public override void OnUnitDie(Unit victim)
@@ -22,17 +26,32 @@ public class DeathExplosionSkillSO : SkillDataSO
     {
         if (victim == null || victim.CurrentNode == null) return;
 
-        List<Unit> targets = UnitManager.Instance.GetUnitsOnNode(victim.CurrentNode);
-        foreach (var target in targets)
+        float scaledDamage = explosionDamage;
+        if (victim.Combat != null && victim.Combat.AttackPower != null)
         {
-            if (target != null && target.IsPlayerTeam != victim.IsPlayerTeam && !target.IsDead)
-            {
-                target.Combat.TakeDamage(explosionDamage, victim);
+            scaledDamage += victim.Combat.AttackPower.Value * attackPowerMultiplierMultiplier;
+        }
 
-                if (isPoisonType && poisonDuration > 0)
+        Vector3 explosionCenter = victim.transform.position;
+        Collider[] colliders = Physics.OverlapSphere(explosionCenter, explosionRadius);
+
+        HashSet<Unit> processedTargets = new HashSet<Unit>();
+
+        foreach (var col in colliders)
+        {
+            Unit target = col.GetComponent<Unit>();
+            if (target != null && target != victim && !processedTargets.Contains(target))
+            {
+                if (target.IsPlayerTeam != victim.IsPlayerTeam && !target.IsDead)
                 {
-                    ApplyPoison(target, victim);
+                    target.Combat.TakeDamage(scaledDamage, victim);
+
+                    if (isPoisonType && poisonDuration > 0)
+                    {
+                        ApplyPoison(target, victim);
+                    }
                 }
+                processedTargets.Add(target);
             }
         }
     }

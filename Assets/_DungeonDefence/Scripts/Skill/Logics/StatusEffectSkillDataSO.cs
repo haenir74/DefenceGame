@@ -41,10 +41,11 @@ public class StatusEffectSkillDataSO : SkillDataSO
     private IEnumerator CustomEffectCoroutine(Unit target, float customDuration, float customValue)
     {
         float elapsed = 0f;
-        float originalAttackMult = target.Combat.AttackMultiplier;
+        StatModifier weaknessMod = null;
         if (effectType == StatusEffectType.Weakness)
         {
-            target.Combat.AttackMultiplier *= (1f - (customValue / 100f));
+            weaknessMod = new StatModifier(-(customValue / 100f), StatModType.PercentMultiply, this);
+            target.Combat.AttackPower.AddModifier(weaknessMod);
         }
 
         while (elapsed < customDuration && target != null && !target.IsDead)
@@ -57,10 +58,9 @@ public class StatusEffectSkillDataSO : SkillDataSO
             yield return null;
         }
 
-        if (target != null && !target.IsDead)
+        if (target != null && !target.IsDead && weaknessMod != null)
         {
-            if (effectType == StatusEffectType.Weakness)
-                target.Combat.AttackMultiplier = originalAttackMult;
+            target.Combat.AttackPower.RemoveModifier(weaknessMod);
         }
     }
 
@@ -74,11 +74,11 @@ public class StatusEffectSkillDataSO : SkillDataSO
     {
         float elapsed = 0f;
 
-
-        float originalAttackMult = target.Combat.AttackMultiplier;
+        StatModifier weaknessMod = null;
         if (effectType == StatusEffectType.Weakness)
         {
-            target.Combat.AttackMultiplier *= (1f - (value / 100f));
+            weaknessMod = new StatModifier(-(value / 100f), StatModType.PercentMultiply, this);
+            target.Combat.AttackPower.AddModifier(weaknessMod);
         }
 
         while (elapsed < duration && target != null && !target.IsDead)
@@ -93,10 +93,9 @@ public class StatusEffectSkillDataSO : SkillDataSO
         }
 
 
-        if (target != null && !target.IsDead)
+        if (target != null && !target.IsDead && weaknessMod != null)
         {
-            if (effectType == StatusEffectType.Weakness)
-                target.Combat.AttackMultiplier = originalAttackMult;
+            target.Combat.AttackPower.RemoveModifier(weaknessMod);
         }
     }
 }

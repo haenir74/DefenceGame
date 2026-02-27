@@ -16,14 +16,14 @@ public class StatModTileEffect : TileEffectDataSO
 
     public UnitCategory targetCategory = UnitCategory.None;
 
-    public override void ExecuteEnterEffect(Unit unit)
+    public override void ApplyEffect(Unit targetUnit, int currentStacks)
     {
-        Apply(unit, true);
+        Apply(targetUnit, true);
     }
 
-    public override void ExecuteExitEffect(Unit unit)
+    public override void RemoveEffect(Unit targetUnit, int currentStacks)
     {
-        Apply(unit, false);
+        Apply(targetUnit, false);
     }
 
     private void Apply(Unit unit, bool isEnter)
@@ -51,7 +51,11 @@ public class StatModTileEffect : TileEffectDataSO
 
         if (unit.Combat != null)
         {
-            unit.Combat.AttackMultiplier = attackMod;
+            unit.Combat.AttackPower.RemoveAllModifiersFromSource(this);
+            if (isEnter && attackMod != 1.0f)
+            {
+                unit.Combat.AttackPower.AddModifier(new StatModifier(attackMod - 1.0f, StatModType.PercentMultiply, this));
+            }
         }
     }
 }

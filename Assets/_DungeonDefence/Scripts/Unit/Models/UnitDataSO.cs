@@ -24,6 +24,21 @@ public enum UnitTier
     Supreme = 3       
 }
 
+[System.Flags]
+public enum UnitTag
+{
+    None        = 0,
+    Melee       = 1 << 0,
+    Ranged      = 1 << 1,
+    Magic       = 1 << 2,
+    Monster     = 1 << 3,
+    Slime       = 1 << 4,
+    Spider      = 1 << 5,
+    Undead      = 1 << 6,
+    Demon       = 1 << 7,
+    Human       = 1 << 8
+}
+
 [CreateAssetMenu(fileName = "New Unit Data", menuName = "DungeonDefence/Datas/Unit Data")]
 public class UnitDataSO : ScriptableObject, IStorable, ITradable
 {
@@ -43,13 +58,22 @@ public class UnitDataSO : ScriptableObject, IStorable, ITradable
     
     public UnitTier tier;
 
-    
+    [Header("Meta Categories")]
+    public UnitTag tags;
+
+    [Header("Combat Statistics")]
+    [Tooltip("Demon 빌드의 경우, 복잡한 메커니즘 없이 basePower, maxHp, baseDefense를 높게 설정하세요.")]
     public float maxHp = 100f;
     public float maxMp = 100f;
     public float startMp = 0f;
     public float moveSpeed = 5f;
+    
     public float basePower = 10f;
+    public float baseDefense = 0f;
+    public float attackRange = 1f;
     public float attackInterval = 1f;
+
+    public bool HasTag(UnitTag tag) => (tags & tag) == tag;
 
     
     public SkillDataSO skill;
