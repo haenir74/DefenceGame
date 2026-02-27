@@ -21,7 +21,7 @@ public class UnitCombat : MonoBehaviour
             float baseMax = data.maxHp;
             if (data.category == UnitCategory.Core && MetaManager.Instance != null)
             {
-                baseMax += MetaManager.Instance.GetPerkLevel("CoreHP") * 100f; 
+                baseMax += MetaManager.Instance.GetPerkLevel("CoreHP") * 100f;
             }
             return baseMax;
         }
@@ -34,6 +34,8 @@ public class UnitCombat : MonoBehaviour
     public event Action OnDeath;
     public event Action<float> OnHpChanged;
     public event Action<Unit> OnAttack;
+    public event Action<Unit, float> OnAttackHit;
+    public event Action OnMaxMpReached;
     public float MpMultiplier { get; set; } = 1.0f;
     public float AttackMultiplier { get; set; } = 1.0f;
 
@@ -43,7 +45,7 @@ public class UnitCombat : MonoBehaviour
         this.data = data;
 
         IsDead = false;
-        this.currentHp = MaxHp; 
+        this.currentHp = MaxHp;
         this.currentMp = data != null ? data.startMp : 0f;
         this.attackTimer = 0f;
         this.MpMultiplier = 1.0f;
@@ -107,24 +109,10 @@ public class UnitCombat : MonoBehaviour
         if (unit != null && unit.IsDispatched) return;
         if (attackTimer > 0 || target == null || target.IsDead) return;
 
-        bool hasSkill = data.skill != null && data.maxMp > 0;
+        float damageDealt = data.basePower * AttackMultiplier;
+        target.Combat.TakeDamage(damageDealt, unit);
 
-        if (hasSkill && currentMp >= data.maxMp)
-        {
-
-            currentMp = 0f;
-            data.skill.Cast(unit, target);
-        }
-        else
-        {
-
-            target.Combat.TakeDamage(data.basePower * AttackMultiplier, unit);
-
-            if (hasSkill)
-            {
-                AddMp(10f * MpMultiplier);
-            }
-        }
+        OnAttackHit?.Invoke(target, damageDealt);
 
         OnAttack?.Invoke(target);
         attackTimer = data.attackInterval;
@@ -140,6 +128,16 @@ public class UnitCombat : MonoBehaviour
     {
         if (IsDead || data == null || data.maxMp <= 0) return;
         currentMp = Mathf.Min(currentMp + amount, data.maxMp);
+
+        if (currentMp >= data.maxMp)
+        {
+            OnMaxMpReached?.Invoke();
+        }
+    }
+
+    public void ResetMp()
+    {
+        currentMp = 0f;
     }
 
     private void Die()

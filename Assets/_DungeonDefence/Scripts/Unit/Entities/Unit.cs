@@ -95,6 +95,10 @@ public class Unit : MonoBehaviour, IPoolable
         var mecanimAnimator = GetComponentInChildren<UnitMecanimAnimator>();
         if (mecanimAnimator != null) mecanimAnimator.Initialize(this);
 
+        var skillHandler = GetComponent<UnitSkillHandler>();
+        if (skillHandler == null) skillHandler = gameObject.AddComponent<UnitSkillHandler>();
+        skillHandler.Initialize(this);
+
         VisitedHistory.Clear();
         if (startNode != null) VisitedHistory.Add(startNode.Coordinate);
 

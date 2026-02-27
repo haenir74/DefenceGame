@@ -21,16 +21,16 @@ MonoBehaviour:
   isPlayerTeam: 1
   category: 7
   tier: 2
-  maxHp: 350
+  maxHp: 450
   maxMp: 0
   startMp: 0
   moveSpeed: 4
-  basePower: 25
-  attackInterval: 0.9
+  basePower: 60
+  attackInterval: 0.8
   skill: {fileID: 11400000, guid: cb989d65ebe8ef04e82dd65c5305cbc5, type: 2}
   dispatchEfficiency: 0.8
   costs:
   - type: 0
-    amount: 800
+    amount: 310
   populationCost: 2
   shopStock: 3

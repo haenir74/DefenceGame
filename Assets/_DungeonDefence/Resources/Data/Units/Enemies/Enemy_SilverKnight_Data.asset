@@ -20,7 +20,7 @@ MonoBehaviour:
   prefab: {fileID: 8031784776554945880, guid: b282e813a8ad3914685d6276129cc248, type: 3}
   isPlayerTeam: 0
   category: 0
-  maxHp: 700
+  maxHp: 500
   maxMp: 100
   startMp: 0
   moveSpeed: 3

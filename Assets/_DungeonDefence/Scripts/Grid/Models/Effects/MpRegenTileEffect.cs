@@ -3,9 +3,9 @@
 [CreateAssetMenu(fileName = "MpRegenEffect", menuName = "DungeonDefence/Effects/MpRegen")]
 public class MpRegenTileEffect : TileEffectDataSO
 {
-    public float multiplier = 3.0f; 
+    public float multiplier = 3.0f;
 
-    public override void OnEnter(Unit unit)
+    public override void ExecuteEnterEffect(Unit unit)
     {
         if (unit != null && unit.Combat != null)
         {
@@ -13,7 +13,7 @@ public class MpRegenTileEffect : TileEffectDataSO
         }
     }
 
-    public override void OnExit(Unit unit)
+    public override void ExecuteExitEffect(Unit unit)
     {
         if (unit != null && unit.Combat != null)
         {

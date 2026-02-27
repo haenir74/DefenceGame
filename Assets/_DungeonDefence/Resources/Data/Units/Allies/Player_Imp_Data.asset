@@ -25,12 +25,12 @@ MonoBehaviour:
   maxMp: 0
   startMp: 0
   moveSpeed: 6
-  basePower: 5
+  basePower: 12
   attackInterval: 1.0
   skill: {fileID: 0}
   dispatchEfficiency: 0.6
   costs:
   - type: 0
-    amount: 40
+    amount: 30
   populationCost: 1
   shopStock: 15

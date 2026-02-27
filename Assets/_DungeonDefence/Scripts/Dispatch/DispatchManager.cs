@@ -12,6 +12,32 @@ public class DispatchManager : Singleton<DispatchManager>
     
     public float playerDispatchMultiplier = 1.0f;
 
+    private void Start()
+    {
+        if (WaveManager.Instance != null)
+        {
+            WaveManager.Instance.OnWaveCompleted += HandleWaveCompleted;
+        }
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        if (WaveManager.Instance != null)
+        {
+            WaveManager.Instance.OnWaveCompleted -= HandleWaveCompleted;
+        }
+    }
+
+    private void HandleWaveCompleted()
+    {
+        int bonus = CalculateTotalBonus();
+        if (bonus > 0 && EconomyManager.InstanceExists)
+        {
+            EconomyManager.Instance.AddCurrency(CurrencyType.Gold, bonus);
+        }
+    }
+
     
     
     

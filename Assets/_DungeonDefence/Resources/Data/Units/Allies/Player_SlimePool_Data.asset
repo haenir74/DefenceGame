@@ -21,7 +21,7 @@ MonoBehaviour:
   isPlayerTeam: 1
   category: 4
   tier: 3
-  maxHp: 2000
+  maxHp: 3000
   maxMp: 0
   startMp: 0
   moveSpeed: 0
@@ -31,6 +31,6 @@ MonoBehaviour:
   dispatchEfficiency: 2
   costs:
   - type: 0
-    amount: 2000
+    amount: 1500
   populationCost: 5
   shopStock: 2

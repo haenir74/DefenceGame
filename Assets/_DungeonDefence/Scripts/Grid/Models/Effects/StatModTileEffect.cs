@@ -3,25 +3,25 @@
 [CreateAssetMenu(fileName = "StatModEffect", menuName = "DungeonDefence/Effects/StatMod")]
 public class StatModTileEffect : TileEffectDataSO
 {
-    
+
     public float allySpeedMod = 1.0f;
     public float allyAttackMod = 1.0f;
     public bool allyRoot = false;
 
-    
+
     public float enemySpeedMod = 1.0f;
     public float enemyAttackMod = 1.0f;
     public bool enemyRoot = false;
 
-    
-    public UnitCategory targetCategory = UnitCategory.None; 
 
-    public override void OnEnter(Unit unit)
+    public UnitCategory targetCategory = UnitCategory.None;
+
+    public override void ExecuteEnterEffect(Unit unit)
     {
         Apply(unit, true);
     }
 
-    public override void OnExit(Unit unit)
+    public override void ExecuteExitEffect(Unit unit)
     {
         Apply(unit, false);
     }

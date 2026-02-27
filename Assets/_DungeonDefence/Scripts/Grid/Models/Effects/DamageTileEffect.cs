@@ -8,7 +8,7 @@ public class DamageTileEffect : TileEffectDataSO
     public bool targetEnemies = true;
     public bool targetAllies = false;
 
-    public override void OnEnter(Unit unit)
+    public override void ExecuteEnterEffect(Unit unit)
     {
         if (ShouldApply(unit) && enterDamage > 0)
         {
@@ -16,7 +16,7 @@ public class DamageTileEffect : TileEffectDataSO
         }
     }
 
-    public override void OnUpdate(Unit unit)
+    public override void ExecuteUpdateEffect(Unit unit)
     {
         if (ShouldApply(unit) && dotDamage > 0)
         {

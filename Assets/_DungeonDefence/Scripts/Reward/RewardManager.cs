@@ -6,7 +6,7 @@ public class RewardManager : Singleton<RewardManager>
     [SerializeField] private RewardPopupUI rewardPopup;
     [SerializeField] private ShopUnlockPopupUI unlockPopup;
     [SerializeField] private int baseGoldPerWave = 100;
-    [SerializeField] private int goldIncrementPerWave = 50;
+    [SerializeField] private int goldIncrementPerWave = 75;
 
     public void ProcessWaveClear(int clearedWaveIndex)
     {
