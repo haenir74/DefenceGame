@@ -8,9 +8,9 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     private static readonly object lockObject = new object();
     protected static bool applicationIsQuitting = false;
     protected bool isShuttingDown = false;
-    
+
     public static bool IsQuitting => applicationIsQuitting;
-    public static bool InstanceExists => instance != null;
+    public static bool InstanceExists => instance != null && !applicationIsQuitting;
 
     protected virtual bool DontDestroy => false;
 
@@ -28,7 +28,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                 if (instance == null)
                 {
                     instance = FindObjectOfType<T>();
-                    
+
                     if (instance != null && (instance as Singleton<T>)?.isShuttingDown == true)
                     {
                         return null;

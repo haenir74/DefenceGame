@@ -28,8 +28,10 @@ public class InventoryDragHandler : MonoBehaviour,
         }
 
         
-        if (slotIconImage == null && images.Length > 0)
-            slotIconImage = images[images.Length - 1];
+        // Tooltip Integration
+        var tooltip = gameObject.GetComponent<UITooltipTrigger>();
+        if (tooltip == null) tooltip = gameObject.AddComponent<UITooltipTrigger>();
+        tooltip.DataProvider = () => UnitData;
     }
 
     public void OnBeginDrag(PointerEventData eventData)

@@ -143,21 +143,28 @@ public class GameManager : Singleton<GameManager>
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        if (InputManager.InstanceExists)
+        
+        // Use direct null checks on Instance which respects applicationIsQuitting
+        var input = InputManager.Instance;
+        if (input != null)
         {
-            InputManager.Instance.OnClickNode -= HandleNodeClick;
-            InputManager.Instance.OnClickUnit -= HandleUnitClick;
-            InputManager.Instance.OnCancel -= HandleCancel;
-            InputManager.Instance.OnRightClickNode -= HandleRightClick;
+            input.OnClickNode -= HandleNodeClick;
+            input.OnClickUnit -= HandleUnitClick;
+            input.OnCancel -= HandleCancel;
+            input.OnRightClickNode -= HandleRightClick;
         }
-        if (UnitManager.InstanceExists)
+
+        var unitM = UnitManager.Instance;
+        if (unitM != null)
         {
-            UnitManager.Instance.OnUnitDead -= HandleUnitDead;
-            UnitManager.Instance.OnUnitSpawned -= HandleUnitSpawned;
+            unitM.OnUnitDead -= HandleUnitDead;
+            unitM.OnUnitSpawned -= HandleUnitSpawned;
         }
-        if (EconomyManager.InstanceExists)
+
+        var econ = EconomyManager.Instance;
+        if (econ != null)
         {
-            EconomyManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
+            econ.OnCurrencyChanged -= HandleCurrencyChanged;
         }
     }
 

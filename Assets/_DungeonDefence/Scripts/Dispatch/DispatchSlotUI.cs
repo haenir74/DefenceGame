@@ -23,6 +23,12 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         this.panel = panel;
         if (recallButton != null)
             recallButton.onClick.AddListener(OnRecallClicked);
+
+        // Tooltip Integration
+        var tooltip = gameObject.GetComponent<UITooltipTrigger>();
+        if (tooltip == null) tooltip = gameObject.AddComponent<UITooltipTrigger>();
+        tooltip.DataProvider = () => assignedUnit?.Data ?? assignedData;
+
         Refresh();
     }
 

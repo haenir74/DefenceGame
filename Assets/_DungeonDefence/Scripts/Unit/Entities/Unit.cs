@@ -269,9 +269,14 @@ public class Unit : MonoBehaviour, IPoolable
 
     private void OnDestroy()
     {
-
-        if (!IsDead && UnitManager.InstanceExists)
-            UnitManager.Instance.UnregisterUnit(this);
+        if (!IsDead)
+        {
+            var unitM = UnitManager.Instance;
+            if (unitM != null)
+            {
+                unitM.UnregisterUnit(this);
+            }
+        }
     }
 
     public void SetDispatchMode(bool enable)

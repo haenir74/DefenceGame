@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.25, y: 1.0, z: 1.25}
+  m_LocalScale: {x: 1.25, y: 1, z: 1.25}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8181509284339935773}
@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 5235076826959038699}
   - component: {fileID: 8445657683284168223}
   - component: {fileID: 7568200360180697588}
+  - component: {fileID: 9005816368006001230}
   m_Layer: 0
   m_Name: legion_sorcerer
   m_TagString: Untagged
@@ -365,3 +366,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1a2c3d4e5f60789a1b2c3d4e5f60010, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &9005816368006001230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5635840784286720337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d54b8d0dde15f9418a5f98ec73302ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverDelay: 0.4
