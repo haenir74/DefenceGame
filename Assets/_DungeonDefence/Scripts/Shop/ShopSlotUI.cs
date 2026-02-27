@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class ShopSlotUI : MonoBehaviour
 {
-    [Header("UI Elements")]
+
     [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI costText;
@@ -68,3 +68,6 @@ public class ShopSlotUI : MonoBehaviour
         OnBuyClick?.Invoke(slotIndex);
     }
 }
+
+
+

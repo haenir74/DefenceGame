@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitIdNumber: 104
   unitId: player_slime_pool
-  unitName: "\uc2ac\ub77c\uc784 \ud480"
-  description: "\uace0\uc815\ud615 \uc720\ub2db. \ud0c0\uc77c\uc5d0 \ubc30\uce58\ub41c \ud6c4 \uc774\ub3d9\ud558\uc9c0 \uc54a\uace0 \uc8fc\uae30\uc801\uc73c\ub85c \ub178\ub9d0 \uc2ac\ub77c\uc784\uc744 \uc18c\ud658\ud55c\ub2e4."
+  unitName: "\uc2ac\ub77c\uc784 \uc5f0\ubabb"
+  description: "\uc2ac\ub77c\uc784\uc744 \ub04a\uc784\uc5c6\uc774 \uc0dd\uc131\ud558\ub220 \uad70\uc9d1\uccb4."
   icon: {fileID: 21300000, guid: aaccc704b6a758444ba3c2e666b468a2, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 076cfe12dc7bb0c44a5144aad8bcee66, type: 3}
   isPlayerTeam: 1
   category: 4
-  maxHp: 2000
+  tier: 3
+  maxHp: 3000
   maxMp: 0
   startMp: 0
   moveSpeed: 0

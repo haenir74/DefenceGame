@@ -1,13 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
     [SerializeField] UnitDataSO coreUnit;
-
-    [Header("Controllers")]
-    [SerializeField] private InputController inputController;
 
     private StateMachine<GameManager> stateMachine;
     public BaseState<GameManager> CurrentState => stateMachine?.CurrentState;
@@ -22,41 +19,86 @@ public class GameManager : Singleton<GameManager>
     public TileDataSO SelectedTileToPlace { get; private set; }
     public bool IsMaintenancePhase => CurrentState is MaintenanceState;
 
+    public int TotalEnemiesKilled { get; private set; }
+    public int TotalGoldEarned { get; private set; }
+    public int TotalUnitsUsed { get; private set; }
+
     protected override void Awake()
     {
         base.Awake();
-        if (this.inputController == null) this.inputController = FindObjectOfType<InputController>();
         this.stateMachine = new StateMachine<GameManager>(this);
     }
 
-    private void Start()
+    private void ResetPersistentSystems()
     {
+        if (PoolManager.Instance != null) PoolManager.Instance.ClearPools();
+        if (EconomyManager.Instance != null) EconomyManager.Instance.Reset();
+        if (InventoryManager.Instance != null) InventoryManager.Instance.Reset();
+
+        TierProbabilities stage1Probs = (WaveManager.Instance != null) ? WaveManager.Instance.GetNextWaveTierProbs() : null;
+        if (ShopManager.Instance != null) ShopManager.Instance.ResetWithProbabilities(stage1Probs);
+
+        if (UnitManager.Instance != null) UnitManager.Instance.Reset();
+        if (WaveManager.Instance != null) WaveManager.Instance.Reset();
+        if (DragDropManager.Instance != null) DragDropManager.Instance.CancelDrag();
+        if (MetaManager.Instance != null) MetaManager.Instance.ResetRunResult();
+
+        TotalEnemiesKilled = 0;
+        TotalGoldEarned = 0;
+        TotalUnitsUsed = 0;
+        CurrentWave = 1;
+    }
+
+    public void Initialize()
+    {
+        ResetPersistentSystems();
         InitializeSystems();
         ChangeState(new MaintenanceState(this));
 
-        StartCoroutine(StartCo());
-    }
-
-    private IEnumerator StartCo()
-    {
-        yield return null;
-        while (GridManager.Instance == null || GridManager.Instance.GetCoreNode() == null)
+        if (GridManager.Instance != null && GridManager.Instance.Data != null)
         {
-            yield return null;
-        }
-
-        // 카메라 초기 위치를 그리드 중앙으로 설정
-        int centerX = (GridManager.Instance.Data.width - 1) / 2;
-        int centerY = (GridManager.Instance.Data.height - 1) / 2;
-        GridNode centerNode = GridManager.Instance.GetNode(centerX, centerY);
-        if (centerNode != null)
-        {
-            // SmoothDamp를 타기 위해 즉시 이동이 아닌 FocusOn 호출
-            FocusCamera(centerNode);
+            int centerX = (GridManager.Instance.Data.width - 1) / 2;
+            int centerY = (GridManager.Instance.Data.height - 1) / 2;
+            GridNode centerNode = GridManager.Instance.GetNode(centerX, centerY);
+            if (centerNode != null)
+            {
+                FocusCamera(centerNode);
+            }
         }
 
         SpawnCore();
-        EconomyManager.Instance.AddCurrency(CurrencyType.Gold, 500); // 사용자 요청대로 500G 지급
+        if (UnitManager.Instance != null)
+        {
+            UnitManager.Instance.SpawnStartingUnits();
+        }
+
+        int startGold = 500;
+        if (MetaManager.Instance != null)
+        {
+            startGold += MetaManager.Instance.GetTotalBonusStartingGold();
+        }
+
+        EconomyManager.Instance?.AddCurrency(CurrencyType.Gold, startGold);
+        GrantInitialItems();
+    }
+
+    private void GrantInitialItems()
+    {
+        if (InventoryManager.Instance == null) return;
+
+
+        UnitDataSO normalSlime = Resources.Load<UnitDataSO>("Data/Units/Allies/Player_NormalSlime_Data");
+        if (normalSlime != null)
+        {
+            InventoryManager.Instance.AddItem(normalSlime, 3);
+        }
+
+
+        TileDataSO stoneRoad = Resources.Load<TileDataSO>("Data/Tiles/Tile_StoneRoad");
+        if (stoneRoad != null)
+        {
+            InventoryManager.Instance.AddItem(stoneRoad, 2);
+        }
     }
 
     private void Update()
@@ -66,13 +108,15 @@ public class GameManager : Singleton<GameManager>
 
     private void InitializeSystems()
     {
-        if (GridManager.Instance != null)
-            GridManager.Instance.Initialize();
-
         if (UnitManager.Instance != null)
         {
-            UnitManager.Instance.Initialize();
             UnitManager.Instance.OnUnitDead += HandleUnitDead;
+            UnitManager.Instance.OnUnitSpawned += HandleUnitSpawned;
+        }
+
+        if (EconomyManager.InstanceExists)
+        {
+            EconomyManager.Instance.OnCurrencyChanged += HandleCurrencyChanged;
         }
 
         if (InputManager.Instance != null)
@@ -87,28 +131,46 @@ public class GameManager : Singleton<GameManager>
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        if (InputManager.Instance != null)
+
+        // Use direct null checks on Instance which respects applicationIsQuitting
+        var input = InputManager.Instance;
+        if (input != null)
         {
-            InputManager.Instance.OnClickNode -= HandleNodeClick;
-            InputManager.Instance.OnClickUnit -= HandleUnitClick;
-            InputManager.Instance.OnCancel -= HandleCancel;
-            InputManager.Instance.OnRightClickNode -= HandleRightClick;
+            input.OnClickNode -= HandleNodeClick;
+            input.OnClickUnit -= HandleUnitClick;
+            input.OnCancel -= HandleCancel;
+            input.OnRightClickNode -= HandleRightClick;
         }
-        if (UnitManager.Instance != null)
+
+        var unitM = UnitManager.Instance;
+        if (unitM != null)
         {
-            UnitManager.Instance.OnUnitDead -= HandleUnitDead;
+            unitM.OnUnitDead -= HandleUnitDead;
+            unitM.OnUnitSpawned -= HandleUnitSpawned;
+        }
+
+        var econ = EconomyManager.Instance;
+        if (econ != null)
+        {
+            econ.OnCurrencyChanged -= HandleCurrencyChanged;
         }
     }
 
     private void HandleUnitDead(Unit unit)
     {
-        if (unit != null && unit.Data.category == UnitCategory.Core)
+        if (unit != null)
         {
-            GameOver();
+            if (unit.Data.category == UnitCategory.Core)
+            {
+                GameOver();
+            }
+            else if (!unit.IsPlayerTeam)
+            {
+                TotalEnemiesKilled++;
+            }
         }
     }
 
-    // Input handlers
     private void HandleNodeClick(GridNode node)
     {
         if (CurrentState is GameState gameState)
@@ -138,13 +200,11 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    // FSM
     public void ChangeState(BaseState<GameManager> newState)
     {
         stateMachine?.ChangeState(newState);
     }
 
-    // ** Game Flow **
     public void StartBattlePhase()
     {
         if (IsMaintenancePhase)
@@ -189,23 +249,22 @@ public class GameManager : Singleton<GameManager>
 
     public void Victory()
     {
-        stateMachine?.ChangeState(new VictoryState(this));
-        Time.timeScale = 0;
-        Debug.Log("<color=yellow>[GameManager] 게임 클리어! 30웨이브 승리!</color>");
-        // TODO: VictoryScene으로 씬 전환
-        // SceneManager.LoadScene("VictoryScene");
+        if (MetaManager.Instance != null)
+            MetaManager.Instance.SetRunResult(true, CurrentWave, TotalEnemiesKilled, TotalGoldEarned);
+
+        if (SceneController.Instance != null)
+            SceneController.Instance.LoadResult();
     }
 
     public void GameOver()
     {
-        // 현재 state의 OnExit 실행 (이벤트 구독 해제 포함)
-        stateMachine?.ChangeState(new GameOverState(this));
-        Time.timeScale = 0;
-        Debug.Log("[GameManager] Game Over!");
-    }
-    // ***
+        if (MetaManager.Instance != null)
+            MetaManager.Instance.SetRunResult(false, CurrentWave - 1, TotalEnemiesKilled, TotalGoldEarned);
 
-    // ** Select System **
+        if (SceneController.Instance != null)
+            SceneController.Instance.LoadResult();
+    }
+
     public void SelectUnitToPlace(UnitDataSO unitData, SelectionSource source, GridNode originalNode = null, Unit originalUnit = null)
     {
         if (!IsMaintenancePhase) return;
@@ -215,8 +274,6 @@ public class GameManager : Singleton<GameManager>
         CurrentSelectionSource = source;
         OriginalNode = originalNode;
         PickedUpUnit = originalUnit;
-
-        Debug.Log($"[GameManager] 유닛 선택: {unitData.Name} (Source: {source})");
     }
 
     public void SelectTileToPlace(TileDataSO tileData, SelectionSource source, GridNode originalNode = null)
@@ -228,18 +285,12 @@ public class GameManager : Singleton<GameManager>
         CurrentSelectionSource = source;
         OriginalNode = originalNode;
         PickedUpUnit = null;
-
-        Debug.Log($"[GameManager] 타일 선택: {tileData.Name} (Source: {source})");
     }
 
     public void ClearSelection(bool useSafetyNet = true)
     {
-        // [FIX] Safety Net: If selection is cleared while a unit is "picked up" (despawned), return it.
-        // This prevents the "vaporization" bug when unexpected clears happen.
-        // [REFINE] Now optional to prevent "duplication" bug when manual handling already happened.
         if (useSafetyNet && PickedUpUnit != null && OriginalNode != null)
         {
-            Debug.Log($"[GameManager] ClearSelection safety: Returning {PickedUpUnit.name} to {OriginalNode.Coordinate}");
             UnitManager.Instance?.SpawnUnit(PickedUpUnit.Data, OriginalNode);
         }
 
@@ -249,9 +300,7 @@ public class GameManager : Singleton<GameManager>
         OriginalNode = null;
         PickedUpUnit = null;
     }
-    // ***
 
-    // ** Helper **
     private void SpawnCore()
     {
         if (coreUnit == null) return;
@@ -267,9 +316,24 @@ public class GameManager : Singleton<GameManager>
         return CurrentState is T;
     }
 
-    // ** CameraManager **
+    private void HandleUnitSpawned(Unit unit)
+    {
+        if (unit != null && unit.IsPlayerTeam && unit.Data.category != UnitCategory.Core)
+        {
+            TotalUnitsUsed++;
+        }
+    }
+
+    private void HandleCurrencyChanged(CurrencyType type, int current, int changed)
+    {
+        if (type == CurrencyType.Gold && changed > 0)
+        {
+            TotalGoldEarned += changed;
+        }
+    }
+
     public void FocusCamera(Vector3 targetPosition) => CameraManager.Instance?.FocusOn(targetPosition);
     public void FocusCamera(GridNode node) { if (node != null) FocusCamera(node.WorldPosition); }
     public void ResetCamera() => CameraManager.Instance?.ResetPosition();
-    // ***
+
 }

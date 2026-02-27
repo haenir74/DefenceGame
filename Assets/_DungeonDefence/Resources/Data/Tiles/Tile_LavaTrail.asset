@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 13
   tileId: lavatrail
-  tileName: 용암 지대 (Lava Trail)
-  description: "뜨거운 용암이 흐르는 길입니다. 강력한 화염 피해를 줍니다."
+  tileName: "\uc6a9\uc554 \ud568\uc815"
+  description: "\ub728\uac70\uc6b4 \uc6a9\uc554\uc774 \ud750\ub974\ub220 \uae38\uc774\uc5d0\uc694. \uac15\ub825\ud55c \ud654\uc5bc \ud53c\ud574\ub97c \uc90d\ub2c8\ub2e4."
   icon: {fileID: 21300000, guid: 19407a9345b18e248b59da887c3c5074, type: 3}
   tileSprite: {fileID: 21300000, guid: 19407a9345b18e248b59da887c3c5074, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: -50
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: 955255d5dc0b3d062ec75652062403b7, type: 2}
+  tier: 2
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 1000
+  sellPrice: 500
   shopStock: 5

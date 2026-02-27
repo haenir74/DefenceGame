@@ -1,8 +1,7 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 개별 타일의 시각적 표현 담당
 public class TileView : MonoBehaviour
 {
     public GridNode Node { get; private set; }
@@ -74,3 +73,5 @@ public class TileView : MonoBehaviour
         }
     }
 }
+
+

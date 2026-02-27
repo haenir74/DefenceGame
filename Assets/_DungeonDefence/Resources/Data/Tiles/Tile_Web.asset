@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 3
   tileId: web
-  tileName: 거미줄 (Web)
-  description: "끈적이는 거미줄입니다. 적을 속박하고 거미 유닛을 강화합니다."
+  tileName: "\uac70\ubbf8\uc904 \ud0c0\uc77c"
+  description: "\ub048\uc801\uc774\ub220 \uac70\ubbf8\uc904\uc774\uc5d0\uc694. \uc801\uc744 \uc18d\ubc15\ud558\uace0 \uac70\ubbf8 \uc720\ub2db\uc744 \uac15\ud654\ud569\ub2c8\ub2e4."
   icon: {fileID: 21300000, guid: a1f44dd97026ce740ba5e74883e53e81, type: 3}
   tileSprite: {fileID: 21300000, guid: a1f44dd97026ce740ba5e74883e53e81, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: 5
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: 4094d20b1c13f9cbdf02343beee6d757, type: 2}
+  tier: 1
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
+  costs:
+  - type: 0
+    amount: 200
   sellPrice: 100
   shopStock: 5

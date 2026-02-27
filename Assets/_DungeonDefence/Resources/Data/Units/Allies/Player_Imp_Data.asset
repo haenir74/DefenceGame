@@ -15,21 +15,22 @@ MonoBehaviour:
   unitIdNumber: 103
   unitId: player_imp
   unitName: "\uc784\ud504"
-  description: "\uc544\uad70 \uc720\ub2db \uc784\ud504."
+  description: "\uc7a5\ub09c\uae30 \ub9ce\uc740 \uc791\uc740 \uc545\ub9c8 \uc784\ud504."
   icon: {fileID: 21300000, guid: af0dd3c524cce0c41adc3a7c49838533, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000103, type: 3}
   isPlayerTeam: 1
   category: 7
+  tier: 0
   maxHp: 80
   maxMp: 0
   startMp: 0
   moveSpeed: 6
-  basePower: 5
+  basePower: 12
   attackInterval: 1.0
   skill: {fileID: 0}
   dispatchEfficiency: 0.6
   costs:
   - type: 0
-    amount: 40
+    amount: 30
   populationCost: 1
   shopStock: 15

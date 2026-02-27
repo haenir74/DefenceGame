@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 10
   tileId: toxicpit
-  tileName: 맹독 구덩이 (Toxic Pit)
-  description: "독성 물질이 가득한 구덩이입니다. 적에게 지속 피해를 입힙니다."
+  tileName: "\ub9f9\ub3c5 \ud568\uc815"
+  description: "\ub3c5\uc131 \ubb3c\uc9c8\uc774 \uac00\ub4dd\ud55c \uce58\uba85\uc801\uc778 \uad6c\ub369\uc774."
   icon: {fileID: 21300000, guid: eca01fef211494747b82b32ca85a35d5, type: 3}
   tileSprite: {fileID: 21300000, guid: eca01fef211494747b82b32ca85a35d5, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: -30
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: dd1fd6d8344dfef42ef1f007114793f2, type: 2}
+  tier: 1
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 550
+  sellPrice: 275
   shopStock: 5

@@ -16,7 +16,7 @@ namespace Panex.Inventory
         {
             this.ID = id;
 
-            // 프리팹 로드 (없으면 기본값)
+            
             if (prefab != null)
             {
                 if (parent == null)

@@ -1,38 +1,37 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public class InventoryUIView : MonoBehaviour
 {
-    [Header("Inv Container")]
+
     [SerializeField] private RectTransform drawerRect;
     [SerializeField] private float openY = 0f;
     [SerializeField] private float closedY = -250f;
     [SerializeField] private float duration = 0.3f;
 
-    [Header("Tabs")]
+
     [SerializeField] private Button unitTabButton;
     [SerializeField] private Button tileTabButton;
     [SerializeField] private Image unitTabImage;
     [SerializeField] private Image tileTabImage;
 
-    [Header("Lists")]
+
     [SerializeField] private GameObject unitScrollView;
     [SerializeField] private GameObject tileScrollView;
 
-    [Header("Sync Animation")]
+
     [SerializeField] private List<RectTransform> linkedRectTransforms;
 
-    [Header("Toggle Button")]
+
     [SerializeField] private Button toggleButton;
 
     public bool IsOpen { get; private set; } = false;
     public System.Action<bool> OnOpenStatusChanged;
     private Coroutine slideCoroutine;
 
-    private void Start()
+    private void Awake()
     {
         if (drawerRect != null)
         {
@@ -40,8 +39,24 @@ public class InventoryUIView : MonoBehaviour
             pos.y = closedY;
             drawerRect.anchoredPosition = pos;
         }
-        IsOpen = false;
 
+
+        if (linkedRectTransforms != null)
+        {
+            foreach (var rt in linkedRectTransforms)
+            {
+                if (rt != null)
+                {
+                    Vector2 lPos = rt.anchoredPosition;
+
+
+                    lPos.y = 0;
+                    rt.anchoredPosition = lPos;
+                }
+            }
+        }
+
+        IsOpen = false;
         unitTabButton?.onClick.AddListener(OnUnitTabClicked);
         tileTabButton?.onClick.AddListener(OnTileTabClicked);
         OnUnitTabClicked();
@@ -109,12 +124,15 @@ public class InventoryUIView : MonoBehaviour
         float startY = drawerRect.anchoredPosition.y;
         float elapsed = 0f;
 
-        // 연결된 머무름 위치 계산을 위해 초기 위치 보관
+
         List<float> linkedStartPositions = new List<float>();
+        int linkedCount = (linkedRectTransforms != null) ? linkedRectTransforms.Count : 0;
+
         if (linkedRectTransforms != null)
         {
-            foreach (var rt in linkedRectTransforms)
+            for (int i = 0; i < linkedCount; i++)
             {
+                var rt = linkedRectTransforms[i];
                 if (rt != null) linkedStartPositions.Add(rt.anchoredPosition.y);
                 else linkedStartPositions.Add(0);
             }
@@ -133,12 +151,12 @@ public class InventoryUIView : MonoBehaviour
             pos.y = currentY;
             drawerRect.anchoredPosition = pos;
 
-            // 연결된 패널들도 같은 거리만큼 이동
+
             if (linkedRectTransforms != null)
             {
-                for (int i = 0; i < linkedRectTransforms.Count; i++)
+                for (int i = 0; i < linkedCount; i++)
                 {
-                    if (linkedRectTransforms[i] != null)
+                    if (i < linkedRectTransforms.Count && linkedRectTransforms[i] != null)
                     {
                         Vector2 lPos = linkedRectTransforms[i].anchoredPosition;
                         lPos.y = linkedStartPositions[i] + diffY;
@@ -157,9 +175,9 @@ public class InventoryUIView : MonoBehaviour
 
         if (linkedRectTransforms != null)
         {
-            for (int i = 0; i < linkedRectTransforms.Count; i++)
+            for (int i = 0; i < linkedCount; i++)
             {
-                if (linkedRectTransforms[i] != null)
+                if (i < linkedRectTransforms.Count && linkedRectTransforms[i] != null)
                 {
                     Vector2 lPos = linkedRectTransforms[i].anchoredPosition;
                     lPos.y = linkedStartPositions[i] + finalDiffY;
@@ -169,3 +187,5 @@ public class InventoryUIView : MonoBehaviour
         }
     }
 }
+
+

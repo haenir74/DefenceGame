@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -52,9 +52,31 @@ public class ComponentPool<T> where T : Component
         instance.transform.SetParent(parent);
         poolQueue.Enqueue(instance);
     }
+
+    public void Clear()
+    {
+        while (poolQueue.Count > 0)
+        {
+            T instance = poolQueue.Dequeue();
+            if (instance != null)
+            {
+                Object.Destroy(instance.gameObject);
+            }
+        }
+        
+        if (parent != null)
+        {
+            foreach (Transform child in parent)
+            {
+                Object.Destroy(child.gameObject);
+            }
+        }
+    }
 }
 
 public class PoolObject : MonoBehaviour
 {
     public GameObject OriginalPrefab;
 }
+
+

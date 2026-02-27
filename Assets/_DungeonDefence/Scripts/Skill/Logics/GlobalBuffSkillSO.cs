@@ -1,33 +1,114 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>
-/// 모든 타일에 있는 특정 카테고리 유닛들에게 버프를 부여하는 패시브 스킬. (Spider Queen 전용)
-/// </summary>
 [CreateAssetMenu(fileName = "Skill_GlobalBuff", menuName = "DungeonDefence/Skills/Global Buff")]
 public class GlobalBuffSkillSO : SkillDataSO
 {
-    [Header("Buff Settings")]
-    public UnitCategory targetCategory = UnitCategory.Spider;
-    public float attackPowerMultiplier = 1.2f;
+    public UnitTag targetTag = UnitTag.Spider;
+    public float attackPowerBonusPercent = 0.2f;
+
+    private HashSet<Unit> activeOwners = new HashSet<Unit>();
+
+    private void OnEnable()
+    {
+        activeOwners.Clear();
+    }
+
+    private void OnDisable()
+    {
+        if (UnitManager.InstanceExists)
+        {
+            UnitManager.Instance.OnUnitSpawned -= HandleUnitSpawned;
+            UnitManager.Instance.OnUnitDespawned -= HandleUnitDespawned;
+        }
+        activeOwners.Clear();
+    }
 
     public override void Cast(Unit caster, Unit target) { }
 
     public override void OnUnitUpdate(Unit owner)
     {
-        // 최적화를 위해 매 프레임이 아닌 일정 간격으로 적용할 수도 있지만, 
-        // 현재는 간단히 배율만 덮어씌움 (중첩 방지 등은 구현에 따라 복잡해질 수 있음)
-        if (UnitManager.Instance == null) return;
-
-        var allUnits = UnitManager.Instance.GetAllUnits();
-        foreach (var unit in allUnits)
+        if (!activeOwners.Contains(owner))
         {
-            if (unit.IsPlayerTeam == owner.IsPlayerTeam && unit.Data != null && unit.Data.category == targetCategory)
+            if (activeOwners.Count == 0 && UnitManager.Instance != null)
             {
-                // UnitCombat에 배율 적용 프로퍼티가 있다고 가정하거나 직접 설정
-                unit.Combat.AttackMultiplier = attackPowerMultiplier;
+                UnitManager.Instance.OnUnitSpawned += HandleUnitSpawned;
+                UnitManager.Instance.OnUnitDespawned += HandleUnitDespawned;
+            }
+            activeOwners.Add(owner);
+
+            if (UnitManager.Instance != null)
+            {
+                var existingUnits = UnitManager.Instance.GetUnitsByTag(targetTag);
+                foreach (var unit in existingUnits)
+                {
+                    if (unit.IsPlayerTeam == owner.IsPlayerTeam && unit.Combat != null && unit.Combat.AttackPower != null)
+                    {
+                        unit.Combat.AttackPower.AddModifier(new StatModifier(attackPowerBonusPercent, StatModType.PercentMultiply, owner));
+                    }
+                }
+            }
+        }
+    }
+
+    public override void OnUnitDie(Unit owner)
+    {
+        if (activeOwners.Contains(owner))
+        {
+            activeOwners.Remove(owner);
+
+            if (UnitManager.Instance != null)
+            {
+                var existingUnits = UnitManager.Instance.GetUnitsByTag(targetTag);
+                foreach (var unit in existingUnits)
+                {
+                    if (unit != null && unit.Combat != null && unit.Combat.AttackPower != null)
+                    {
+                        unit.Combat.AttackPower.RemoveAllModifiersFromSource(owner);
+                    }
+                }
+
+                if (activeOwners.Count == 0)
+                {
+                    UnitManager.Instance.OnUnitSpawned -= HandleUnitSpawned;
+                    UnitManager.Instance.OnUnitDespawned -= HandleUnitDespawned;
+                }
+            }
+        }
+    }
+
+    private void HandleUnitSpawned(Unit unit)
+    {
+        if (unit.Data != null && unit.Data.HasTag(targetTag))
+        {
+            foreach (var owner in activeOwners)
+            {
+                if (owner != null && !owner.IsDead && unit.IsPlayerTeam == owner.IsPlayerTeam)
+                {
+                    if (unit.Combat != null && unit.Combat.AttackPower != null)
+                    {
+                        unit.Combat.AttackPower.AddModifier(new StatModifier(attackPowerBonusPercent, StatModType.PercentMultiply, owner));
+                    }
+                }
+            }
+        }
+    }
+
+    private void HandleUnitDespawned(Unit unit)
+    {
+        if (unit.Data != null && unit.Data.HasTag(targetTag))
+        {
+            foreach (var owner in activeOwners)
+            {
+                if (owner != null && unit.Combat != null && unit.Combat.AttackPower != null)
+                {
+                    unit.Combat.AttackPower.RemoveAllModifiersFromSource(owner);
+                }
             }
         }
     }
 }
+
+
+

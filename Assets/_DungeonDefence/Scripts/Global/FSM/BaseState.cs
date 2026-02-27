@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,3 +16,6 @@ public abstract class BaseState<T> where T : class
     public virtual void OnPhysicsUpdate() { }
     public virtual void OnExit() { }
 }
+
+
+

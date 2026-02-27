@@ -15,21 +15,22 @@ MonoBehaviour:
   unitIdNumber: 103
   unitId: player_big_slime
   unitName: "\uac70\ub300 \uc2ac\ub77c\uc784"
-  description: "\uc0ac\ub9dd \uc2dc \ubd84\uc5f4\ud558\uc5ec \uac19\uc740 \ud0c0\uc77c\uc5d0 \ub178\ub9d0 \uc2ac\ub77c\uc784 4~5\ub9c8\ub9ac\ub97c \uc18c\ud658\ud55c\ub2e4."
+  description: "\uc5c4\uccad\ub09c \ud06c\uae30\ub97c \uc790\ub791\ud558\ub294 \uac70\ub300\ud55c \uc2ac\ub77c\uc784."
   icon: {fileID: 21300000, guid: 3336ef9f235282743aab5a61718e3181, type: 3}
   prefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60004, type: 3}
   isPlayerTeam: 1
   category: 4
+  tier: 2
   maxHp: 600
   maxMp: 0
   startMp: 0
   moveSpeed: 2
-  basePower: 20
-  attackInterval: 1.5
+  basePower: 50
+  attackInterval: 1.2
   skill: {fileID: 11400000, guid: e3548caee8b33aa42bfe2d9166660737, type: 2}
   dispatchEfficiency: 1.2
   costs:
   - type: 0
-    amount: 500
-  populationCost: 3
+    amount: 300
+  populationCost: 4
   shopStock: 3

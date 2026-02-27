@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -11,26 +11,39 @@ public class WaveConfig
 
 public class WaveManager : Singleton<WaveManager>
 {
-    [Header("Settings")]
+
     [SerializeField] private List<WaveConfig> waves;
 
-    // WaveIndex, Remaining, Total
     public event Action<int, int, int> OnWaveInfoChanged;
     public event Action OnWaveCompleted;
 
     private int currentWaveIndex = 0;
     private int totalEnemiesInCurrentWave;
     private int aliveEnemiesCount;
-    private int pendingSpawnCount;  // 아직 스폰되지 않은 적 수
+    private int pendingSpawnCount;
     private bool isWaveInProgress;
     private List<Coroutine> spawnCoroutines = new List<Coroutine>();
 
-    private void Start()
+    public void Initialize()
     {
         if (UnitManager.Instance != null)
         {
             UnitManager.Instance.OnUnitDead += HandleUnitDead;
         }
+    }
+
+    public void Reset()
+    {
+        foreach (var coroutine in spawnCoroutines)
+        {
+            if (coroutine != null) StopCoroutine(coroutine);
+        }
+        spawnCoroutines.Clear();
+        isWaveInProgress = false;
+        currentWaveIndex = 0;
+        aliveEnemiesCount = 0;
+        totalEnemiesInCurrentWave = 0;
+        pendingSpawnCount = 0;
     }
 
     public void StartWave(int waveIndex)
@@ -58,7 +71,7 @@ public class WaveManager : Singleton<WaveManager>
         }
 
         this.aliveEnemiesCount = this.totalEnemiesInCurrentWave;
-        this.pendingSpawnCount = this.totalEnemiesInCurrentWave; // 전부 미스폰 상태로 시작
+        this.pendingSpawnCount = this.totalEnemiesInCurrentWave;
         this.isWaveInProgress = true;
 
         NotifyUI();
@@ -91,12 +104,11 @@ public class WaveManager : Singleton<WaveManager>
             for (int i = 0; i < group.count; i++)
             {
                 UnitManager.Instance.SpawnUnit(group.unitData, spawnNode);
-                pendingSpawnCount--; // 스폰 완료 1건
+                pendingSpawnCount--;
                 yield return new WaitForSeconds(group.spawnInterval);
             }
         }
 
-        // 이 루틴 종료 후 웨이브 완료 여부 체크
         CheckWaveFinished();
     }
 
@@ -109,7 +121,6 @@ public class WaveManager : Singleton<WaveManager>
 
         NotifyUI();
 
-        // 아직 스폰 중이면 종료 판정 보류
         if (pendingSpawnCount > 0) return;
 
         CheckWaveFinished();
@@ -127,7 +138,7 @@ public class WaveManager : Singleton<WaveManager>
     private void FinishWave()
     {
         isWaveInProgress = false;
-        Debug.Log($"[WaveManager] 웨이브 {currentWaveIndex} 클리어!");
+
 
         if (UnitManager.Instance != null)
             UnitManager.Instance.NotifyWaveClear();
@@ -135,15 +146,31 @@ public class WaveManager : Singleton<WaveManager>
         OnWaveCompleted?.Invoke();
     }
 
-    /// <summary>다음 웨이브의 티어 확률 반환 (상점 롤에 사용)</summary>
     public TierProbabilities GetNextWaveTierProbs()
     {
-        int nextIndex = currentWaveIndex; // 클리어 후이므로 currentWaveIndex == 다음 웨이브 인덱스
-        if (waves == null || nextIndex < 0 || nextIndex >= waves.Count) return null;
-        WaveConfig config = waves[nextIndex];
-        if (config == null || config.waveDatas == null || config.waveDatas.Count == 0) return null;
-        // 첫 번째 WaveData의 확률을 대표값으로 사용
-        return config.waveDatas[0]?.shopTierWeights;
+        int nextWave = currentWaveIndex + 1;
+        int configIndex = nextWave - 1;
+
+        if (waves != null && configIndex >= 0 && configIndex < waves.Count)
+        {
+            WaveConfig config = waves[configIndex];
+            if (config != null && config.waveDatas != null && config.waveDatas.Count > 0)
+            {
+                WaveDataSO data = config.waveDatas[0];
+                if (data != null && data.shopTierWeights != null)
+                {
+                    return data.shopTierWeights;
+                }
+            }
+        }
+
+
+        TierProbabilities fallback = new TierProbabilities();
+        fallback.basicWeight = 100;
+        fallback.intermediateWeight = 0;
+        fallback.advancedWeight = 0;
+        fallback.supremeWeight = 0;
+        return fallback;
     }
 
     private void NotifyUI()
@@ -158,3 +185,5 @@ public class WaveManager : Singleton<WaveManager>
             UnitManager.Instance.OnUnitDead -= HandleUnitDead;
     }
 }
+
+

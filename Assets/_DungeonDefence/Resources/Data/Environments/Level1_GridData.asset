@@ -22,4 +22,4 @@ MonoBehaviour:
   coreNodePos: {x: 7, y: 2}
   defaultTilePrefab: {fileID: 4933445558535422339, guid: cbbd2bdf84b17284ca7c921a9f588ba8, type: 3}
   coreUnitPrefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60005, type: 3}
-  defaultTileData: {fileID: 11400000, guid: 2abdbd3a290004a4982e91ee4a28a60b, type: 2}
+  defaultTileData: {fileID: 11400000, guid: 6db32f4a1c5e4b8a9d7c6b5a4a3a2a11, type: 2}

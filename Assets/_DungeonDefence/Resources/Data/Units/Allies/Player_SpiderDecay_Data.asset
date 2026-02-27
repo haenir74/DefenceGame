@@ -14,22 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitIdNumber: 106
   unitId: player_spider_decay
-  unitName: "\uc2a4\ud30c\uc774\ub354 \ub514\ucf00\uc774"
-  description: "\uc544\uad70 \uc720\ub2db \uc2a4\ud30c\uc774\ub354 \ub514\ucf00\uc774."
+  unitName: "\ubd80\uc2dd \uac70\ubbf8"
+  description: "\ubaa8\ub4e0 \uac83\uc744 \ubd80\uc2dd\uc2dc\ud0a4\ub220 \ub2ec\uce74\ub85c\uc6b4 \uac70\ubbf8."
   icon: {fileID: 21300000, guid: 9f4527a442dc31f498c5e1403744270c, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000106, type: 3}
   isPlayerTeam: 1
   category: 5
-  maxHp: 300
+  tier: 2
+  maxHp: 400
   maxMp: 100
   startMp: 0
   moveSpeed: 4
-  basePower: 25
-  attackInterval: 1.0
+  basePower: 60
+  attackInterval: 0.8
   skill: {fileID: 11400000, guid: f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6, type: 2}
   dispatchEfficiency: 0.6
   costs:
   - type: 0
-    amount: 600
+    amount: 350
   populationCost: 3
   shopStock: 5

@@ -14,22 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitIdNumber: 110
   unitId: player_spider_vamp
-  unitName: "\uc2a4\ud30c\uc774\ub354 \ubc40\ud504"
-  description: "\uc544\uad70 \uc720\ub2db \uc2a4\ud30c\uc774\ub354 \ubc40\ud504."
+  unitName: "\ud761\ud608 \uac70\ubbf8"
+  description: "\uc801\uc758 \uc0dd\uba85\ub825\uc744 \ube61\uc544\uba39\ub294 \uac70\ubbf8."
   icon: {fileID: 21300000, guid: 7eb3bb22c4977934eb9b576bccff1f09, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000110, type: 3}
   isPlayerTeam: 1
   category: 5
-  maxHp: 300
+  tier: 1
+  maxHp: 250
   maxMp: 100
   startMp: 0
   moveSpeed: 4
-  basePower: 30
+  basePower: 35
   attackInterval: 0.7
   skill: {fileID: 11400000, guid: a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7, type: 2}
   dispatchEfficiency: 0.7
   costs:
   - type: 0
-    amount: 550
+    amount: 130
   populationCost: 3
   shopStock: 5

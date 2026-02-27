@@ -1,24 +1,21 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public enum StatusEffectType
 {
-    Venom,      // DoT
-    Weakness,   // Atk/Aspd reduction
-    Corrosion   // Def reduction or more Dmg taken
+    Venom,
+    Weakness,
+    Corrosion
 }
 
-/// <summary>
-/// 적에게 상태 이상을 부여하는 스킬. (Spider, Succubus 등 사용)
-/// </summary>
 [CreateAssetMenu(fileName = "Skill_StatusEffect", menuName = "DungeonDefence/Skills/Status Effect")]
 public class StatusEffectSkillDataSO : SkillDataSO
 {
-    [Header("Effect Settings")]
+
     public StatusEffectType effectType;
     public float duration = 5f;
-    public float value = 10f; // Dmg per sec or Reduction amount
+    public float value = 10f;
     public bool isAoE = false;
 
     public override void Cast(Unit caster, Unit target)
@@ -35,6 +32,38 @@ public class StatusEffectSkillDataSO : SkillDataSO
         }
     }
 
+    public void ApplyStatusEffect(Unit target, Unit attacker, float customDuration, float customValue)
+    {
+        if (target == null || target.IsDead) return;
+        UnitManager.Instance.StartCoroutine(CustomEffectCoroutine(target, customDuration, customValue));
+    }
+
+    private IEnumerator CustomEffectCoroutine(Unit target, float customDuration, float customValue)
+    {
+        float elapsed = 0f;
+        StatModifier weaknessMod = null;
+        if (effectType == StatusEffectType.Weakness)
+        {
+            weaknessMod = new StatModifier(-(customValue / 100f), StatModType.PercentMultiply, this);
+            target.Combat.AttackPower.AddModifier(weaknessMod);
+        }
+
+        while (elapsed < customDuration && target != null && !target.IsDead)
+        {
+            if (effectType == StatusEffectType.Venom || effectType == StatusEffectType.Corrosion)
+            {
+                target.Combat.TakeDamage(customValue * Time.deltaTime);
+            }
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (target != null && !target.IsDead && weaknessMod != null)
+        {
+            target.Combat.AttackPower.RemoveModifier(weaknessMod);
+        }
+    }
+
     private void Apply(Unit target)
     {
         if (target == null || target.IsDead) return;
@@ -44,12 +73,12 @@ public class StatusEffectSkillDataSO : SkillDataSO
     private IEnumerator EffectCoroutine(Unit target)
     {
         float elapsed = 0f;
-        
-        // Initial Effect
-        float originalAttackMult = target.Combat.AttackMultiplier;
+
+        StatModifier weaknessMod = null;
         if (effectType == StatusEffectType.Weakness)
         {
-            target.Combat.AttackMultiplier *= (1f - (value / 100f));
+            weaknessMod = new StatModifier(-(value / 100f), StatModType.PercentMultiply, this);
+            target.Combat.AttackPower.AddModifier(weaknessMod);
         }
 
         while (elapsed < duration && target != null && !target.IsDead)
@@ -58,16 +87,18 @@ public class StatusEffectSkillDataSO : SkillDataSO
             {
                 target.Combat.TakeDamage(value * Time.deltaTime);
             }
-            
+
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        // Restore Stats
-        if (target != null && !target.IsDead)
+
+        if (target != null && !target.IsDead && weaknessMod != null)
         {
-            if (effectType == StatusEffectType.Weakness)
-                target.Combat.AttackMultiplier = originalAttackMult;
+            target.Combat.AttackPower.RemoveModifier(weaknessMod);
         }
     }
 }
+
+
+

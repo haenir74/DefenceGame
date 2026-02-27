@@ -20,13 +20,13 @@ MonoBehaviour:
   prefab: {fileID: 3411364385336548188, guid: cc12815f12928284082beb0f0bee55fe, type: 3}
   isPlayerTeam: 0
   category: 0
-  maxHp: 180
+  maxHp: 250
   maxMp: 100
   startMp: 0
-  moveSpeed: 2.5
-  basePower: 15
+  moveSpeed: 3
+  basePower: 20
   attackInterval: 2
-  skill: {fileID: 11400000, guid: e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8, type: 2}
+  skill: {fileID: 11400000, guid: b1b2b3b4c1c2c3c4d1d2d3d4e1e2e3e4, type: 2}
   dispatchEfficiency: 1
   costs: []
   populationCost: 0

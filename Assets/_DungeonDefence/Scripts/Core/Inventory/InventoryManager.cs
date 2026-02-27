@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Panex.Inventory;
@@ -6,7 +6,7 @@ using Panex.Inventory.Controller;
 
 public class InventoryManager : Singleton<InventoryManager>
 {
-    [Header("Settings")]
+
     [SerializeField] private InventoryController unitInventoryController;
     [SerializeField] private InventoryController tileInventoryController;
     [SerializeField] private Settings unitSettings;
@@ -17,10 +17,9 @@ public class InventoryManager : Singleton<InventoryManager>
     protected override void Awake()
     {
         base.Awake();
-        Initialize();
     }
 
-    private void Initialize()
+    public void Initialize()
     {
         if (unitInventoryController != null && unitSettings != null)
         {
@@ -36,19 +35,25 @@ public class InventoryManager : Singleton<InventoryManager>
 
     private void OnSlotClicked(IStorable item, int index)
     {
-        // [REFINED] Click-to-Select removed to enforce Drag-and-Drop only.
-        // 드래그 앤 드롭 전용 시스템으로 전환됨에 따라 클릭 시의 배치 기능은 제거되었습니다.
+
+
+    }
+
+    public void Reset()
+    {
+        if (unitInventoryController != null) unitInventoryController.Clear();
+        if (tileInventoryController != null) tileInventoryController.Clear();
     }
 
     private void SetPlacementMode(IStorable item)
     {
         CurrentSelectedItem = item;
 
-        // 예시: InputManager나 GameManager에 '배치 모드' 시작을 알림
-        // 만약 InputManager에 SetPlacementItem 같은 함수가 있다면 호출해야 합니다.
-        // InputManager.Instance.BeginPlacement(item); 
 
-        Debug.Log($"배치 모드 활성화: {item.Name} 선택됨");
+
+
+
+
     }
 
     private InventoryController GetControllerFor(IStorable item)
@@ -106,3 +111,5 @@ public class InventoryManager : Singleton<InventoryManager>
             tileInventoryController.OnSlotClicked -= OnSlotClicked;
     }
 }
+
+

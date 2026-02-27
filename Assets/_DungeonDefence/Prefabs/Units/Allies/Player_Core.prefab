@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7230479174995561384}
   - component: {fileID: 6727688013146557340}
   - component: {fileID: 4420307387844538158}
+  - component: {fileID: 4083012312067556169}
   m_Layer: 0
   m_Name: Player_Core
   m_TagString: Untagged
@@ -90,6 +91,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   frameRate: 0.25
+--- !u!114 &4083012312067556169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2573380989020623195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d54b8d0dde15f9418a5f98ec73302ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverDelay: 0.4
 --- !u!1 &8325540219675261630
 GameObject:
   m_ObjectHideFlags: 0
@@ -117,7 +131,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4304915931654318913}

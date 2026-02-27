@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class UnitMecanimAnimator : MonoBehaviour
 {
@@ -19,7 +19,7 @@ public class UnitMecanimAnimator : MonoBehaviour
 
     private void Awake()
     {
-        // For prefabs already having it
+        
         if (unit == null) unit = GetComponent<Unit>();
         if (animator == null) animator = GetComponent<Animator>();
         if (animator == null) animator = GetComponentInChildren<Animator>();
@@ -30,11 +30,11 @@ public class UnitMecanimAnimator : MonoBehaviour
     {
         if (unit == null || animator == null) return;
 
-        // Set IsWalking based on movement
+        
         bool isMoving = unit.Movement != null && unit.Movement.IsMoving;
         animator.SetBool("IsWalking", isMoving);
 
-        // Update flipping
+        
         UpdateFlipping();
     }
 
@@ -72,3 +72,6 @@ public class UnitMecanimAnimator : MonoBehaviour
         }
     }
 }
+
+
+

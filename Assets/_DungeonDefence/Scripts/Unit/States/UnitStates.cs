@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,7 +39,6 @@ public class UnitIdleState : UnitState
     }
 }
 
-
 public class EnemyTurnState : UnitState
 {
     public EnemyTurnState(Unit unit) : base(unit) { }
@@ -75,25 +74,27 @@ public class EnemyTurnState : UnitState
             List<GridNode> bestNodes = new List<GridNode>();
             float maxScore = float.MinValue;
 
-            // 패널티 및 노이즈 설정
-            int penaltyPerVisit = 50;
-            float noiseRange = 5f;
+
+            int penaltyPerVisit = 500;
 
             foreach (var n in neighbors)
             {
-                // 1. 기본 매력도
+                // Req-19: (타일 고유의 기본 매력도 + 거리 보너스) - (방문 기록 페널티)
+                // GridNode의 Attractiveness 프로퍼티는 이미 내부적으로 DistanceToCore를 기반으로 매력도를 점수화하여 들고 있음.
                 float score = n.Attractiveness;
 
-                // 2. 방문 기록 패널티 적용 (누적)
                 int visitCount = 0;
                 foreach (var visitedCoord in Self.VisitedHistory)
                 {
                     if (visitedCoord == n.Coordinate) visitCount++;
                 }
-                score -= visitCount * penaltyPerVisit;
 
-                // 3. 소량의 노이즈 추가
-                score += Random.Range(-noiseRange, noiseRange);
+                if (visitCount > 0)
+                {
+                    // Linear Penalty: 무한 루프 핑퐁을 방지하기 위해 1회 방문 당 크고 확실한 페널티 부여
+                    float penalty = penaltyPerVisit * visitCount;
+                    score -= penalty;
+                }
 
                 if (score > maxScore)
                 {
@@ -143,7 +144,7 @@ public class UnitCombatState : UnitState
             Self.EndCombat();
             return;
         }
-        // 같은 타일의 적 중 랜덤 공격
+
         Unit randomTarget = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (randomTarget != null)
             UnitManager.Instance.AttackUnit(Self, randomTarget);
@@ -156,3 +157,5 @@ public class UnitCombatState : UnitState
         target = null;
     }
 }
+
+

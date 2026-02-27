@@ -14,22 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitIdNumber: 102
   unitId: player_red_slime
-  unitName: "\ud3ed\ubc1c \uc2ac\ub774\ub78c"
-  description: "\uc0ac\ub9dd \uc2dc \uac19\uc740 \ud0c0\uc77c\uc758 \ubaa8\ub4e0 \uc801\uc5d0\uac8c \uac15\ub825\ud55c \ud3ed\ubc1c \ud53c\ud574\ub97c \uc900\ub2e4."
+  unitName: "\ub9c8\uadf8\ub9c8 \uc2ac\ub77c\uc784"
+  description: "\ub728\uac70\uc6b4 \uc5f4\uae30\ub97c \ub0b4\ubfdc\ub294 \ubd89\uc740 \uc2ac\ub77c\uc784."
   icon: {fileID: 21300000, guid: 5de92eb7553210544882c635c44b0e80, type: 3}
   prefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60003, type: 3}
   isPlayerTeam: 1
   category: 4
-  maxHp: 150
+  tier: 1
+  maxHp: 180
   maxMp: 0
   startMp: 0
   moveSpeed: 3
-  basePower: 15
-  attackInterval: 1.1
+  basePower: 25
+  attackInterval: 1.0
   skill: {fileID: 11400000, guid: 1f9425567623b5f43806c2d02b99c95b, type: 2}
   dispatchEfficiency: 0.8
   costs:
   - type: 0
-    amount: 120
+    amount: 110
   populationCost: 2
   shopStock: 5

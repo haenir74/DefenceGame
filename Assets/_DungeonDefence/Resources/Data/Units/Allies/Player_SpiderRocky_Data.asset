@@ -14,23 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitIdNumber: 109
   unitId: player_spider_rocky
-  unitName: "\uc2a4\ud30c\uc774\ub354 \ub85c\ud0a4"
-  description: "\uc544\uad70 \uc720\ub2db \uc2a4\ud30c\uc774\ub354 \ub85c\ud0a4."
+  unitName: "\ubc14\uc704 \uac11\uc637 \uac70\ubbf8"
+  description: "\ub2e8\ub2e8\ud55c \uaecd\uc9c8\ub85c \ubb34\uc7a5\ud55c \uac70\ubbf8."
   icon: {fileID: 21300000, guid: f650bdd89d2ddaf43853abe8fd6b490f, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000109, type: 3}
   isPlayerTeam: 1
   category: 5
+  tier: 1
   maxHp: 400
   maxMp: 0
   startMp: 0
   moveSpeed: 3
-  basePower: 15
-  attackInterval: 1.2
+  basePower: 20
+  attackInterval: 1.0
   skill: {fileID: 0}
   dispatchEfficiency: 0.5
   costs:
   - type: 0
-  - type: 0
-    amount: 250
+    amount: 120
   populationCost: 2
   shopStock: 5

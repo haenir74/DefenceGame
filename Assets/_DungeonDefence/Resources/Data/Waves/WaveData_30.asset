@@ -14,24 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waveIndex: 30
   description: Wave 30
+  shopTierWeights:
+    basicWeight: 0
+    intermediateWeight: 20
+    advancedWeight: 40
+    supremeWeight: 40
   groups:
-  - unitData: {fileID: 11400000, guid: b6c7d8e9f0a1b2c3d4e5f6a8b9c0d1e2, type: 2}
+  - unitData: {fileID: 11400000, guid: d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3, type: 2}
     count: 1
     spawnInterval: 0
-    initialDelay: 5
-  - unitData: {fileID: 11400000, guid: c7d8e9f0a1b2c3d4e5f6a8b9c0d1e2f3, type: 2}
-    count: 5
-    spawnInterval: 1
-    initialDelay: 0
-  - unitData: {fileID: 11400000, guid: d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3, type: 2}
-    count: 5
-    spawnInterval: 1
-    initialDelay: 0
-  - unitData: {fileID: 11400000, guid: b6c7d8e9f0a1b2c3d4e5f6a8b9c0d1e2, type: 2}
+    initialDelay: 3
+  - unitData: {fileID: 11400000, guid: a5b6c7d8e9f0a1b2c3d4e5f6a8b9c0eb, type: 2}
     count: 10
     spawnInterval: 1
     initialDelay: 0
-  - unitData: {fileID: 11400000, guid: c7d8e9f0a1b2c3d4e5f6a8b9c0d1e2f3, type: 2}
+  - unitData: {fileID: 11400000, guid: f4a5b6c7d8e9f0a1b2c3d4e5f6a8b9da, type: 2}
     count: 5
-    spawnInterval: 1
-    initialDelay: 0
+    spawnInterval: 2
+    initialDelay: 5

@@ -15,21 +15,22 @@ MonoBehaviour:
   unitIdNumber: 102
   unitId: player_goblin
   unitName: "\uace0\ube14\ub9b0"
-  description: "\uc544\uad70 \uc720\ub2db \uace0\ube14\ub9b0."
+  description: "\ub358\uc804\uc758 \ud754\ud55c \ucc99\ud6c4\ubcd1 \uace0\ube14\ub9b0."
   icon: {fileID: 21300000, guid: a57c5bd54c483a244ad8885fb1379179, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000102, type: 3}
   isPlayerTeam: 1
   category: 7
-  maxHp: 130
+  tier: 0
+  maxHp: 100
   maxMp: 0
   startMp: 0
   moveSpeed: 5
-  basePower: 14
+  basePower: 16
   attackInterval: 0.9
   skill: {fileID: 0}
   dispatchEfficiency: 0.7
   costs:
   - type: 0
-    amount: 55
+    amount: 40
   populationCost: 1
   shopStock: 10

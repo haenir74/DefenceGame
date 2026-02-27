@@ -1,64 +1,110 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 using Panex.Inventory;
 
 public class ShopManager : Singleton<ShopManager>
 {
-    [Header("Shop Settings")]
-    [Tooltip("상점 슬롯 수 (4개 고정)")]
     [SerializeField] private int activeSlotCount = 4;
-    [SerializeField] private int rerollCost = 50;
+    [SerializeField] private int baseRerollCost = 10;
+    [SerializeField] private int rerollCostIncrement = 5;
+    private int currentRerollCost;
 
-    [Header("Unlock System")]
-    [Tooltip("해금 후보 풀 SO. 웨이브 클리어 시 이 풀에서 선택지 제공.")]
     [SerializeField] private ShopUnlockPoolSO unlockPool;
-    [Tooltip("게임 시작 시 기본으로 해금된 아이템 목록 (초기 상점에서 구매 가능)")]
-    [SerializeField] private List<UnitDataSO> defaultUnlockedUnits = new List<UnitDataSO>();
-    [SerializeField] private List<TileDataSO> defaultUnlockedTiles = new List<TileDataSO>();
 
-    // ─── 런타임 상태 ───────────────────────────────────────────────────
-    /// <summary>현재 해금된 전체 아이템 풀 (상점 랜덤 선택 대상)</summary>
-    private List<ITradable> unlockedItems = new List<ITradable>();
-
-    /// <summary>아이템별 남은 재고 (0 = 품절, -1 = 무한)</summary>
     private Dictionary<ITradable, int> stockRemaining = new Dictionary<ITradable, int>();
-
-    /// <summary>현재 상점에 표시 중인 슬롯 아이템</summary>
     private List<ITradable> currentShopItems = new List<ITradable>();
 
     public event Action<string> OnPurchaseSuccess;
     public event Action OnPurchaseFailed;
     public event Action OnShopRefreshed;
+    public event Action<int> OnRerollCostChanged;
 
-    // ─── 초기화 ───────────────────────────────────────────────────────
+    private Dictionary<UnitTier, List<ITradable>> categoricalPool = new Dictionary<UnitTier, List<ITradable>>();
 
-    private void Start()
+    public void Initialize()
     {
-        InitializeDefaultUnlocks();
+        currentRerollCost = baseRerollCost;
+        if (WaveManager.Instance != null)
+        {
+            WaveManager.Instance.OnWaveCompleted += HandleWaveCompleted;
+        }
+
+        InitializeCategoricalPool();
+        InitializeStocks();
         RollShopItems();
     }
 
-    private void InitializeDefaultUnlocks()
+    private void HandleWaveCompleted()
     {
-        foreach (var unit in defaultUnlockedUnits)
-            if (unit != null) UnlockItem(unit);
-        foreach (var tile in defaultUnlockedTiles)
-            if (tile != null) UnlockItem(tile);
+        currentRerollCost = baseRerollCost;
+        OnRerollCostChanged?.Invoke(currentRerollCost);
     }
 
-    // ─── 해금 API ─────────────────────────────────────────────────────
-
-    /// <summary>아이템을 해금 목록에 추가하고 재고를 등록.</summary>
-    public void UnlockItem(ITradable item)
+    protected override void OnDestroy()
     {
-        if (item == null || unlockedItems.Contains(item)) return;
-        unlockedItems.Add(item);
+        base.OnDestroy();
+        if (WaveManager.Instance != null)
+        {
+            WaveManager.Instance.OnWaveCompleted -= HandleWaveCompleted;
+        }
+    }
 
-        // 재고 설정
+    private void InitializeCategoricalPool()
+    {
+        categoricalPool.Clear();
+        categoricalPool[UnitTier.Basic] = new List<ITradable>();
+        categoricalPool[UnitTier.Intermediate] = new List<ITradable>();
+        categoricalPool[UnitTier.Advanced] = new List<ITradable>();
+        categoricalPool[UnitTier.Supreme] = new List<ITradable>();
+
+        if (unlockPool == null) return;
+
+        foreach (var unit in unlockPool.unitCandidates)
+        {
+            if (unit != null) categoricalPool[unit.tier].Add(unit);
+        }
+        foreach (var tile in unlockPool.tileCandidates)
+        {
+            if (tile != null) categoricalPool[tile.tier].Add(tile);
+        }
+    }
+
+    private void InitializeStocks()
+    {
+        stockRemaining.Clear();
+        if (unlockPool == null) return;
+
+        foreach (var unit in unlockPool.unitCandidates)
+            if (unit != null) SetInitialStock(unit);
+        foreach (var tile in unlockPool.tileCandidates)
+            if (tile != null) SetInitialStock(tile);
+    }
+
+    private void SetInitialStock(ITradable item)
+    {
         int stock = GetInitialStock(item);
-        stockRemaining[item] = stock <= 0 ? -1 : stock; // -1 = 무한
+        stockRemaining[item] = stock <= 0 ? -1 : stock;
+    }
+
+    public void Reset()
+    {
+        stockRemaining.Clear();
+        currentShopItems.Clear();
+        InitializeCategoricalPool();
+        InitializeStocks();
+        RollShopItems();
+    }
+
+    public void ResetWithProbabilities(TierProbabilities probs)
+    {
+        stockRemaining.Clear();
+        currentShopItems.Clear();
+        InitializeCategoricalPool();
+        InitializeStocks();
+        RollShopItems(probs);
     }
 
     private int GetInitialStock(ITradable item)
@@ -68,146 +114,102 @@ public class ShopManager : Singleton<ShopManager>
         return -1;
     }
 
-    /// <summary>웨이브 클리어 시 해금 후보 풀에서 count개 반환 (이미 해금된 것 제외).</summary>
-    public List<ITradable> GetUnlockCandidates(int count = 3)
-    {
-        if (unlockPool == null) return new List<ITradable>();
-        return unlockPool.GetRandomCandidates(count, unlockedItems);
-    }
-
-    // ─── 상점 슬롯 API ────────────────────────────────────────────────
-
-    /// <summary>
-    /// 해금된 아이템 풀에서 activeSlotCount개를 무작위 선택해 상점 구성.
-    /// tierProbs가 있으면 티어 가중치 기반 선택, 없으면 단순 랜덤.
-    /// </summary>
     public void RollShopItems(TierProbabilities tierProbs = null)
     {
         currentShopItems.Clear();
 
-        // 재고 있는 아이템만 후보
-        List<ITradable> available = new List<ITradable>();
-        foreach (var item in unlockedItems)
+        if (tierProbs == null && WaveManager.Instance != null)
         {
-            if (!stockRemaining.TryGetValue(item, out int stock)) continue;
-            if (stock == -1 || stock > 0) available.Add(item);
+            tierProbs = WaveManager.Instance.GetNextWaveTierProbs();
         }
 
-        List<ITradable> picked;
-        if (tierProbs != null)
+        if (tierProbs == null)
         {
-            picked = RollWithTierWeights(available, activeSlotCount, tierProbs);
-        }
-        else
-        {
-            // Fisher-Yates 셔플 후 슬롯 수만큼 선택
-            for (int i = available.Count - 1; i > 0; i--)
-            {
-                int j = UnityEngine.Random.Range(0, i + 1);
-                (available[i], available[j]) = (available[j], available[i]);
-            }
-            int take = Mathf.Min(activeSlotCount, available.Count);
-            picked = available.GetRange(0, take);
+            tierProbs = new TierProbabilities();
         }
 
-        currentShopItems.AddRange(picked);
-        OnShopRefreshed?.Invoke();
-    }
+        int perkBonus = MetaManager.Instance != null ? MetaManager.Instance.GetTotalUnlockedShopSlots() : 0;
+        int totalSlots = activeSlotCount + perkBonus;
 
-    private List<ITradable> RollWithTierWeights(List<ITradable> pool, int count, TierProbabilities probs)
-    {
-        // 티어별 풀 분리
-        var byTier = new System.Collections.Generic.Dictionary<UnitTier, List<ITradable>>
+        int totalWeight = tierProbs.basicWeight + tierProbs.intermediateWeight + tierProbs.advancedWeight + tierProbs.supremeWeight;
+        if (totalWeight <= 0)
         {
-            { UnitTier.Basic,        new List<ITradable>() },
-            { UnitTier.Intermediate, new List<ITradable>() },
-            { UnitTier.Advanced,     new List<ITradable>() },
-            { UnitTier.Supreme,      new List<ITradable>() },
-        };
-
-        foreach (var item in pool)
-        {
-            // 타일은 항상 Basic 취급
-            UnitTier tier = item is UnitDataSO u ? u.tier : UnitTier.Basic;
-            byTier[tier].Add(item);
+            Debug.LogWarning("ShopManager: Total weight is 0. Check TierProbabilities or WaveDataSO configuration.");
+            totalWeight = 1;
         }
 
-        int totalWeight = probs.basicWeight + probs.intermediateWeight + probs.advancedWeight + probs.supremeWeight;
-        if (totalWeight <= 0) totalWeight = 1;
+        if (categoricalPool.Count == 0 || categoricalPool.Values.All(list => list.Count == 0))
+        {
+            Debug.LogError("ShopManager: Categorical pool is empty! Shop will be empty. Check ShopUnlockPoolSO.");
+        }
 
-        var result = new List<ITradable>();
-        var used = new HashSet<ITradable>();
+        HashSet<ITradable> used = new HashSet<ITradable>();
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < totalSlots; i++)
         {
             int roll = UnityEngine.Random.Range(0, totalWeight);
             UnitTier selected;
-            if (roll < probs.basicWeight)
+            if (roll < tierProbs.basicWeight)
                 selected = UnitTier.Basic;
-            else if (roll < probs.basicWeight + probs.intermediateWeight)
+            else if (roll < tierProbs.basicWeight + tierProbs.intermediateWeight)
                 selected = UnitTier.Intermediate;
-            else if (roll < probs.basicWeight + probs.intermediateWeight + probs.advancedWeight)
+            else if (roll < tierProbs.basicWeight + tierProbs.intermediateWeight + tierProbs.advancedWeight)
                 selected = UnitTier.Advanced;
             else
                 selected = UnitTier.Supreme;
 
-            ITradable candidate = PickRandom(byTier[selected], used);
-
-            // 해당 티어에 없으면 전체에서 탐색
+            ITradable candidate = PickRandomFromPool(selected, used);
             if (candidate == null)
             {
-                foreach (var kv in byTier)
+
+                foreach (UnitTier tier in (UnitTier[])Enum.GetValues(typeof(UnitTier)))
                 {
-                    candidate = PickRandom(kv.Value, used);
+                    candidate = PickRandomFromPool(tier, used);
                     if (candidate != null) break;
                 }
             }
 
             if (candidate != null)
             {
-                result.Add(candidate);
+                currentShopItems.Add(candidate);
                 used.Add(candidate);
             }
         }
-        return result;
+
+        OnShopRefreshed?.Invoke();
     }
 
-    private ITradable PickRandom(List<ITradable> pool, HashSet<ITradable> exclude)
+    private ITradable PickRandomFromPool(UnitTier tier, HashSet<ITradable> exclude)
     {
-        var valid = pool.FindAll(x => !exclude.Contains(x));
+        if (!categoricalPool.ContainsKey(tier)) return null;
+
+        var valid = categoricalPool[tier].FindAll(x =>
+            !exclude.Contains(x) &&
+            (!stockRemaining.ContainsKey(x) || stockRemaining[x] == -1 || stockRemaining[x] > 0)
+        );
+
         if (valid.Count == 0) return null;
         return valid[UnityEngine.Random.Range(0, valid.Count)];
     }
 
-    /// <summary>웨이브 클리어 시 마이웨이브 재고 초기화</summary>
     public void ResetStocksForNewWave()
     {
-        var keys = new List<ITradable>(stockRemaining.Keys);
-        foreach (var item in keys)
-        {
-            int stock = GetInitialStock(item);
-            stockRemaining[item] = stock <= 0 ? -1 : stock;
-        }
-        Debug.Log("[Shop] 다음 웨이브 재고 초기화 완료");
+        InitializeStocks();
     }
 
     public void RerollShop()
     {
-        var cost = new List<ResourceCost> { new ResourceCost { type = CurrencyType.Gold, amount = rerollCost } };
+        var cost = new List<ResourceCost> { new ResourceCost { type = CurrencyType.Gold, amount = currentRerollCost } };
         if (EconomyManager.Instance.TrySpend(cost))
         {
             RollShopItems();
-        }
-        else
-        {
-            Debug.LogWarning($"[Shop] 리롤 비용 {rerollCost}G 부족.");
+            currentRerollCost += rerollCostIncrement;
+            OnRerollCostChanged?.Invoke(currentRerollCost);
         }
     }
 
-    /// <summary>현재 상점에 표시되는 아이템 목록 (ShopUIView에서 호출).</summary>
     public List<ITradable> GetCurrentShopItems() => currentShopItems;
 
-    /// <summary>[호환] 기존 코드에서 사용 중인 GetUnitCatalog 대체용.</summary>
     public List<UnitDataSO> GetUnitCatalog()
     {
         List<UnitDataSO> result = new List<UnitDataSO>();
@@ -229,15 +231,12 @@ public class ShopManager : Singleton<ShopManager>
         return stockRemaining.TryGetValue(item, out int s) && s == 0;
     }
 
-    // ─── 구매 ─────────────────────────────────────────────────────────
-
     public void TryBuyItem(ITradable item)
     {
         if (item == null) return;
 
         if (IsOutOfStock(item))
         {
-            Debug.LogWarning($"[Shop] {item.Name} 품절!");
             OnPurchaseFailed?.Invoke();
             return;
         }
@@ -248,13 +247,11 @@ public class ShopManager : Singleton<ShopManager>
         {
             InventoryManager.Instance.AddItem(item, 1);
 
-            // 재고 차감
             if (stockRemaining.TryGetValue(item, out int stock) && stock > 0)
                 stockRemaining[item] = stock - 1;
 
             OnPurchaseSuccess?.Invoke(item.Name);
 
-            // 품절 시 상점 슬롯에서 제거
             if (IsOutOfStock(item))
                 currentShopItems.Remove(item);
         }
@@ -263,8 +260,6 @@ public class ShopManager : Singleton<ShopManager>
             OnPurchaseFailed?.Invoke();
         }
     }
-
-    // ─── 슬롯 수 조정 ─────────────────────────────────────────────────
 
     public void AddShopSlot(int amount = 1) => activeSlotCount = Mathf.Max(1, activeSlotCount + amount);
     public int ActiveSlotCount => activeSlotCount;

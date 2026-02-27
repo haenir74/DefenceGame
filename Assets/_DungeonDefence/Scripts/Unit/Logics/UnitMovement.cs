@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ public class UnitMovement : MonoBehaviour
 
     private Unit unit;
     private Vector3 targetWorldPos;
-    private GridNode targetNode;  // 이동 중인 목적지 노드 (슬롯 해제용)
+    private GridNode targetNode;  
 
     public bool IsMoving { get; private set; }
     public float SpeedMultiplier { get; set; } = 1.0f;
@@ -34,13 +34,13 @@ public class UnitMovement : MonoBehaviour
         Vector3? slotPos = node.TryOccupySlot(unit, cellSize);
         Vector3 rawTarget = slotPos ?? node.WorldPosition;
 
-        // ★ 월드 Y는 유닛의 현재 높이를 그대로 유지 (X·Z만 이동)
+        
         targetWorldPos = new Vector3(rawTarget.x, transform.position.y, rawTarget.z);
         targetNode = node;
         IsMoving = true;
     }
 
-    /// <summary>이동 중 사망 등 비정상 중단 시 목적지 슬롯을 해제.</summary>
+    
     public void CancelMove()
     {
         if (IsMoving && targetNode != null)
@@ -66,7 +66,7 @@ public class UnitMovement : MonoBehaviour
 
             if (unit != null)
             {
-                // ★ GetNode는 X·Z만 사용 (Y 무시) — GridSystem.GetNode(worldPos) 구현 확인됨
+                
                 GridNode node = GridManager.Instance.GetNode(transform.position);
                 if (node != null)
                 {
@@ -76,3 +76,6 @@ public class UnitMovement : MonoBehaviour
         }
     }
 }
+
+
+

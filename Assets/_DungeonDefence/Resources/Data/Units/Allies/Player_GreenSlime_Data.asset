@@ -15,21 +15,22 @@ MonoBehaviour:
   unitIdNumber: 101
   unitId: player_green_slime
   unitName: "\ub9f9\ub3c5 \uc2ac\ub77c\uc784"
-  description: "\uc0ac\ub9dd \uc2dc \uAC19\uC740 \ud0c0\uc77c\uc758 \ubaa8\ub4e0 \uc801\uc5d0\uAC8C \ud3ed\uBC1C \ud53C\ud574\uc640 \ub3c5 \uc0c1\ud0dc\uc774\uc0c1\uc744 \uBD80\uc5ec\ud55c\ub2e4."
+  description: "\ub3c5\uc744 \ud488\uace0 \uc788\ub294 \ucd08\ub85d\uc0c9 \uc2ac\ub77c\uc784."
   icon: {fileID: 21300000, guid: 692730cb37e652c4dbd92a2ac2425355, type: 3}
   prefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60002, type: 3}
   isPlayerTeam: 1
   category: 4
-  maxHp: 150
+  tier: 1
+  maxHp: 200
   maxMp: 0
   startMp: 0
   moveSpeed: 3
-  basePower: 12
-  attackInterval: 1.1
+  basePower: 20
+  attackInterval: 1.0
   skill: {fileID: 11400000, guid: b3c4d29fe066ed240a47bdda7527d832, type: 2}
   dispatchEfficiency: 0.8
   costs:
   - type: 0
-    amount: 130
+    amount: 100
   populationCost: 2
   shopStock: 5

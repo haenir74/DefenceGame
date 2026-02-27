@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 9
   tileId: traproad
-  tileName: 함정 도로 (Trap-Road)
-  description: "바닥에 쐐기가 박힌 길입니다. 지나가는 적에게 피해를 줍니다."
+  tileName: "\ud568\uc815 \uae38"
+  description: "\ubc14\ub2e5\uc5d0 \uc4b0\uae30\uac00 \ubc15\ud78c \uae38\uc774\uc5d0\uc694. \uc9c0\ub098\uac00\ub220 \uc801\uc5d0\uac8c \ud53c\ud574\ub97c \uc90d\ub2c8\ub2e4."
   icon: {fileID: 21300000, guid: e459ec2cf3ed89c45acc42023941d459, type: 3}
   tileSprite: {fileID: 21300000, guid: e459ec2cf3ed89c45acc42023941d459, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: -20
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: 3964b348a377d49e265f43d64565ad73, type: 2}
+  tier: 2
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 500
+  sellPrice: 250
   shopStock: 5

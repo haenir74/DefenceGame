@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "DamageEffect", menuName = "DungeonDefence/Effects/Damage")]
 public class DamageTileEffect : TileEffectDataSO
@@ -8,20 +8,22 @@ public class DamageTileEffect : TileEffectDataSO
     public bool targetEnemies = true;
     public bool targetAllies = false;
 
-    public override void OnEnter(Unit unit)
+    public override void ApplyEffect(Unit targetUnit, int currentStacks)
     {
-        if (ShouldApply(unit) && enterDamage > 0)
+        if (ShouldApply(targetUnit) && enterDamage > 0)
         {
-            unit.Combat.TakeDamage(enterDamage);
+            targetUnit.Combat.TakeDamage(enterDamage);
+        }
+
+        if (ShouldApply(targetUnit) && dotDamage > 0)
+        {
+            targetUnit.Combat.TakeDamage(dotDamage);
         }
     }
 
-    public override void OnUpdate(Unit unit)
+    public override void RemoveEffect(Unit targetUnit, int currentStacks)
     {
-        if (ShouldApply(unit) && dotDamage > 0)
-        {
-            unit.Combat.TakeDamage(dotDamage * Time.deltaTime);
-        }
+
     }
 
     private bool ShouldApply(Unit unit)
@@ -32,3 +34,6 @@ public class DamageTileEffect : TileEffectDataSO
         return false;
     }
 }
+
+
+

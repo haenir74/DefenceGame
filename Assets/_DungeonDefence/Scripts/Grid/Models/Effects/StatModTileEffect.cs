@@ -1,29 +1,29 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "StatModEffect", menuName = "DungeonDefence/Effects/StatMod")]
 public class StatModTileEffect : TileEffectDataSO
 {
-    [Header("Ally Modifiers")]
+
     public float allySpeedMod = 1.0f;
     public float allyAttackMod = 1.0f;
     public bool allyRoot = false;
 
-    [Header("Enemy Modifiers")]
+
     public float enemySpeedMod = 1.0f;
     public float enemyAttackMod = 1.0f;
     public bool enemyRoot = false;
 
-    [Header("Category Filters")]
-    public UnitCategory targetCategory = UnitCategory.None; // None = All
 
-    public override void OnEnter(Unit unit)
+    public UnitCategory targetCategory = UnitCategory.None;
+
+    public override void ApplyEffect(Unit targetUnit, int currentStacks)
     {
-        Apply(unit, true);
+        Apply(targetUnit, true);
     }
 
-    public override void OnExit(Unit unit)
+    public override void RemoveEffect(Unit targetUnit, int currentStacks)
     {
-        Apply(unit, false);
+        Apply(targetUnit, false);
     }
 
     private void Apply(Unit unit, bool isEnter)
@@ -51,7 +51,14 @@ public class StatModTileEffect : TileEffectDataSO
 
         if (unit.Combat != null)
         {
-            unit.Combat.AttackMultiplier = attackMod;
+            unit.Combat.AttackPower.RemoveAllModifiersFromSource(this);
+            if (isEnter && attackMod != 1.0f)
+            {
+                unit.Combat.AttackPower.AddModifier(new StatModifier(attackMod - 1.0f, StatModType.PercentMultiply, this));
+            }
         }
     }
 }
+
+
+

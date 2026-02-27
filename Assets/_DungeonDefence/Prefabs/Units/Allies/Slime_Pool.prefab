@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6727688013146557340}
   - component: {fileID: 4420307387844538158}
   - component: {fileID: 1111111111111111111}
+  - component: {fileID: 6087813083402529129}
   m_Layer: 0
   m_Name: Slime_Pool
   m_TagString: Untagged
@@ -105,6 +106,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   normalSlimeData: {fileID: 11400000, guid: 6c47261fef3ddd84b8f32dd181620be6, type: 2}
   spawnInterval: 6
+--- !u!114 &6087813083402529129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2573380989020623195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d54b8d0dde15f9418a5f98ec73302ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverDelay: 0.4
 --- !u!1 &8325540219675261630
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,16 +1,18 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : Singleton<GridManager>
 {
-    [Header("Settings")]
+
     [SerializeField] private GridDataSO gridData;
     [SerializeField] private GridView gridView;
     [SerializeField] private Transform tileContainer;
 
     private GridMap map;
     private GridSystem system;
+
+    public event System.Action<int> OnAttractivenessChanged;
 
     public GridDataSO Data => gridData;
     public GridMap Map => map;
@@ -25,6 +27,8 @@ public class GridManager : Singleton<GridManager>
             this.system.Generate(this.map, this.gridData);
             BuildView();
             this.system.CalculateFlowField(this.map, this.map.CoreNode);
+            this.system.CalculateAttractivenessInfluence(this.map);
+            OnAttractivenessChanged?.Invoke(CalculateTotalAttractiveness());
         }
     }
 
@@ -76,13 +80,21 @@ public class GridManager : Singleton<GridManager>
             dropHandler.TargetNode = node;
 
             node.Tile = tileComp;
-            tileComp.Setup(this.gridData.defaultTileData);
+
+            TileDataSO initialTileData = this.gridData.defaultTileData;
+            if (node == map.CoreNode)
+            {
+                TileDataSO manaWell = Resources.Load<TileDataSO>("Data/Tiles/Tile_ManaWell");
+                if (manaWell != null) initialTileData = manaWell;
+            }
+
+            tileComp.Setup(initialTileData);
 
             tileView.SetDefaultPrefab(this.gridData.defaultTilePrefab);
-            tileView.Setup(node, this.gridData.defaultTileData);
+            tileView.Setup(node, initialTileData);
 
-            node.CurrentTile = tileView; // [FIX] Link TileView to node for highlights
-            node.SetTileData(this.gridData.defaultTileData);
+            node.CurrentTile = tileView;
+            node.SetTileData(initialTileData);
         }
     }
 
@@ -102,6 +114,8 @@ public class GridManager : Singleton<GridManager>
         if (this.system != null)
         {
             this.system.CalculateFlowField(this.map, this.map.CoreNode);
+            this.system.CalculateAttractivenessInfluence(this.map);
+            OnAttractivenessChanged?.Invoke(CalculateTotalAttractiveness());
         }
     }
 
@@ -128,6 +142,12 @@ public class GridManager : Singleton<GridManager>
     public GridNode GetSpawnNode() => this.map?.SpawnNode;
 
     public bool IsValidNode(int x, int y) => this.map != null && this.map.IsValid(x, y);
+
+    public TileDataSO GetTileData(Vector2Int coordinate)
+    {
+        GridNode node = GetNode(coordinate.x, coordinate.y);
+        return node?.CurrentTileData;
+    }
 
     public Vector3 GetWorldPosition(int x, int y)
     {
@@ -171,4 +191,17 @@ public class GridManager : Singleton<GridManager>
         Transform tile = tileContainer.Find($"Cell_{coord.x}_{coord.y}");
         return tile != null ? tile.gameObject : null;
     }
+    public int CalculateTotalAttractiveness()
+    {
+        if (this.map == null) return 0;
+        int total = 0;
+        foreach (var node in this.map.Nodes)
+        {
+            total += node.GetTileBonus();
+        }
+        return total;
+    }
 }
+
+
+

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -6,26 +6,24 @@ using System;
 public class EconomyManager : Singleton<EconomyManager>
 {
     private Dictionary<CurrencyType, int> currencies = new Dictionary<CurrencyType, int>();
-    public event Action<CurrencyType, int> OnCurrencyChanged;
-
+    public event Action<CurrencyType, int, int> OnCurrencyChanged;
 
     protected override void Awake()
     {
         base.Awake();
-        Initialize();
     }
 
-    private void Start()
-    {
-        // GameManager에서 초기 자금을 일괄 배정하므로 여기서는 비워둡니다.
-    }
-
-    private void Initialize()
+    public void Initialize()
     {
         foreach (CurrencyType type in Enum.GetValues(typeof(CurrencyType)))
         {
             currencies[type] = 0;
         }
+    }
+
+    public void Reset()
+    {
+        Initialize();
     }
 
     public int GetCurrencyAmount(CurrencyType type)
@@ -48,7 +46,7 @@ public class EconomyManager : Singleton<EconomyManager>
             currencies.Add(type, amount);
         }
 
-        OnCurrencyChanged?.Invoke(type, currencies[type]);
+        OnCurrencyChanged?.Invoke(type, currencies[type], amount);
     }
 
     public bool CanAfford(List<ResourceCost> costs)
@@ -72,10 +70,12 @@ public class EconomyManager : Singleton<EconomyManager>
         foreach (var cost in costs)
         {
             currencies[cost.type] -= cost.amount;
-            OnCurrencyChanged?.Invoke(cost.type, currencies[cost.type]);
+            OnCurrencyChanged?.Invoke(cost.type, currencies[cost.type], -cost.amount);
         }
 
         return true;
     }
 
 }
+
+

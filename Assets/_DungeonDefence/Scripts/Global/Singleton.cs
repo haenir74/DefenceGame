@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +6,11 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
     private static readonly object lockObject = new object();
-    private static bool applicationIsQuitting = false;
+    protected static bool applicationIsQuitting = false;
+    protected bool isShuttingDown = false;
+
+    public static bool IsQuitting => applicationIsQuitting;
+    public static bool InstanceExists => instance != null && !applicationIsQuitting;
 
     protected virtual bool DontDestroy => false;
 
@@ -16,7 +20,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if (applicationIsQuitting)
             {
-                return null; 
+                return null;
             }
 
             lock (lockObject)
@@ -24,6 +28,11 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                 if (instance == null)
                 {
                     instance = FindObjectOfType<T>();
+
+                    if (instance != null && (instance as Singleton<T>)?.isShuttingDown == true)
+                    {
+                        return null;
+                    }
 
                     if (instance == null)
                     {
@@ -35,6 +44,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
             }
         }
     }
+
 
     protected virtual void Awake()
     {
@@ -52,13 +62,17 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     protected virtual void OnApplicationQuit()
     {
         applicationIsQuitting = true;
+        isShuttingDown = true;
     }
-    
+
     protected virtual void OnDestroy()
     {
+        isShuttingDown = true;
         if (instance == this)
         {
-            applicationIsQuitting = true;
+            instance = null;
         }
     }
 }
+
+

@@ -110,9 +110,9 @@ namespace Panex.Inventory.View
             }
         }
 
-        // ========================================================================
-        // 드래그 & 클릭 구현
-        // ========================================================================
+        
+        
+        
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -120,8 +120,8 @@ namespace Panex.Inventory.View
             {
                 OnClickAction?.Invoke(SlotIndex);
 
-                // [REFINED] Click-to-Select removed to enforce Drag-and-Drop only.
-                // Placement logic should only be triggered by OnBeginDrag.
+                
+                
             }
         }
 
@@ -153,7 +153,7 @@ namespace Panex.Inventory.View
 
             isDragging = true;
 
-            // 유출된 유니티 시스템과의 통합: DragDropManager 사용
+            
             if (DragDropManager.Instance != null)
             {
                 var payload = new DragPayload();
@@ -173,7 +173,7 @@ namespace Panex.Inventory.View
                 DragDropManager.Instance.BeginDrag(payload, iconImage.sprite);
             }
 
-            // 기존 아이콘 이동 로직은 비활성화 (고스트 이미지가 대신함)
+            
             iconImage.raycastTarget = false;
         }
 

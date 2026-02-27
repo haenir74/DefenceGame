@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 7
   tileId: altar
-  tileName: 암흑 제단 (Altar of Shadow)
-  description: "어둠의 힘이 깃든 제단입니다. 언데드와 악마를 강화합니다."
+  tileName: "\uc81c\ub2e8 \ud0c0\uc77c"
+  description: "\uc544\ub400\uc758 \ud798\uc774 \uae43\ub4e0 \uc81c\ub2e8\uc774\uc5d0\uc694. \uc5b8\ub370\ub4dc\uc640 \uc545\ub9c8\ub97c \uac15\ud654\ud569\ub2c8\ub2e4."
   icon: {fileID: 21300000, guid: 478d8e2fe5b664345b5ac27960dcb3fd, type: 3}
   tileSprite: {fileID: 21300000, guid: 478d8e2fe5b664345b5ac27960dcb3fd, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: 20
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: bf5589381409229a258efabf0b566b83, type: 2}
+  tier: 3
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 800
+  sellPrice: 400
   shopStock: 5

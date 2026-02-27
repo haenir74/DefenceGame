@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,20 +17,42 @@ public class UIManager : Singleton<UIManager>
 
     private void Start()
     {
+        InitializeAllGameManagers();
+        Initialize();
+    }
+
+    private void InitializeAllGameManagers()
+    {
+        Debug.Log("[UIManager] Initializing Game Scene Managers...");
+
+        if (GridManager.Instance != null) GridManager.Instance.Initialize();
+        if (UnitManager.Instance != null) UnitManager.Instance.Initialize();
+        if (WaveManager.Instance != null) WaveManager.Instance.Initialize();
+        if (ShopManager.Instance != null) ShopManager.Instance.Initialize();
+        if (DispatchManager.Instance != null) DispatchManager.Instance.Initialize();
+        if (CameraManager.Instance != null) CameraManager.Instance.Initialize();
+        if (TooltipManager.Instance != null) TooltipManager.Instance.Initialize();
+
+        // Finalize with GameManager
+        if (GameManager.Instance != null) GameManager.Instance.Initialize();
+    }
+
+    public void Initialize()
+    {
         ConnectEvents();
         InitializeUI();
     }
 
     private void ConnectEvents()
     {
-        // 자원
+
         if (EconomyManager.Instance != null)
         {
-            EconomyManager.Instance.OnCurrencyChanged += (type, amount) =>
+            EconomyManager.Instance.OnCurrencyChanged += (type, current, changed) =>
             {
                 if (type == CurrencyType.Gold)
                 {
-                    currentGold = amount;
+                    currentGold = current;
                     hudView?.UpdateResources(currentGold, currentPop, maxPop);
                     if (shopView != null && shopView.gameObject.activeSelf)
                     {
@@ -40,7 +62,6 @@ public class UIManager : Singleton<UIManager>
             };
         }
 
-        // 코어 체력
         if (UnitManager.Instance != null)
         {
             UnitManager.Instance.OnUnitCountChanged += (ally, enemy) =>
@@ -53,20 +74,18 @@ public class UIManager : Singleton<UIManager>
                 hudView?.UpdateCoreInfo(cur, max);
         }
 
-        // 웨이브 정보
         if (WaveManager.Instance != null)
         {
             WaveManager.Instance.OnWaveInfoChanged += (wave, rem, total) =>
                 hudView?.UpdateWaveInfo(wave, rem, total);
         }
 
-        // 시스템 버튼
         if (hudView != null)
         {
             hudView.SpeedButton?.onClick.AddListener(ToggleGameSpeed);
             hudView.StartWaveButton?.onClick.AddListener(() =>
             {
-                Debug.Log("[UI] 전투 시작 요청");
+
                 CloseAllPopups();
                 GameManager.Instance.StartBattlePhase();
             });
@@ -75,7 +94,6 @@ public class UIManager : Singleton<UIManager>
             hudView.DispatchButton?.onClick.AddListener(ToggleDispatchPanel);
         }
 
-        // 상점
         if (shopView != null)
         {
             shopView.OnCloseRequested += CloseShop;
@@ -94,7 +112,6 @@ public class UIManager : Singleton<UIManager>
             };
         }
 
-        // 인벤토리 상태 동기화 (파견 패널 등)
         if (inventoryView != null)
         {
             inventoryView.OnOpenStatusChanged += (isOpenStatus) =>
@@ -111,10 +128,12 @@ public class UIManager : Singleton<UIManager>
         {
             if (EconomyManager.Instance) currentGold = EconomyManager.Instance.GetCurrencyAmount(CurrencyType.Gold);
             hudView.UpdateResources(currentGold, currentPop, maxPop);
-            hudView.UpdateWaveInfo(GameManager.Instance.CurrentWave, 0, 0);
+
+            int wave = (GameManager.Instance != null) ? GameManager.Instance.CurrentWave : 1;
+            hudView.UpdateWaveInfo(wave, 0, 0);
+
             hudView.UpdateSpeed(timeScale);
 
-            // 초기 코어 정보 설정
             if (UnitManager.Instance != null)
             {
                 var core = UnitManager.Instance.GetAllUnits().Find(u => u.Data != null && u.Data.category == UnitCategory.Core);
@@ -195,7 +214,6 @@ public class UIManager : Singleton<UIManager>
         dispatchPanel?.gameObject.SetActive(false);
     }
 
-    // 페이즈 전환    
     public void SwitchToMaintenancePhase()
     {
         hudView?.SetPhaseUI(false);
@@ -226,4 +244,6 @@ public class UIManager : Singleton<UIManager>
         }
     }
 }
+
+
 

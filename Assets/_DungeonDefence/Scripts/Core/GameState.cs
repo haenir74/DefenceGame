@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,7 +39,6 @@ public class MaintenanceState : GameState
     {
         if (node == null) return;
 
-        // [REFINED] Click-to-Place removed. Clicking only shows info.
         ShowNodeInfo(node);
     }
 
@@ -47,16 +46,14 @@ public class MaintenanceState : GameState
     {
         if (unit == null) return;
 
-        // [FIX] Double Click Support for Recall (Keeping this as it's a useful shortcut)
         if (Input.GetMouseButtonDown(0) && IsDoubleClick())
         {
-            Debug.Log($"[Recall] {unit.Data.Name} double-clicked. Returning to inventory.");
+            
             InventoryManager.Instance?.AddItem(unit.Data, 1);
             UnitManager.Instance?.DespawnUnit(unit);
             return;
         }
 
-        // [REFINED] Picking up via simple click removed. Only Drag-and-Drop is supported.
         if (unit.CurrentNode != null)
         {
             ShowNodeInfo(unit.CurrentNode);
@@ -78,7 +75,7 @@ public class MaintenanceState : GameState
 
     public override void OnCancel()
     {
-        // [FIX] PlacementManager가 없을 때를 대비한 안전 장치
+
         if (GameManager.Instance.PickedUpUnit != null)
         {
             GameManager.Instance.PickedUpUnit.SetVisualVisible(true);
@@ -90,7 +87,7 @@ public class MaintenanceState : GameState
     {
         var units = UnitManager.Instance.GetUnitsOnNode(node);
         string tileName = node.CurrentTileData != null ? node.CurrentTileData.Name : "Empty";
-        Debug.Log($"[Info] 타일: {tileName} | 유닛 수: {units.Count}");
+        
     }
 }
 
@@ -132,14 +129,14 @@ public class BattleState : GameState
         var units = UnitManager.Instance.GetUnitsOnNode(node);
         if (units.Count > 0)
         {
-            Debug.Log($"타일 클릭 - 유닛 정보 확인: {units[0].name} (HP: {units[0].Combat.CurrentHp})");
+            
         }
     }
 
     public override void OnClickUnit(Unit unit)
     {
         if (unit == null) return;
-        Debug.Log($"유닛 직접 클릭 - 정보 확인: {unit.name} (HP: {unit.Combat.CurrentHp})");
+        
     }
 
     private void HandleWaveCompleted()
@@ -162,9 +159,8 @@ public class GameOverState : GameState
 
     public override void OnEnter()
     {
-        Debug.Log("<color=red>[GameOverState] *** 게임 오버 *** 코어가 파괴되었습니다!</color>");
-        // TODO: GameOverScene으로 씬 전환
-        // SceneManager.LoadScene("GameOverScene");
+        
+        
     }
 
     public override void OnClickNode(GridNode node) { }
@@ -177,11 +173,13 @@ public class VictoryState : GameState
 
     public override void OnEnter()
     {
-        Debug.Log("<color=yellow>[VictoryState] *** 게임 클리어! *** 30웨이브를 모두 클리어했습니다!</color>");
-        // TODO: VictoryScene으로 씬 전환
-        // SceneManager.LoadScene("VictoryScene");
+        
+
     }
 
     public override void OnClickNode(GridNode node) { }
     public override void OnCancel() { }
 }
+
+
+

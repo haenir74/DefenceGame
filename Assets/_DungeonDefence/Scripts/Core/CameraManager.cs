@@ -1,15 +1,15 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraManager : Singleton<CameraManager>
 {
-    [Header("Zoom Settings")]
+
     [SerializeField] private float zoomSpeed = 2f;
     [SerializeField] private float minZoom = 2f;
     [SerializeField] private float maxZoom = 20f;
 
-    [Header("Pan Settings")]
+
     [SerializeField] private float panSpeed = 0.5f;
     [SerializeField] private Vector2 panLimit = new Vector2(20f, 25f);
     [SerializeField] private float smoothTime = 0.2f;
@@ -26,12 +26,12 @@ public class CameraManager : Singleton<CameraManager>
         if (this.cam == null) this.cam = Camera.main;
     }
 
-    private void Start()
+    public void Initialize()
     {
         this.initialPos = transform.position;
         this.targetPosition = transform.position;
     }
-    
+
     private void Update()
     {
         if (this.cam == null) return;
@@ -42,13 +42,13 @@ public class CameraManager : Singleton<CameraManager>
 
     private void HandleInput()
     {
-        // [FIX] 마우스가 UI 위에 있을 때는 카메라 줌(휠)을 무시하여 UI 스크롤이 가능하게 함
-        if (UnityEngine.EventSystems.EventSystem.current != null && 
+
+        if (UnityEngine.EventSystems.EventSystem.current != null &&
             UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
-            // 단, 드래그 중이거나 우클릭 팬 중일 때는 예외로 둘 수 있으나
-            // 기본적으로 UI 위에서의 휠은 UI 스크롤을 위해 비워둠
-            // 우클릭 팬 로직은 아래에서 계속 진행
+
+
+
         }
         else
         {
@@ -90,7 +90,7 @@ public class CameraManager : Singleton<CameraManager>
     public void FocusOn(Vector3 worldPos)
     {
         Vector3 newPos = worldPos;
-        newPos.y = transform.position.y; 
+        newPos.y = transform.position.y;
         this.targetPosition = GetClampedPosition(newPos);
     }
 
@@ -99,3 +99,6 @@ public class CameraManager : Singleton<CameraManager>
         this.targetPosition = this.initialPos;
     }
 }
+
+
+
