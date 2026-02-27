@@ -67,12 +67,15 @@ public class GameManager : Singleton<GameManager>
         }
 
         SpawnCore();
+        if (UnitManager.Instance != null)
+        {
+            UnitManager.Instance.SpawnStartingUnits();
+        }
 
         int startGold = 500;
         if (MetaManager.Instance != null)
         {
-            float bonus = MetaManager.Instance.GetPerkLevel("StartGold") * 100;
-            startGold += (int)bonus;
+            startGold += MetaManager.Instance.GetTotalBonusStartingGold();
         }
 
         EconomyManager.Instance?.AddCurrency(CurrencyType.Gold, startGold);

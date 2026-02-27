@@ -8,7 +8,9 @@ using Panex.Inventory;
 public class ShopManager : Singleton<ShopManager>
 {
     [SerializeField] private int activeSlotCount = 4;
-    [SerializeField] private int rerollCost = 50;
+    [SerializeField] private int baseRerollCost = 10;
+    [SerializeField] private int rerollCostIncrement = 5;
+    private int currentRerollCost;
 
     [SerializeField] private ShopUnlockPoolSO unlockPool;
 
@@ -18,14 +20,36 @@ public class ShopManager : Singleton<ShopManager>
     public event Action<string> OnPurchaseSuccess;
     public event Action OnPurchaseFailed;
     public event Action OnShopRefreshed;
+    public event Action<int> OnRerollCostChanged;
 
     private Dictionary<UnitTier, List<ITradable>> categoricalPool = new Dictionary<UnitTier, List<ITradable>>();
 
     public void Initialize()
     {
+        currentRerollCost = baseRerollCost;
+        if (WaveManager.Instance != null)
+        {
+            WaveManager.Instance.OnWaveCompleted += HandleWaveCompleted;
+        }
+
         InitializeCategoricalPool();
         InitializeStocks();
         RollShopItems();
+    }
+
+    private void HandleWaveCompleted()
+    {
+        currentRerollCost = baseRerollCost;
+        OnRerollCostChanged?.Invoke(currentRerollCost);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        if (WaveManager.Instance != null)
+        {
+            WaveManager.Instance.OnWaveCompleted -= HandleWaveCompleted;
+        }
     }
 
     private void InitializeCategoricalPool()
@@ -104,7 +128,7 @@ public class ShopManager : Singleton<ShopManager>
             tierProbs = new TierProbabilities();
         }
 
-        int perkBonus = (MetaManager.Instance != null) ? MetaManager.Instance.GetPerkLevel("ShopSlot") : 0;
+        int perkBonus = MetaManager.Instance != null ? MetaManager.Instance.GetTotalUnlockedShopSlots() : 0;
         int totalSlots = activeSlotCount + perkBonus;
 
         int totalWeight = tierProbs.basicWeight + tierProbs.intermediateWeight + tierProbs.advancedWeight + tierProbs.supremeWeight;
@@ -175,10 +199,12 @@ public class ShopManager : Singleton<ShopManager>
 
     public void RerollShop()
     {
-        var cost = new List<ResourceCost> { new ResourceCost { type = CurrencyType.Gold, amount = rerollCost } };
+        var cost = new List<ResourceCost> { new ResourceCost { type = CurrencyType.Gold, amount = currentRerollCost } };
         if (EconomyManager.Instance.TrySpend(cost))
         {
             RollShopItems();
+            currentRerollCost += rerollCostIncrement;
+            OnRerollCostChanged?.Invoke(currentRerollCost);
         }
     }
 

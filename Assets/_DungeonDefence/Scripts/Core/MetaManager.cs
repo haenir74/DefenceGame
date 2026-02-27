@@ -52,9 +52,54 @@ public class MetaManager : Singleton<MetaManager>
         return false;
     }
 
-    public int GetPerkLevel(string perkId)
+    public bool IsPerkUnlocked(string perkId)
     {
-        return perkLevels.ContainsKey(perkId) ? perkLevels[perkId] : 0;
+        return perkLevels.ContainsKey(perkId) && perkLevels[perkId] > 0;
+    }
+
+    public float GetPerkValue(string perkId)
+    {
+        if (!IsPerkUnlocked(perkId)) return 0f;
+        var perk = availablePerks?.Find(p => p.PerkID == perkId);
+        return perk != null ? perk.NumericValue : 0f;
+    }
+
+    private float GetTotalNumericValueForType(PerkType type)
+    {
+        if (availablePerks == null) return 0f;
+        float total = 0f;
+        foreach (var perk in availablePerks)
+        {
+            if (perk != null && perk.Type == type && IsPerkUnlocked(perk.PerkID))
+            {
+                total += perk.NumericValue;
+            }
+        }
+        return total;
+    }
+
+    public int GetTotalBonusStartingGold() => Mathf.FloorToInt(GetTotalNumericValueForType(PerkType.StartingGoldIncrease));
+    public int GetTotalBonusCoreHealth() => Mathf.FloorToInt(GetTotalNumericValueForType(PerkType.CoreHealthIncrease));
+    public int GetTotalUnlockedShopSlots() => Mathf.FloorToInt(GetTotalNumericValueForType(PerkType.ShopSlotUnlock));
+    public float GetTotalBonusAllyHealth() => GetTotalNumericValueForType(PerkType.AllyHealthIncrease);
+    public float GetTotalBonusAllyAttack() => GetTotalNumericValueForType(PerkType.AllyAttackIncrease);
+
+    public List<string> GetStartingUnits()
+    {
+        List<string> units = new List<string>();
+        if (availablePerks == null) return units;
+
+        foreach (var perk in availablePerks)
+        {
+            if (perk != null && perk.Type == PerkType.StartingUnitAddition && IsPerkUnlocked(perk.PerkID))
+            {
+                if (!string.IsNullOrEmpty(perk.StringValue))
+                {
+                    units.Add(perk.StringValue);
+                }
+            }
+        }
+        return units;
     }
 
     public void SetRunResult(bool isVictory, int waves, int kills, int gold)
@@ -80,24 +125,35 @@ public class MetaManager : Singleton<MetaManager>
         LastRun = new RunResult();
     }
 
-    public void UpgradePerk(string perkId)
+    public bool TryUnlockPerk(PerkDataSO perk)
     {
-        if (availablePerks == null) return;
-        PerkDataSO perk = availablePerks.Find(p => p.perkId == perkId);
-        if (perk == null) return;
+        if (perk == null) return false;
 
-        int currentLevel = GetPerkLevel(perkId);
-        if (currentLevel >= perk.maxLevel) return;
+        // 이미 해금된 경우
+        if (IsPerkUnlocked(perk.PerkID)) return false;
 
-        int cost = perk.GetCost(currentLevel);
-        if (TrySpendPerkPoints(cost))
+        // 선행 특전 조건 확인
+        if (perk.Prerequisites != null)
         {
-            if (perkLevels.ContainsKey(perkId))
-                perkLevels[perkId]++;
-            else
-                perkLevels[perkId] = 1;
-            SaveData();
+            foreach (var pre in perk.Prerequisites)
+            {
+                if (pre != null && !IsPerkUnlocked(pre.PerkID))
+                {
+                    Debug.Log($"Prerequisite {pre.DisplayName} not met for {perk.DisplayName}");
+                    return false;
+                }
+            }
         }
+
+        // 재화 확인 및 소모
+        if (TrySpendPerkPoints(perk.Cost))
+        {
+            perkLevels[perk.PerkID] = 1;
+            SaveData();
+            return true;
+        }
+
+        return false;
     }
 
     private void LoadData()
@@ -108,8 +164,8 @@ public class MetaManager : Singleton<MetaManager>
         {
             foreach (var perk in availablePerks)
             {
-                int level = PlayerPrefs.GetInt(PERK_UPGRADE_PREFIX + perk.perkId, 0);
-                perkLevels[perk.perkId] = level;
+                int unlocked = PlayerPrefs.GetInt(PERK_UPGRADE_PREFIX + perk.PerkID, 0);
+                perkLevels[perk.PerkID] = unlocked;
             }
         }
     }

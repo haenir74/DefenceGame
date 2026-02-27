@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9800be832361380478cf92afa367e1d6, type: 3}
+  m_Name: CoreHP_1
+  m_EditorClassIdentifier: 
+  PerkID: CoreHP_1
+  DisplayName: Core Health 1
+  Description: Increases Base Core Health by 100.
+  Cost: 5
+  Prerequisites:
+  - {fileID: 11400000, guid: 591c0005e0472fb408bafdfb6387544f, type: 2}
+  - {fileID: 11400000, guid: 8a0a5e580139027428051be8611170d9, type: 2}
+  - {fileID: 11400000, guid: b9beb3b5b6a64ea48b23f8c4a57a66ff, type: 2}
+  Type: 0
+  NumericValue: 100
+  StringValue: 
+  icon: {fileID: 0}
+  nodePosition: {x: 0, y: 0}

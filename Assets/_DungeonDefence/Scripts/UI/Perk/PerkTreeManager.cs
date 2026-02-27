@@ -17,22 +17,65 @@ public class PerkTreeManager : Singleton<PerkTreeManager>
     [SerializeField] private Color lineColor = Color.white;
     [SerializeField] private float lineThickness = 2f;
 
+    [SerializeField] private PerkNodeUI nodePrefab;
+    [SerializeField] private float xSpacing = 200f;
+    [SerializeField] private float ySpacing = 150f;
+
     private List<PerkNodeUI> treeNodes = new List<PerkNodeUI>();
 
     public void Initialize()
     {
-        FindNodesInScene();
+        GenerateNodes();
         DrawConnections();
         UpdateUI();
         if (startBattleButton != null)
             startBattleButton.onClick.AddListener(() => SceneController.Instance.LoadGame());
     }
 
-    private void FindNodesInScene()
+    private void GenerateNodes()
     {
+        if (MetaManager.Instance == null || nodePrefab == null || contentRoot == null) return;
+
+        foreach (Transform child in contentRoot)
+        {
+            if (child.GetComponent<PerkNodeUI>() != null)
+            {
+                Destroy(child.gameObject);
+            }
+        }
         treeNodes.Clear();
-        var nodes = GetComponentsInChildren<PerkNodeUI>(true);
-        treeNodes.AddRange(nodes);
+
+        var perks = MetaManager.Instance.AvailablePerks;
+        if (perks == null || perks.Count == 0) return;
+
+        int row = 0;
+        int col = 0;
+        int itemsInRow = 1;
+
+        for (int i = 0; i < perks.Count; i++)
+        {
+            PerkNodeUI node = Instantiate(nodePrefab, contentRoot);
+            node.Setup(perks[i]);
+
+            RectTransform rt = node.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                float startX = -(itemsInRow - 1) * xSpacing * 0.5f;
+                float px = startX + col * xSpacing;
+                float py = -row * ySpacing;
+                rt.anchoredPosition = new Vector2(px, py);
+            }
+
+            treeNodes.Add(node);
+
+            col++;
+            if (col >= itemsInRow)
+            {
+                col = 0;
+                row++;
+                itemsInRow = (itemsInRow == 1) ? 2 : 1;
+            }
+        }
     }
 
     private void DrawConnections()
@@ -41,11 +84,12 @@ public class PerkTreeManager : Singleton<PerkTreeManager>
 
         foreach (var node in treeNodes)
         {
-            if (node.Data == null || node.Data.prerequisitePerks == null) continue;
+            if (node.Data == null || node.Data.Prerequisites == null) continue;
 
-            foreach (string prereqId in node.Data.prerequisitePerks)
+            foreach (var prereq in node.Data.Prerequisites)
             {
-                PerkNodeUI prereqNode = treeNodes.Find(n => n.Data != null && n.Data.perkId == prereqId);
+                if (prereq == null) continue;
+                PerkNodeUI prereqNode = treeNodes.Find(n => n.Data != null && n.Data.PerkID == prereq.PerkID);
                 if (prereqNode != null)
                 {
                     lineConnector.Connect(prereqNode.GetComponent<RectTransform>(), node.GetComponent<RectTransform>(), lineColor, lineThickness);

@@ -10,6 +10,14 @@ public class UnitManager : Singleton<UnitManager>
     [SerializeField] private Transform unitContainer;
 
     private List<Unit> activeUnits = new List<Unit>();
+    [Serializable]
+    public struct StartingUnitMap
+    {
+        public string id;
+        public UnitDataSO unitData;
+    }
+    [SerializeField] private List<StartingUnitMap> startingUnitMappings = new List<StartingUnitMap>();
+
     private Dictionary<UnitTag, HashSet<Unit>> unitTagRegistry = new Dictionary<UnitTag, HashSet<Unit>>();
 
     public event Action<int, int> OnUnitCountChanged;
@@ -38,6 +46,34 @@ public class UnitManager : Singleton<UnitManager>
 
     private void Update()
     {
+    }
+
+    public void SpawnStartingUnits()
+    {
+        if (MetaManager.Instance == null || GridManager.Instance == null) return;
+
+        var unitsToSpawn = MetaManager.Instance.GetStartingUnits();
+        if (unitsToSpawn == null || unitsToSpawn.Count == 0) return;
+
+        GridNode coreNode = GridManager.Instance.GetCoreNode();
+        if (coreNode == null) return;
+
+        var neighbors = GridManager.Instance.GetNeighbors(coreNode);
+        int spawnCount = 0;
+
+        foreach (string unitId in unitsToSpawn)
+        {
+            var mapping = startingUnitMappings.Find(m => m.id == unitId);
+            if (mapping.unitData != null && spawnCount < neighbors.Count)
+            {
+                var node = neighbors[spawnCount];
+                if (node.CanPlaceUnit)
+                {
+                    SpawnUnit(mapping.unitData, node);
+                    spawnCount++;
+                }
+            }
+        }
     }
 
     public IReadOnlyCollection<Unit> GetUnitsByTag(UnitTag tag)
@@ -145,7 +181,7 @@ public class UnitManager : Singleton<UnitManager>
         if (unit == null || activeUnits.Contains(unit)) return;
 
         activeUnits.Add(unit);
-        
+
         if (unit.Data != null)
         {
             foreach (UnitTag tag in Enum.GetValues(typeof(UnitTag)))
@@ -158,7 +194,7 @@ public class UnitManager : Singleton<UnitManager>
                 }
             }
         }
-        
+
         NotifyUnitCount();
 
 
@@ -188,7 +224,7 @@ public class UnitManager : Singleton<UnitManager>
         if (activeUnits.Contains(unit))
         {
             activeUnits.Remove(unit);
-            
+
             if (unit.Data != null)
             {
                 foreach (UnitTag tag in Enum.GetValues(typeof(UnitTag)))
@@ -200,7 +236,7 @@ public class UnitManager : Singleton<UnitManager>
                     }
                 }
             }
-            
+
             NotifyUnitCount();
 
             if (unit.IsDead)

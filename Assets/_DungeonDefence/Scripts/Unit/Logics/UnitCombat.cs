@@ -12,20 +12,10 @@ public class UnitCombat : MonoBehaviour
     private float currentMp;
     private float attackTimer;
 
+    private float runtimeMaxHp;
+
     public float CurrentHp => currentHp;
-    public float MaxHp
-    {
-        get
-        {
-            if (data == null) return 0f;
-            float baseMax = data.maxHp;
-            if (data.category == UnitCategory.Core && MetaManager.Instance != null)
-            {
-                baseMax += MetaManager.Instance.GetPerkLevel("CoreHP") * 100f;
-            }
-            return baseMax;
-        }
-    }
+    public float MaxHp => runtimeMaxHp;
     public float CurrentMp => currentMp;
     public float MaxMp => data != null ? data.maxMp : 0f;
 
@@ -45,12 +35,28 @@ public class UnitCombat : MonoBehaviour
         this.data = data;
 
         IsDead = false;
-        this.currentHp = MaxHp;
+
+        runtimeMaxHp = data != null ? data.maxHp : 0f;
+        float basePower = data != null ? data.basePower : 0f;
+
+        if (unit != null && unit.IsPlayerTeam && MetaManager.Instance != null && data != null)
+        {
+            if (data.category == UnitCategory.Core)
+            {
+                runtimeMaxHp += MetaManager.Instance.GetTotalBonusCoreHealth();
+            }
+            else
+            {
+                runtimeMaxHp += MetaManager.Instance.GetTotalBonusAllyHealth();
+                basePower += MetaManager.Instance.GetTotalBonusAllyAttack();
+            }
+        }
+
+        this.currentHp = runtimeMaxHp;
         this.currentMp = data != null ? data.startMp : 0f;
         this.attackTimer = 0f;
         this.MpMultiplier = 1.0f;
 
-        float basePower = data != null ? data.basePower : 0f;
         this.AttackPower = new CharacterStat(basePower);
     }
 
@@ -112,12 +118,29 @@ public class UnitCombat : MonoBehaviour
         if (attackTimer > 0 || target == null || target.IsDead) return;
 
         float damageDealt = AttackPower != null ? AttackPower.Value : (data != null ? data.basePower : 0f);
+
+        // Spider Synergy: 거미줄 위에서 공격 시 피해량 증가
+        if (data != null && data.race == UnitRace.Spider && unit.CurrentNode != null)
+        {
+            var tileData = GridManager.Instance.GetTileData(unit.CurrentNode.Coordinate);
+            if (tileData != null && tileData.environment == TileEnvironment.SpiderWeb)
+            {
+                damageDealt *= 1.5f; // 50% 추가 피해 보너스
+            }
+        }
+
         target.Combat.TakeDamage(damageDealt, unit);
 
         OnAttackHit?.Invoke(target, damageDealt);
 
+        // Attack 적중 시 기본 마나 획득
+        AddMp(10f * MpMultiplier);
+
         OnAttack?.Invoke(target);
-        attackTimer = data.attackInterval;
+
+        // AttackSpeed 기반 쿨다운 계산
+        float aspd = data != null && data.attackSpeed > 0f ? data.attackSpeed : 1f;
+        attackTimer = (data != null ? data.attackInterval : 1f) / aspd;
 
         var spriteAnimator = unit?.GetComponentInChildren<UnitSpriteAnimator>();
         if (spriteAnimator != null) spriteAnimator.TriggerAttackAnimation();
@@ -134,6 +157,7 @@ public class UnitCombat : MonoBehaviour
         if (currentMp >= data.maxMp)
         {
             OnMaxMpReached?.Invoke();
+            ResetMp(); // 스킬 시전 알림 후 MP 초기화
         }
     }
 
@@ -145,6 +169,22 @@ public class UnitCombat : MonoBehaviour
     private void Die()
     {
         IsDead = true;
+
+        // Slime Synergy: 늪지 위에서 사망 시 골드 환급
+        if (data != null && data.race == UnitRace.Slime && unit != null && unit.CurrentNode != null)
+        {
+            var tileData = GridManager.Instance.GetTileData(unit.CurrentNode.Coordinate);
+            if (tileData != null && tileData.environment == TileEnvironment.Swamp)
+            {
+                // 소모 골드의 일부를 환급 (예: 판매가의 절반 정도를 환급한다고 가정, 여기서는 임시로 10 골드로 설정)
+                int refundAmount = 10;
+                if (EconomyManager.Instance != null)
+                {
+                    EconomyManager.Instance.AddCurrency(CurrencyType.Gold, refundAmount);
+                }
+            }
+        }
+
         OnDeath?.Invoke();
     }
 }

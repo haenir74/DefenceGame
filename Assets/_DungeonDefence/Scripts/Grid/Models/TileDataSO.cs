@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Panex.Inventory;
 
+public enum TileEnvironment
+{
+    Normal = 0,
+    Swamp,
+    SpiderWeb
+}
+
 [CreateAssetMenu(fileName = "New Tile Data", menuName = "DungeonDefence/Datas/Tile Data")]
 public class TileDataSO : ScriptableObject, IStorable, ITradable
 {
@@ -19,8 +26,11 @@ public class TileDataSO : ScriptableObject, IStorable, ITradable
 
 
     public int attractivenessBonus;
+    public int baseAttractiveness;
     public int MaxUnitCapacity = 1;
     public bool IsDefaultTile => tileIdNumber == 0;
+
+    public TileEnvironment environment;
 
     public TileEffectDataSO tileEffect;
     public UnitTier tier;

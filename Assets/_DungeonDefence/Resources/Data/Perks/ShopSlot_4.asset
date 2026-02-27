@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9800be832361380478cf92afa367e1d6, type: 3}
-  m_Name: StartGoldPerk
+  m_Name: ShopSlot_4
   m_EditorClassIdentifier: 
-  perkId: StartGold
-  perkName: "\uCD08\uAE30 \uACE8\uB4DC \uC91D\uAC00"
-  description: "\uAC8C\uC784 \uC2DC\uC791 \uC2DC \uCD08\uAE30 \uACE8\uB4DC\uB97C \uB354 \uAC00\uC9C0\uACE0 \uC2DC\uC791\uD569\uB2C8\uB2E4."
+  PerkID: ShopSlot_4
+  DisplayName: Shop Slot 4
+  Description: Unlocks +1 Shop Slot.
+  Cost: 40
+  Prerequisites:
+  - {fileID: 11400000, guid: 5a7c2a5566114f5478620b527ea8ac03, type: 2}
+  - {fileID: 11400000, guid: d885cf4a64914fe49a5cd922e2eb44d9, type: 2}
+  - {fileID: 11400000, guid: bdbdfbd80f2f4b8459323b4f72aa82df, type: 2}
+  Type: 2
+  NumericValue: 1
+  StringValue: 
   icon: {fileID: 0}
-  maxLevel: 5
-  baseCost: 50
-  costIncreasePerLevel: 50
-  baseValue: 100
-  valueIncreasePerLevel: 100
   nodePosition: {x: 0, y: 0}
-  prerequisitePerks: []

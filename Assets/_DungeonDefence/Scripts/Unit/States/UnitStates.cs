@@ -75,14 +75,13 @@ public class EnemyTurnState : UnitState
             float maxScore = float.MinValue;
 
 
-            int penaltyPerVisit = 100;
-            float noiseRange = 5f;
+            int penaltyPerVisit = 500;
 
             foreach (var n in neighbors)
             {
-
+                // Req-19: (타일 고유의 기본 매력도 + 거리 보너스) - (방문 기록 페널티)
+                // GridNode의 Attractiveness 프로퍼티는 이미 내부적으로 DistanceToCore를 기반으로 매력도를 점수화하여 들고 있음.
                 float score = n.Attractiveness;
-
 
                 int visitCount = 0;
                 foreach (var visitedCoord in Self.VisitedHistory)
@@ -92,13 +91,10 @@ public class EnemyTurnState : UnitState
 
                 if (visitCount > 0)
                 {
-                    // Exponential penalty: 100, 200, 400, 800...
-                    float penalty = penaltyPerVisit * Mathf.Pow(2, visitCount - 1);
+                    // Linear Penalty: 무한 루프 핑퐁을 방지하기 위해 1회 방문 당 크고 확실한 페널티 부여
+                    float penalty = penaltyPerVisit * visitCount;
                     score -= penalty;
                 }
-
-
-                score += Random.Range(-noiseRange, noiseRange);
 
                 if (score > maxScore)
                 {

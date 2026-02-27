@@ -143,6 +143,12 @@ public class GridManager : Singleton<GridManager>
 
     public bool IsValidNode(int x, int y) => this.map != null && this.map.IsValid(x, y);
 
+    public TileDataSO GetTileData(Vector2Int coordinate)
+    {
+        GridNode node = GetNode(coordinate.x, coordinate.y);
+        return node?.CurrentTileData;
+    }
+
     public Vector3 GetWorldPosition(int x, int y)
     {
         if (this.system == null || this.gridData == null) return Vector3.zero;

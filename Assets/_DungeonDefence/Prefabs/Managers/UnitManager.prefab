@@ -46,6 +46,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitContainer: {fileID: 2129656906104878693}
+  startingUnitMappings:
+  - id: Imp
+    unitData: {fileID: 11400000, guid: cc75a7d60777fc340802747d46c54103, type: 2}
+  - id: Goblin
+    unitData: {fileID: 11400000, guid: cc75a7d60777fc340802747d46c54102, type: 2}
+  - id: Succubus
+    unitData: {fileID: 11400000, guid: cc75a7d60777fc340802747d46c54111, type: 2}
 --- !u!1 &2420802262623018072
 GameObject:
   m_ObjectHideFlags: 0

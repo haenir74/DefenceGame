@@ -83,6 +83,7 @@ public class GridSystem
         public int coreIndex;
         public NativeArray<int> distances;
         [ReadOnly] public NativeArray<int> obstacles;
+        [ReadOnly] public NativeArray<int> baseAttractiveness;
 
         public void Execute()
         {
@@ -116,9 +117,13 @@ public class GridSystem
 
                         if (obstacles[neighborIndex] == 1) continue;
 
-                        if (distances[neighborIndex] > currentDist + 1)
+                        // Cost 계산: 순수 거리합(현재+1)에서 해당 타일의 BaseAttractiveness를 감산하여 더 낮고 매력적인 Cost로 변환
+                        int stepCost = 1;
+                        int heuristicCost = currentDist + stepCost - baseAttractiveness[neighborIndex];
+
+                        if (distances[neighborIndex] > heuristicCost)
                         {
-                            distances[neighborIndex] = currentDist + 1;
+                            distances[neighborIndex] = heuristicCost;
                             queue.Enqueue(neighborIndex);
                         }
                     }
@@ -127,6 +132,8 @@ public class GridSystem
             queue.Dispose();
         }
     }
+
+    private NativeArray<int> nodeBaseAttractiveness;
 
     public void CalculateFlowField(GridMap map, GridNode coreNode)
     {
@@ -147,14 +154,29 @@ public class GridSystem
         {
             if (nodeDistances.IsCreated) nodeDistances.Dispose();
             if (nodeObstacles.IsCreated) nodeObstacles.Dispose();
+            if (nodeBaseAttractiveness.IsCreated) nodeBaseAttractiveness.Dispose();
 
             nodeDistances = new NativeArray<int>(totalNodes, Allocator.Persistent);
             nodeObstacles = new NativeArray<int>(totalNodes, Allocator.Persistent);
+            nodeBaseAttractiveness = new NativeArray<int>(totalNodes, Allocator.Persistent);
         }
 
         for (int i = 0; i < totalNodes; i++)
         {
-            nodeObstacles[i] = 0;
+            int cx = i % width;
+            int cy = i / width;
+
+            nodeObstacles[i] = 0; // Obstacle data could be extracted here similarly
+
+            GridNode node = map.Nodes[cx, cy];
+            if (node != null && node.CurrentTileData != null)
+            {
+                nodeBaseAttractiveness[i] = node.CurrentTileData.baseAttractiveness;
+            }
+            else
+            {
+                nodeBaseAttractiveness[i] = 0;
+            }
         }
 
         int coreIndex = coreNode.Y * width + coreNode.X;
@@ -165,7 +187,8 @@ public class GridSystem
             height = height,
             coreIndex = coreIndex,
             distances = nodeDistances,
-            obstacles = nodeObstacles
+            obstacles = nodeObstacles,
+            baseAttractiveness = nodeBaseAttractiveness
         };
 
         flowFieldJobHandle = job.Schedule();
@@ -204,6 +227,7 @@ public class GridSystem
         }
         if (nodeDistances.IsCreated) nodeDistances.Dispose();
         if (nodeObstacles.IsCreated) nodeObstacles.Dispose();
+        if (nodeBaseAttractiveness.IsCreated) nodeBaseAttractiveness.Dispose();
     }
 
     public void CalculateAttractivenessInfluence(GridMap map)
