@@ -11,8 +11,23 @@ public class LobbySceneUI : MonoBehaviour
     private void Start()
     {
         UpdateUI();
-        if (startGameButton != null) startGameButton.onClick.AddListener(OnStartGameClicked);
-        if (backButton != null) backButton.onClick.AddListener(OnBackClicked);
+
+        // Initialize PerkTreeManager for this scene
+        if (PerkTreeManager.Instance != null)
+        {
+            PerkTreeManager.Instance.Initialize();
+        }
+
+        if (startGameButton != null)
+        {
+            startGameButton.onClick.RemoveAllListeners();
+            startGameButton.onClick.AddListener(OnStartGameClicked);
+        }
+        if (backButton != null)
+        {
+            backButton.onClick.RemoveAllListeners();
+            backButton.onClick.AddListener(OnBackClicked);
+        }
     }
 
     private void UpdateUI()
@@ -25,12 +40,14 @@ public class LobbySceneUI : MonoBehaviour
 
     private void OnStartGameClicked()
     {
+        Debug.Log("[LobbySceneUI] Start Game Button Clicked. Loading Game Scene...");
         if (SceneController.Instance != null)
             SceneController.Instance.LoadGame();
     }
 
     private void OnBackClicked()
     {
+        Debug.Log("[LobbySceneUI] Back Button Clicked. Loading Title Scene...");
         if (SceneController.Instance != null)
             SceneController.Instance.LoadTitle();
     }

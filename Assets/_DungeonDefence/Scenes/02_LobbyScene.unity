@@ -295,7 +295,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 632097976}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.99999166
+  m_Size: 0.99999005
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -944,7 +944,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0000067291826}
+  m_AnchoredPosition: {x: 0, y: 0.00017709292}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1345515620
@@ -975,7 +975,7 @@ MonoBehaviour:
   contentRoot: {fileID: 1345515619}
   perkPointsText: {fileID: 1474308122}
   startBattleButton: {fileID: 335059872}
-  lineConnector: {fileID: 0}
+  lineConnector: {fileID: 1345515620}
   lineColor: {r: 1, g: 1, b: 1, a: 1}
   lineThickness: 2
   nodePrefab: {fileID: 8801471014401073421, guid: f24b2b1c8f921e44983e8b1a8d29b0f1, type: 3}

@@ -29,7 +29,14 @@ public class PerkTreeManager : Singleton<PerkTreeManager>
         DrawConnections();
         UpdateUI();
         if (startBattleButton != null)
-            startBattleButton.onClick.AddListener(() => SceneController.Instance.LoadGame());
+        {
+            startBattleButton.onClick.RemoveAllListeners();
+            startBattleButton.onClick.AddListener(() =>
+            {
+                Debug.Log("[PerkTreeManager] Start Battle Button Clicked. Loading Game Scene...");
+                SceneController.Instance.LoadGame();
+            });
+        }
     }
 
     private void GenerateNodes()

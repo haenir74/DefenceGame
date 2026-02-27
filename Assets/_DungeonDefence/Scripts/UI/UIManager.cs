@@ -15,6 +15,28 @@ public class UIManager : Singleton<UIManager>
 
     private float timeScale = 1.0f;
 
+    private void Start()
+    {
+        InitializeAllGameManagers();
+        Initialize();
+    }
+
+    private void InitializeAllGameManagers()
+    {
+        Debug.Log("[UIManager] Initializing Game Scene Managers...");
+
+        if (GridManager.Instance != null) GridManager.Instance.Initialize();
+        if (UnitManager.Instance != null) UnitManager.Instance.Initialize();
+        if (WaveManager.Instance != null) WaveManager.Instance.Initialize();
+        if (ShopManager.Instance != null) ShopManager.Instance.Initialize();
+        if (DispatchManager.Instance != null) DispatchManager.Instance.Initialize();
+        if (CameraManager.Instance != null) CameraManager.Instance.Initialize();
+        if (TooltipManager.Instance != null) TooltipManager.Instance.Initialize();
+
+        // Finalize with GameManager
+        if (GameManager.Instance != null) GameManager.Instance.Initialize();
+    }
+
     public void Initialize()
     {
         ConnectEvents();
