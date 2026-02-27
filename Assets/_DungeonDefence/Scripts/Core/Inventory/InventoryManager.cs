@@ -6,7 +6,7 @@ using Panex.Inventory.Controller;
 
 public class InventoryManager : Singleton<InventoryManager>
 {
-    
+
     [SerializeField] private InventoryController unitInventoryController;
     [SerializeField] private InventoryController tileInventoryController;
     [SerializeField] private Settings unitSettings;
@@ -36,19 +36,25 @@ public class InventoryManager : Singleton<InventoryManager>
 
     private void OnSlotClicked(IStorable item, int index)
     {
-        
-        
+
+
+    }
+
+    public void Reset()
+    {
+        if (unitInventoryController != null) unitInventoryController.Clear();
+        if (tileInventoryController != null) tileInventoryController.Clear();
     }
 
     private void SetPlacementMode(IStorable item)
     {
         CurrentSelectedItem = item;
 
-        
-        
-        
 
-        
+
+
+
+
     }
 
     private InventoryController GetControllerFor(IStorable item)

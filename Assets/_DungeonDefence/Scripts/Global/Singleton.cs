@@ -6,7 +6,8 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
     private static readonly object lockObject = new object();
-    private static bool applicationIsQuitting = false;
+    protected static bool applicationIsQuitting = false;
+    public static bool IsQuitting => applicationIsQuitting;
 
     protected virtual bool DontDestroy => false;
 
@@ -14,9 +15,9 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         get
         {
-            if (applicationIsQuitting)
+            if (applicationIsQuitting && instance == null)
             {
-                return null; 
+                return null;
             }
 
             lock (lockObject)
@@ -36,6 +37,8 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
+    public static bool InstanceExists => instance != null;
+
     protected virtual void Awake()
     {
         if (instance == null)
@@ -53,12 +56,12 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         applicationIsQuitting = true;
     }
-    
+
     protected virtual void OnDestroy()
     {
         if (instance == this)
         {
-            applicationIsQuitting = true;
+            instance = null;
         }
     }
 }

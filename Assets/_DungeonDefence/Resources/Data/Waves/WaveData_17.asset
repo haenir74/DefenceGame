@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waveIndex: 17
   description: Wave 17
+  shopTierWeights:
+    basicWeight: 40
+    intermediateWeight: 40
+    advancedWeight: 20
+    supremeWeight: 0
   groups:
   - unitData: {fileID: 11400000, guid: d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1, type: 2}
     count: 5

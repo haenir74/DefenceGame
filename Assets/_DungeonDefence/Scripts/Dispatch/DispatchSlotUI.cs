@@ -5,15 +5,15 @@ using UnityEngine.EventSystems;
 
 public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    
+
     [SerializeField] private Image unitIconImage;
     [SerializeField] private TextMeshProUGUI unitNameText;
     [SerializeField] private TextMeshProUGUI bonusText;
     [SerializeField] private Button recallButton;
     [SerializeField] private Image emptyIndicator;
 
-    private Unit assignedUnit;       
-    private UnitDataSO assignedData; 
+    private Unit assignedUnit;
+    private UnitDataSO assignedData;
     private DispatchPanelUI panel;
 
     public bool IsEmpty => assignedUnit == null && assignedData == null;
@@ -26,7 +26,7 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         Refresh();
     }
 
-    
+
 
     public bool TryAssignUnit(Unit unit)
     {
@@ -41,7 +41,7 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         return true;
     }
 
-    
+
 
     public void AssignUnitData(UnitDataSO data)
     {
@@ -52,7 +52,7 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         panel?.OnSlotChanged();
     }
 
-    
+
 
     private void OnRecallClicked()
     {
@@ -69,9 +69,9 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
 
         panel?.OnSlotChanged();
 
-        
+
         if (transform.parent != null)
-            Destroy(transform.parent.gameObject); 
+            Destroy(transform.parent.gameObject);
         else
             Destroy(gameObject);
     }
@@ -90,14 +90,14 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         assignedUnit = null;
         assignedData = null;
 
-        
+
         if (transform.parent != null)
             Destroy(transform.parent.gameObject);
         else
             Destroy(gameObject);
     }
 
-    
+
 
     public int GetDispatchBonus()
     {
@@ -105,7 +105,7 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         return DispatchManager.Instance.CalculateUnitBonus(assignedUnit, assignedData);
     }
 
-    
+
 
     private void Refresh()
     {
@@ -125,7 +125,7 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         if (bonusText != null)
         {
             if (hasUnit && displayData != null)
-                bonusText.text = $"?⑥쑉: {(displayData.dispatchEfficiency * 100f):F0}%";
+                bonusText.text = $"효율: {(displayData.dispatchEfficiency * 100f):F0}%";
             else
                 bonusText.text = "";
         }
@@ -139,7 +139,7 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        
+
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -149,19 +149,19 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         UnitDataSO data = assignedUnit?.Data ?? assignedData;
         if (data != null && DragDropManager.Instance != null)
         {
-            
+
 
             var payload = new DragPayload();
             payload.Source = DragPayload.SourceType.Dispatch;
             payload.UnitData = data;
-            payload.FromSlot = this; 
+            payload.FromSlot = this;
 
             DragDropManager.Instance.BeginDrag(payload, unitIconImage.sprite);
 
-            
+
             SetVisualVisible(false);
 
-            
+
             GameManager.Instance?.SelectUnitToPlace(data, GameManager.SelectionSource.Dispatch);
         }
     }
@@ -174,12 +174,12 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         if (recallButton != null) recallButton.gameObject.SetActive(visible && !IsEmpty);
         if (emptyIndicator != null) emptyIndicator.gameObject.SetActive(visible && IsEmpty);
 
-        
-        
+
+
         if (unitIconImage != null) unitIconImage.raycastTarget = visible;
     }
 
-    
+
     public void RestoreSlot()
     {
         SetVisualVisible(true);
@@ -194,8 +194,8 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        
-        
+
+
         if (DragDropManager.Instance != null)
             DragDropManager.Instance.EndDrag();
     }

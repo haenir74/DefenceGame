@@ -20,12 +20,13 @@ public class GridNode
 
     public TileDataSO CurrentTileData { get; private set; }
     public int DistanceToCore { get; set; } = int.MaxValue;
+    public int TileInfluence { get; set; } = 0;
 
-    
+
     private const int SLOT_COUNT = 3;
 
-    
-    
+
+
     private static readonly Vector3[] AlliedOffsets = new Vector3[]
     {
         new Vector3( 0.28f,  0f,  0.22f),
@@ -39,7 +40,7 @@ public class GridNode
         new Vector3(-0.28f,  0f, -0.22f),
     };
 
-    
+
     private List<Unit>[] alliedSlots;
     private List<Unit>[] enemySlots;
 
@@ -59,25 +60,25 @@ public class GridNode
         }
     }
 
-    
 
-    
-    
-    
-    
+
+
+
+
+
     public Vector3? TryOccupySlot(Unit unit, float cellSize)
     {
         List<Unit>[] slots = unit.IsPlayerTeam ? alliedSlots : enemySlots;
         Vector3[] offsets = unit.IsPlayerTeam ? AlliedOffsets : EnemyOffsets;
 
-        
+
         for (int i = 0; i < SLOT_COUNT; i++)
         {
             if (slots[i].Contains(unit))
                 return worldPosition + offsets[i] * cellSize;
         }
 
-        
+
         int minCount = int.MaxValue;
         int minIndex = 0;
         for (int i = 0; i < SLOT_COUNT; i++)
@@ -94,7 +95,7 @@ public class GridNode
         return worldPosition + offsets[minIndex] * cellSize;
     }
 
-    
+
     public void ReleaseSlot(Unit unit)
     {
         List<Unit>[] slots = unit.IsPlayerTeam ? alliedSlots : enemySlots;
@@ -105,10 +106,10 @@ public class GridNode
         }
     }
 
-    
-    
-    
-    
+
+
+
+
     public bool HasFreeSlot(bool isPlayerTeam)
     {
         List<Unit>[] slots = isPlayerTeam ? alliedSlots : enemySlots;
@@ -122,9 +123,9 @@ public class GridNode
         return false;
     }
 
-    
 
-    
+
+
     public bool CanPlaceUnit
     {
         get
@@ -134,7 +135,7 @@ public class GridNode
         }
     }
 
-    
+
 
     public int GetDistance(GridNode target)
     {
@@ -171,7 +172,14 @@ public class GridNode
         {
             if (DistanceToCore == int.MaxValue) return int.MinValue;
 
-            int baseScore = 10000 - (DistanceToCore * 10);
+
+
+            int baseScore = 10000 - (DistanceToCore * 2);
+
+
+            baseScore += TileInfluence;
+
+
             if (Tile != null && Tile.Data != null)
             {
                 baseScore += Tile.Data.attractivenessBonus;

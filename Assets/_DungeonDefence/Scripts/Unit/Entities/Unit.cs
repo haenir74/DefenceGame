@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour, IPoolable
 {
-    
+
     [SerializeField] private UnitDataSO data;
 
-    
+
     [SerializeField] private UnitMovement movement;
     [SerializeField] private UnitCombat combat;
     [SerializeField] private SpriteRenderer modelRenderer;
@@ -35,7 +35,7 @@ public class Unit : MonoBehaviour, IPoolable
         if (combat == null) combat = GetComponent<UnitCombat>();
         if (modelRenderer == null) modelRenderer = GetComponentInChildren<SpriteRenderer>();
 
-        
+
         if (GetComponent<UnitVisualController>() == null)
             gameObject.AddComponent<UnitVisualController>();
     }
@@ -66,26 +66,26 @@ public class Unit : MonoBehaviour, IPoolable
 
             if (data != null && data.category == UnitCategory.Core)
             {
-                
+
                 Vector3 center = startNode.WorldPosition;
                 transform.position = new Vector3(center.x, UnitConstants.UNIT_HEIGHT, center.z);
-                
+
             }
             else
             {
-                
+
                 Vector3 cur = transform.position;
                 transform.position = new Vector3(cur.x, UnitConstants.UNIT_HEIGHT, cur.z);
             }
 
             if (movement != null) movement.Initialize(this);
-            
+
             SetDispatchMode(false);
 
         }
 
-        
-        
+
+
         var visualController = GetComponent<UnitVisualController>();
         if (visualController != null) visualController.Apply();
 
@@ -111,7 +111,7 @@ public class Unit : MonoBehaviour, IPoolable
 
     public void OnDespawn()
     {
-        
+
         IsDead = true;
         gameObject.SetActive(false);
     }
@@ -132,7 +132,7 @@ public class Unit : MonoBehaviour, IPoolable
     private void AddVisitedNode(Vector2Int coord)
     {
         VisitedHistory.Add(coord);
-        
+
         if (VisitedHistory.Count > 20) VisitedHistory.RemoveAt(0);
     }
 
@@ -141,7 +141,7 @@ public class Unit : MonoBehaviour, IPoolable
         GridNode newNode = GridManager.Instance.GetNode(coord.x, coord.y);
         if (newNode != null)
         {
-            
+
             if (CurrentNode != null && CurrentNode.Tile != null && !CurrentNode.Equals(newNode))
             {
                 CurrentNode.Tile.OnUnitExit(this);
@@ -149,7 +149,7 @@ public class Unit : MonoBehaviour, IPoolable
 
             SetNode(newNode);
 
-            
+
             if (CurrentNode.Tile != null)
             {
                 CurrentNode.Tile.OnUnitEnter(this);
@@ -205,13 +205,13 @@ public class Unit : MonoBehaviour, IPoolable
         if (combat != null) combat.OnUpdate();
         if (movement != null) movement.OnUpdate();
 
-        
+
         if (data != null && data.skill != null)
         {
             data.skill.OnUnitUpdate(this);
         }
 
-        
+
         if (!IsDispatched && CurrentNode?.Tile != null)
         {
             CurrentNode.Tile.OnUnitUpdate(this);
@@ -220,35 +220,35 @@ public class Unit : MonoBehaviour, IPoolable
 
     private void HandleDeath()
     {
-        if (IsDead) return; 
+        if (IsDead) return;
         IsDead = true;
 
-        
+
         if (movement != null && movement.IsMoving)
             movement.CancelMove();
 
-        
+
         if (CurrentNode?.Tile != null)
         {
             CurrentNode.Tile.OnUnitDeath(this);
         }
 
-        
-        
+
+
         if (data != null && data.skill != null)
         {
             data.skill.OnUnitDie(this);
         }
 
-        
+
         CurrentNode?.ReleaseSlot(this);
 
         if (data != null && data.category == UnitCategory.Core)
         {
-            
+
         }
 
-        
+
         if (UnitManager.Instance != null)
             UnitManager.Instance.UnregisterUnit(this);
 
@@ -265,8 +265,8 @@ public class Unit : MonoBehaviour, IPoolable
 
     private void OnDestroy()
     {
-        
-        if (!IsDead && UnitManager.Instance != null)
+
+        if (!IsDead && UnitManager.InstanceExists)
             UnitManager.Instance.UnregisterUnit(this);
     }
 
@@ -284,7 +284,7 @@ public class Unit : MonoBehaviour, IPoolable
                 modelRenderer.color = color;
             }
 
-            
+
         }
         else
         {
@@ -298,10 +298,10 @@ public class Unit : MonoBehaviour, IPoolable
         }
     }
 
-    
-    
-    
-    
+
+
+
+
     public void SetVisualVisible(bool visible)
     {
         if (modelRenderer != null) modelRenderer.enabled = visible;
@@ -309,7 +309,7 @@ public class Unit : MonoBehaviour, IPoolable
         var col = GetComponent<Collider>();
         if (col != null) col.enabled = visible;
 
-        
+
     }
 }
 

@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 14
   tileId: tortureroom
-  tileName: 고문실 (Torture Room)
-  description: "공포스러운 방입니다. 적의 공격력을 약화시킵니다."
+  tileName: "\uac10\uc625 \ud0c0\uc77c"
+  description: "\uacf5\ud3ec\uc2a4\ub7ec\uc6b4 \ubc29\uc774\uc5d0\uc694. \uc801\uc758 \uacf5\uaca9\ub825\uc744 \uc57d\ud654\uc2dc\ud0b5\ub2c8\ub2e4."
   icon: {fileID: 21300000, guid: 65397acfddaa4614b974a0594c910fce, type: 3}
   tileSprite: {fileID: 21300000, guid: 65397acfddaa4614b974a0594c910fce, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: 80
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: a886b98656a1a96afea28c7156086d2f, type: 2}
+  tier: 3
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 900
+  sellPrice: 450
   shopStock: 5

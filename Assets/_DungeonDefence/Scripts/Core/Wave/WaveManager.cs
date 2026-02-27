@@ -11,7 +11,7 @@ public class WaveConfig
 
 public class WaveManager : Singleton<WaveManager>
 {
-    
+
     [SerializeField] private List<WaveConfig> waves;
 
     public event Action<int, int, int> OnWaveInfoChanged;
@@ -30,6 +30,20 @@ public class WaveManager : Singleton<WaveManager>
         {
             UnitManager.Instance.OnUnitDead += HandleUnitDead;
         }
+    }
+
+    public void Reset()
+    {
+        foreach (var coroutine in spawnCoroutines)
+        {
+            if (coroutine != null) StopCoroutine(coroutine);
+        }
+        spawnCoroutines.Clear();
+        isWaveInProgress = false;
+        currentWaveIndex = 0;
+        aliveEnemiesCount = 0;
+        totalEnemiesInCurrentWave = 0;
+        pendingSpawnCount = 0;
     }
 
     public void StartWave(int waveIndex)
@@ -124,7 +138,7 @@ public class WaveManager : Singleton<WaveManager>
     private void FinishWave()
     {
         isWaveInProgress = false;
-        
+
 
         if (UnitManager.Instance != null)
             UnitManager.Instance.NotifyWaveClear();
@@ -134,32 +148,29 @@ public class WaveManager : Singleton<WaveManager>
 
     public TierProbabilities GetNextWaveTierProbs()
     {
-        TierProbabilities probs = new TierProbabilities();
         int nextWave = currentWaveIndex + 1;
+        int configIndex = nextWave - 1;
 
-        if (nextWave < 10)
+        if (waves != null && configIndex >= 0 && configIndex < waves.Count)
         {
-            probs.basicWeight = 70;
-            probs.intermediateWeight = 30;
-            probs.advancedWeight = 0;
-            probs.supremeWeight = 0;
-        }
-        else if (nextWave < 20)
-        {
-            probs.basicWeight = 40;
-            probs.intermediateWeight = 30;
-            probs.advancedWeight = 30;
-            probs.supremeWeight = 0;
-        }
-        else
-        {
-            probs.basicWeight = 20;
-            probs.intermediateWeight = 40;
-            probs.advancedWeight = 30;
-            probs.supremeWeight = 10;
+            WaveConfig config = waves[configIndex];
+            if (config != null && config.waveDatas != null && config.waveDatas.Count > 0)
+            {
+                WaveDataSO data = config.waveDatas[0];
+                if (data != null && data.shopTierWeights != null)
+                {
+                    return data.shopTierWeights;
+                }
+            }
         }
 
-        return probs;
+
+        TierProbabilities fallback = new TierProbabilities();
+        fallback.basicWeight = 100;
+        fallback.intermediateWeight = 0;
+        fallback.advancedWeight = 0;
+        fallback.supremeWeight = 0;
+        return fallback;
     }
 
     private void NotifyUI()

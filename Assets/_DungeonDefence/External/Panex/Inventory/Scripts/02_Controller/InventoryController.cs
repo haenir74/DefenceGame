@@ -43,13 +43,13 @@ namespace Panex.Inventory.Controller
         {
             if (settings == null) return;
 
-            
+
             if (model != null) model.OnInventoryUpdated -= HandleModelUpdate;
 
             model = new InventoryModel(settings.Capacity);
             model.OnInventoryUpdated += HandleModelUpdate;
 
-            
+
             if (view == null) view = GetComponentInChildren<InventoryView>();
             if (view != null)
             {
@@ -69,9 +69,9 @@ namespace Panex.Inventory.Controller
         }
 
 
-        
-        
-        
+
+
+
         private void HandleModelUpdate(Panex.Inventory.Model.Slot[] slots)
         {
             if (view != null)
@@ -99,7 +99,7 @@ namespace Panex.Inventory.Controller
             if (!slot.IsEmpty) OnItemDroppedOutside?.Invoke(slot.ItemData, position);
         }
 
-        
+
         private void HandleTransferRequest(SlotUI sourceSlotUI, int targetIndex)
         {
             var sourceController = sourceSlotUI.GetComponentInParent<InventoryController>();
@@ -110,19 +110,19 @@ namespace Panex.Inventory.Controller
 
             var targetSlotData = model.GetSlot(targetIndex);
 
-            
+
             if (targetSlotData.IsEmpty)
             {
                 model.SetItem(targetIndex, sourceSlotData.ItemData, sourceSlotData.Amount);
                 sourceController.RemoveItem(sourceSlotUI.SlotIndex);
             }
-            
+
             else if (targetSlotData.ItemData.ID == sourceSlotData.ItemData.ID)
             {
                 model.SetItem(targetIndex, sourceSlotData.ItemData, targetSlotData.Amount + sourceSlotData.Amount);
                 sourceController.RemoveItem(sourceSlotUI.SlotIndex);
             }
-            
+
             else
             {
                 sourceController.SetItem(sourceSlotUI.SlotIndex, targetSlotData.ItemData, targetSlotData.Amount);
@@ -131,22 +131,22 @@ namespace Panex.Inventory.Controller
         }
 
 
-        
-        
-        
 
-        
+
+
+
+
         public void Open() => view?.gameObject.SetActive(true);
         public void Close() => view?.gameObject.SetActive(false);
         public void Toggle() => view?.gameObject.SetActive(!view.gameObject.activeSelf);
         public bool IsOpen => view != null && view.gameObject.activeSelf;
 
-        
+
         public int Capacity => settings != null ? settings.Capacity : 0;
         public Slot GetSlot(int index) => model?.GetSlot(index);
         public int GetItemAmount(int itemId) => model != null ? model.GetItemAmount(itemId) : 0;
 
-        
+
         public void SwapSlots(int indexA, int indexB)
         {
             if (settings.Draggable) model?.SwapItem(indexA, indexB);
@@ -160,9 +160,9 @@ namespace Panex.Inventory.Controller
             if (slot.IsEmpty || slot.ItemData.ID == item.ID)
             {
                 model.AddItem(index, item, amount);
-                return 0; 
+                return 0;
             }
-            return amount; 
+            return amount;
         }
 
         public void RemoveItem(int index) => model?.RemoveItem(index);
@@ -209,7 +209,7 @@ namespace Panex.Inventory.Controller
             return -1;
         }
 
-        
+
         public List<InventorySnapshot> GetSnapshot()
         {
             var snapshot = new List<InventorySnapshot>();
@@ -240,7 +240,7 @@ namespace Panex.Inventory.Controller
                 model.RemoveItem(i);
             }
 
-            
+
             foreach (var data in snapshot)
             {
                 IStorable item = itemResolver(data.itemId);
@@ -250,7 +250,17 @@ namespace Panex.Inventory.Controller
                 }
             }
         }
-        
+
         public void SetItem(int index, IStorable item, int amount) => model?.SetItem(index, item, amount);
+
+        public void Clear()
+        {
+            if (model == null) return;
+            for (int i = 0; i < settings.Capacity; i++)
+            {
+                model.RemoveItem(i);
+            }
+            HandleModelUpdate(model.Slots);
+        }
     }
 }

@@ -36,7 +36,7 @@ public class PoolManager : Singleton<PoolManager>
         if (component != null)
         {
             component.transform.SetPositionAndRotation(position, rotation);
-            
+
             if (component is IPoolable poolable)
             {
                 poolable.OnSpawn();
@@ -46,11 +46,11 @@ public class PoolManager : Singleton<PoolManager>
     }
 
     public void Despawn<T>(T obj) where T : Component
-    {        
+    {
         var poolKey = obj.GetComponent<PoolObject>();
         if (poolKey != null && pools.ContainsKey(poolKey.OriginalPrefab))
         {
-                if (obj is IPoolable poolable) poolable.OnDespawn();
+            if (obj is IPoolable poolable) poolable.OnDespawn();
             pools[poolKey.OriginalPrefab].Release(obj);
         }
         else
@@ -67,6 +67,23 @@ public class PoolManager : Singleton<PoolManager>
     public void Push<T>(T obj) where T : Component
     {
         Despawn(obj);
+    }
+
+    public void ClearPools()
+    {
+        foreach (var pool in pools.Values)
+        {
+            pool.Clear();
+        }
+        pools.Clear();
+
+        if (rootContainer != null)
+        {
+            foreach (Transform child in rootContainer)
+            {
+                Destroy(child.gameObject);
+            }
+        }
     }
 }
 

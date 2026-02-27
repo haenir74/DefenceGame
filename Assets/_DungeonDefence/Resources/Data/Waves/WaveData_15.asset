@@ -14,12 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waveIndex: 15
   description: Wave 15
+  shopTierWeights:
+    basicWeight: 40
+    intermediateWeight: 50
+    advancedWeight: 10
+    supremeWeight: 0
   groups:
   - unitData: {fileID: 11400000, guid: d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1, type: 2}
-    count: 5
-    spawnInterval: 2
+    count: 8
+    spawnInterval: 1.5
     initialDelay: 0
-  - unitData: {fileID: 11400000, guid: f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7, type: 2}
-    count: 10
-    spawnInterval: 0.8
-    initialDelay: 0
+  - unitData: {fileID: 11400000, guid: b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5, type: 2}
+    count: 2
+    spawnInterval: 3
+    initialDelay: 5

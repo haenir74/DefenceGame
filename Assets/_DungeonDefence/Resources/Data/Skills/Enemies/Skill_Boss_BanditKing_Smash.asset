@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7, type: 3}
-  m_Name: Skill_Boss_GrandKnight
+  m_Script: {fileID: 11500000, guid: d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8, type: 3}
+  m_Name: Skill_Boss_BanditKing_Smash
   m_EditorClassIdentifier: 
-  skillName: 기사단의 심판
-  description: 빛나는 대검으로 근방의 모든 적에게 심판의 일격을 내린다.
+  skillName: "산적왕의 강타"
+  description: "범위 내의 모든 적에게 강력한 물리 피해를 입힙니다."
   icon: {fileID: 0}
-  damageAmount: 90
+  damageAmount: 70

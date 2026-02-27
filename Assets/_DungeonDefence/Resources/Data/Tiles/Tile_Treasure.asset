@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 4
   tileId: treasure
-  tileName: 보물창고 (Treasure Vault)
-  description: "금화가 가득한 방입니다. 아군 파견 시 골드를 생산합니다."
+  tileName: "\ubcf4\ubb3c\uace0 \ud0c0\uc77c"
+  description: "\uae08\ud654\uac00 \uac00\ub4dd\ud55c \ubc29\uc774\uc5d0\uc694. \uc544\uad70 \ud30c\uacac \uc2dc \uace8\ub4dc\ub97c \uc0dd\uc0b0\ud569\ub2c8\ub2e4."
   icon: {fileID: 21300000, guid: 3423ace18e7101d4da8d26817735d90d, type: 3}
   tileSprite: {fileID: 21300000, guid: 3423ace18e7101d4da8d26817735d90d, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: 100
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: 15576044d76a4a6dc0c22be32a518f33, type: 2}
+  tier: 1
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 300
+  sellPrice: 150
   shopStock: 5

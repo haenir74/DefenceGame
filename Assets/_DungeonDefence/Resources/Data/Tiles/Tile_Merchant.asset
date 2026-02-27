@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 8
   tileId: merchant
-  tileName: 상점가 (Merchant's Corner)
-  description: "상인들이 머무는 곳입니다. 파견 시 웨이브 클리어 보너스를 받습니다."
+  tileName: "\uc0c1\uc810 \ud0c0\uc77c"
+  description: "\uc0c1\uc778\ub4e4\uc774 \uba38\ubb3c\ub220 \uacf3\uc774\uc5d0\uc694. \ud30c\uacac \uc2dc \uc6e8\uc774\ube0c \ud074\ub9ac\uc5b4 \ubcf4\ub108\uc2a4\ub97c \ubc1b\uc2b5\ub2c8\ub2e4."
   icon: {fileID: 21300000, guid: 01f0b9d22da34a7439834ff11e8ccd60, type: 3}
   tileSprite: {fileID: 21300000, guid: 01f0b9d22da34a7439834ff11e8ccd60, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: 60
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: c41391f320a8fc3e4e857fadd491cd9f, type: 2}
+  tier: 2
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 300
+  sellPrice: 150
   shopStock: 5

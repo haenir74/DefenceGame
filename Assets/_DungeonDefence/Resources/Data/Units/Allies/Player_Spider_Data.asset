@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitIdNumber: 105
   unitId: player_spider
-  unitName: "\uc2a4\ud30c\uc774\ub354"
-  description: "\uc544\uad70 \uc720\ub2db \uc2a4\ud30c\uc774\ub354."
+  unitName: "\uac70\ubbf8"
+  description: "\ub0a0\uc528\ud55c \ub2e4\ub9ac\ub85c \ube60\ub974\uac8c \uc640\ub2e4\uac14\ub2e4 \ud558\ub294 \uac70\ubbf8."
   icon: {fileID: 21300000, guid: 8f301dc5e2f0951499491035f94e2bf3, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000105, type: 3}
   isPlayerTeam: 1
   category: 5
+  tier: 0
   maxHp: 90
   maxMp: 0
   startMp: 0

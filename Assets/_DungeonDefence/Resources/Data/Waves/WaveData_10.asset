@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waveIndex: 10
   description: Wave 10
+  shopTierWeights:
+    basicWeight: 70
+    intermediateWeight: 30
+    advancedWeight: 0
+    supremeWeight: 0
   groups:
   - unitData: {fileID: 11400000, guid: b6c7d8e9f0a1b2c3d4e5f6a8b9c0d1e2, type: 2}
     count: 1
     spawnInterval: 0
-    initialDelay: 2
+    initialDelay: 3
   - unitData: {fileID: 11400000, guid: e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6, type: 2}
     count: 10
     spawnInterval: 1

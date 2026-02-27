@@ -33,11 +33,11 @@ public class GridSystem
     public GridNode GetNode(GridMap map, GridDataSO data, Vector3 worldPosition)
     {
         if (map == null || data == null) return null;
-        
+
         float halfCell = data.cellSize * 0.5f;
         int x = Mathf.FloorToInt((worldPosition.x + halfCell) / data.cellSize);
         int y = Mathf.FloorToInt((worldPosition.z + halfCell) / data.cellSize);
-        
+
         return map.GetNode(x, y);
     }
 
@@ -70,7 +70,7 @@ public class GridSystem
     public void CalculateFlowField(GridMap map, GridNode coreNode)
     {
         if (map == null || coreNode == null) return;
-        
+
         foreach (var node in map.Nodes)
         {
             node.DistanceToCore = int.MaxValue;
@@ -92,6 +92,60 @@ public class GridSystem
                 {
                     neighbor.DistanceToCore = currentDist + 1;
                     queue.Enqueue(neighbor);
+                }
+            }
+        }
+    }
+
+    public void CalculateAttractivenessInfluence(GridMap map)
+    {
+        if (map == null) return;
+
+
+        foreach (var node in map.Nodes)
+        {
+            node.TileInfluence = 0;
+        }
+
+        int maxRange = 5;
+        float decayFactor = 0.5f;
+        float radiationMultiplier = 0.5f;
+
+
+        foreach (var sourceNode in map.Nodes)
+        {
+            int bonus = sourceNode.GetTileBonus();
+            if (bonus == 0) continue;
+
+
+
+            Queue<(GridNode node, int dist)> queue = new Queue<(GridNode, int)>();
+            HashSet<GridNode> visited = new HashSet<GridNode>();
+
+            queue.Enqueue((sourceNode, 0));
+            visited.Add(sourceNode);
+
+            while (queue.Count > 0)
+            {
+                var (current, dist) = queue.Dequeue();
+
+
+                if (dist > 0)
+                {
+                    float decay = Mathf.Pow(decayFactor, dist);
+                    current.TileInfluence += Mathf.RoundToInt(bonus * radiationMultiplier * decay);
+                }
+
+                if (dist < maxRange)
+                {
+                    foreach (var neighbor in GetNeighbors(map, current))
+                    {
+                        if (!visited.Contains(neighbor))
+                        {
+                            visited.Add(neighbor);
+                            queue.Enqueue((neighbor, dist + 1));
+                        }
+                    }
                 }
             }
         }

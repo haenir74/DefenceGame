@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 2
   tileId: swamp
-  tileName: 습지 (Swamp)
-  description: "슬라임이 좋아하는 축축한 땅입니다. 적의 속도를 늦춥니다."
+  tileName: "\ub2aa\uc9c0 \ud0c0\uc77c"
+  description: "슬라임이 좋아하는 축축한 땅입니다. 적의 속도를 늦추는 늪지대입니다."
   icon: {fileID: 21300000, guid: a49582a320925654a81a8b705ae92e7f, type: 3}
   tileSprite: {fileID: 21300000, guid: a49582a320925654a81a8b705ae92e7f, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: 5
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: a27dc6b83845d3efec27a5a08b2b31c1, type: 2}
+  tier: 1
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 250
+  sellPrice: 125
   shopStock: 5

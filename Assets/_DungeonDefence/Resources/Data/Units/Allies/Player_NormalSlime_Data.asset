@@ -14,19 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitIdNumber: 100
   unitId: player_normal_slime
-  unitName: "\ub178\ub9d0 \uc2ac\ub77c\uc784"
-  description: "\uAC00\uC7A5 \uAE30\uBCF8\uC801\uC778 \uc2ac\ub77c\uc784. \uAC00\uACA9\uC774 \uC800\uB834\uD558\uACE0 \uBB3C\uB7C9\uC73C\uB85C \uC2B9\uBD80\uD558\uB294 \uC720\uB2DB."
+  unitName: "\uc2ac\ub77c\uc784"
+  description: "\uc0c1\ub2f9\ud788 \ud754\ud558\uace0 \uc57d\ud55c \uae30\ubcf8 \uc2ac\ub77c\uc784."
   icon: {fileID: 21300000, guid: 0182bc50877de204591252d90d4eb456, type: 3}
   prefab: {fileID: 2573380989020623195, guid: a1b2c3d4e5f60789a1b2c3d4e5f60001, type: 3}
   isPlayerTeam: 1
   category: 4
+  tier: 0
   maxHp: 80
   maxMp: 100
   startMp: 0
   moveSpeed: 3
   basePower: 10
   attackInterval: 1.0
-  skill: {fileID: 11400000, guid: c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6, type: 2}
+  skill: {fileID: 11400000, guid: e1e2e3e4f5f6a7a8b9b0c1c2d3d4e5f6, type: 2}
   dispatchEfficiency: 0.5
   costs:
   - type: 0

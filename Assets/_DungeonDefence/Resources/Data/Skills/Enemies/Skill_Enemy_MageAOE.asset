@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 617f41d1bedc18a43ac718f854227914, type: 3}
-  m_Name: Skill_Tier2_Cleric_Heal
+  m_Script: {fileID: 11500000, guid: d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8, type: 3}
+  m_Name: Skill_Enemy_MageAOE
   m_EditorClassIdentifier: 
-  skillName: 신성한 치유
-  description: 주변 아군 중 HP가 가장 낮은 유닛을 치유한다.
+  skillName: "마력 폭발"
+  description: "대상 주변 광범위한 지역에 마법 피해를 입힙니다."
   icon: {fileID: 0}
-  healAmount: 40
+  damageAmount: 35

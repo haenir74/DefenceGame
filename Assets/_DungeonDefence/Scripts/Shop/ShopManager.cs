@@ -2,53 +2,85 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 using Panex.Inventory;
 
 public class ShopManager : Singleton<ShopManager>
 {
-    
-    
     [SerializeField] private int activeSlotCount = 4;
     [SerializeField] private int rerollCost = 50;
 
-    
-    
     [SerializeField] private ShopUnlockPoolSO unlockPool;
-    
-    [SerializeField] private List<UnitDataSO> defaultUnlockedUnits = new List<UnitDataSO>();
-    [SerializeField] private List<TileDataSO> defaultUnlockedTiles = new List<TileDataSO>();
-
-    private List<ITradable> unlockedItems = new List<ITradable>();
 
     private Dictionary<ITradable, int> stockRemaining = new Dictionary<ITradable, int>();
-
     private List<ITradable> currentShopItems = new List<ITradable>();
 
     public event Action<string> OnPurchaseSuccess;
     public event Action OnPurchaseFailed;
     public event Action OnShopRefreshed;
 
+    private Dictionary<UnitTier, List<ITradable>> categoricalPool = new Dictionary<UnitTier, List<ITradable>>();
+
     private void Start()
     {
-        InitializeDefaultUnlocks();
+        InitializeCategoricalPool();
+        InitializeStocks();
         RollShopItems();
     }
 
-    private void InitializeDefaultUnlocks()
+    private void InitializeCategoricalPool()
     {
-        foreach (var unit in defaultUnlockedUnits)
-            if (unit != null) UnlockItem(unit);
-        foreach (var tile in defaultUnlockedTiles)
-            if (tile != null) UnlockItem(tile);
+        categoricalPool.Clear();
+        categoricalPool[UnitTier.Basic] = new List<ITradable>();
+        categoricalPool[UnitTier.Intermediate] = new List<ITradable>();
+        categoricalPool[UnitTier.Advanced] = new List<ITradable>();
+        categoricalPool[UnitTier.Supreme] = new List<ITradable>();
+
+        if (unlockPool == null) return;
+
+        foreach (var unit in unlockPool.unitCandidates)
+        {
+            if (unit != null) categoricalPool[unit.tier].Add(unit);
+        }
+        foreach (var tile in unlockPool.tileCandidates)
+        {
+            if (tile != null) categoricalPool[tile.tier].Add(tile);
+        }
     }
 
-    public void UnlockItem(ITradable item)
+    private void InitializeStocks()
     {
-        if (item == null || unlockedItems.Contains(item)) return;
-        unlockedItems.Add(item);
+        stockRemaining.Clear();
+        if (unlockPool == null) return;
 
+        foreach (var unit in unlockPool.unitCandidates)
+            if (unit != null) SetInitialStock(unit);
+        foreach (var tile in unlockPool.tileCandidates)
+            if (tile != null) SetInitialStock(tile);
+    }
+
+    private void SetInitialStock(ITradable item)
+    {
         int stock = GetInitialStock(item);
         stockRemaining[item] = stock <= 0 ? -1 : stock;
+    }
+
+    public void Reset()
+    {
+        stockRemaining.Clear();
+        currentShopItems.Clear();
+        InitializeCategoricalPool();
+        InitializeStocks();
+        RollShopItems();
+    }
+
+    public void ResetWithProbabilities(TierProbabilities probs)
+    {
+        stockRemaining.Clear();
+        currentShopItems.Clear();
+        InitializeCategoricalPool();
+        InitializeStocks();
+        RollShopItems(probs);
     }
 
     private int GetInitialStock(ITradable item)
@@ -58,120 +90,87 @@ public class ShopManager : Singleton<ShopManager>
         return -1;
     }
 
-    public List<ITradable> GetUnlockCandidates(int count = 3)
-    {
-        if (unlockPool == null) return new List<ITradable>();
-        return unlockPool.GetRandomCandidates(count, unlockedItems);
-    }
-
     public void RollShopItems(TierProbabilities tierProbs = null)
     {
         currentShopItems.Clear();
 
-        
+        if (tierProbs == null && WaveManager.Instance != null)
+        {
+            tierProbs = WaveManager.Instance.GetNextWaveTierProbs();
+        }
+
+        if (tierProbs == null)
+        {
+            tierProbs = new TierProbabilities();
+        }
+
         int perkBonus = (MetaManager.Instance != null) ? MetaManager.Instance.GetPerkLevel("ShopSlot") : 0;
         int totalSlots = activeSlotCount + perkBonus;
 
-        List<ITradable> available = new List<ITradable>();
-        foreach (var item in unlockedItems)
+        int totalWeight = tierProbs.basicWeight + tierProbs.intermediateWeight + tierProbs.advancedWeight + tierProbs.supremeWeight;
+        if (totalWeight <= 0)
         {
-            if (!stockRemaining.TryGetValue(item, out int stock)) continue;
-            if (stock == -1 || stock > 0) available.Add(item);
+            Debug.LogWarning("ShopManager: Total weight is 0. Check TierProbabilities or WaveDataSO configuration.");
+            totalWeight = 1;
         }
 
-        List<ITradable> picked;
-        if (tierProbs != null)
+        if (categoricalPool.Count == 0 || categoricalPool.Values.All(list => list.Count == 0))
         {
-            picked = RollWithTierWeights(available, totalSlots, tierProbs);
-        }
-        else
-        {
-            for (int i = available.Count - 1; i > 0; i--)
-            {
-                int j = UnityEngine.Random.Range(0, i + 1);
-                (available[i], available[j]) = (available[j], available[i]);
-            }
-            int take = Mathf.Min(totalSlots, available.Count);
-            picked = available.GetRange(0, take);
+            Debug.LogError("ShopManager: Categorical pool is empty! Shop will be empty. Check ShopUnlockPoolSO.");
         }
 
-        currentShopItems.AddRange(picked);
-        OnShopRefreshed?.Invoke();
-    }
+        HashSet<ITradable> used = new HashSet<ITradable>();
 
-    private List<ITradable> RollWithTierWeights(List<ITradable> pool, int count, TierProbabilities probs)
-    {
-
-        var byTier = new System.Collections.Generic.Dictionary<UnitTier, List<ITradable>>
-        {
-            { UnitTier.Basic,        new List<ITradable>() },
-            { UnitTier.Intermediate, new List<ITradable>() },
-            { UnitTier.Advanced,     new List<ITradable>() },
-            { UnitTier.Supreme,      new List<ITradable>() },
-        };
-
-        foreach (var item in pool)
-        {
-
-            UnitTier tier = item is UnitDataSO u ? u.tier : UnitTier.Basic;
-            byTier[tier].Add(item);
-        }
-
-        int totalWeight = probs.basicWeight + probs.intermediateWeight + probs.advancedWeight + probs.supremeWeight;
-        if (totalWeight <= 0) totalWeight = 1;
-
-        var result = new List<ITradable>();
-        var used = new HashSet<ITradable>();
-
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < totalSlots; i++)
         {
             int roll = UnityEngine.Random.Range(0, totalWeight);
             UnitTier selected;
-            if (roll < probs.basicWeight)
+            if (roll < tierProbs.basicWeight)
                 selected = UnitTier.Basic;
-            else if (roll < probs.basicWeight + probs.intermediateWeight)
+            else if (roll < tierProbs.basicWeight + tierProbs.intermediateWeight)
                 selected = UnitTier.Intermediate;
-            else if (roll < probs.basicWeight + probs.intermediateWeight + probs.advancedWeight)
+            else if (roll < tierProbs.basicWeight + tierProbs.intermediateWeight + tierProbs.advancedWeight)
                 selected = UnitTier.Advanced;
             else
                 selected = UnitTier.Supreme;
 
-            ITradable candidate = PickRandom(byTier[selected], used);
-
+            ITradable candidate = PickRandomFromPool(selected, used);
             if (candidate == null)
             {
-                foreach (var kv in byTier)
+
+                foreach (UnitTier tier in (UnitTier[])Enum.GetValues(typeof(UnitTier)))
                 {
-                    candidate = PickRandom(kv.Value, used);
+                    candidate = PickRandomFromPool(tier, used);
                     if (candidate != null) break;
                 }
             }
 
             if (candidate != null)
             {
-                result.Add(candidate);
+                currentShopItems.Add(candidate);
                 used.Add(candidate);
             }
         }
-        return result;
+
+        OnShopRefreshed?.Invoke();
     }
 
-    private ITradable PickRandom(List<ITradable> pool, HashSet<ITradable> exclude)
+    private ITradable PickRandomFromPool(UnitTier tier, HashSet<ITradable> exclude)
     {
-        var valid = pool.FindAll(x => !exclude.Contains(x));
+        if (!categoricalPool.ContainsKey(tier)) return null;
+
+        var valid = categoricalPool[tier].FindAll(x =>
+            !exclude.Contains(x) &&
+            (!stockRemaining.ContainsKey(x) || stockRemaining[x] == -1 || stockRemaining[x] > 0)
+        );
+
         if (valid.Count == 0) return null;
         return valid[UnityEngine.Random.Range(0, valid.Count)];
     }
 
     public void ResetStocksForNewWave()
     {
-        var keys = new List<ITradable>(stockRemaining.Keys);
-        foreach (var item in keys)
-        {
-            int stock = GetInitialStock(item);
-            stockRemaining[item] = stock <= 0 ? -1 : stock;
-        }
-        
+        InitializeStocks();
     }
 
     public void RerollShop()
@@ -180,10 +179,6 @@ public class ShopManager : Singleton<ShopManager>
         if (EconomyManager.Instance.TrySpend(cost))
         {
             RollShopItems();
-        }
-        else
-        {
-            
         }
     }
 
@@ -216,7 +211,6 @@ public class ShopManager : Singleton<ShopManager>
 
         if (IsOutOfStock(item))
         {
-            
             OnPurchaseFailed?.Invoke();
             return;
         }
@@ -244,5 +238,3 @@ public class ShopManager : Singleton<ShopManager>
     public void AddShopSlot(int amount = 1) => activeSlotCount = Mathf.Max(1, activeSlotCount + amount);
     public int ActiveSlotCount => activeSlotCount;
 }
-
-

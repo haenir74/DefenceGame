@@ -6,7 +6,7 @@ using System;
 
 public class UnitManager : Singleton<UnitManager>
 {
-    
+
     [SerializeField] private Transform unitContainer;
 
     private List<Unit> activeUnits = new List<Unit>();
@@ -18,6 +18,7 @@ public class UnitManager : Singleton<UnitManager>
 
     public void Initialize()
     {
+        if (UnitManager.IsQuitting) return;
         if (unitContainer == null)
         {
             var containerObj = GameObject.Find("UnitContainer");
@@ -27,16 +28,22 @@ public class UnitManager : Singleton<UnitManager>
         }
     }
 
+    public void Reset()
+    {
+        activeUnits.Clear();
+        NotifyUnitCount();
+    }
+
     private void Update()
     {
-        
-        
+
+
         var unitsToUpdate = new List<Unit>(activeUnits);
         for (int i = unitsToUpdate.Count - 1; i >= 0; i--)
         {
             var unit = unitsToUpdate[i];
 
-            
+
             if (unit != null && unit.gameObject.activeSelf && !unit.IsDead && activeUnits.Contains(unit))
             {
                 unit.OnUpdate();
@@ -48,17 +55,17 @@ public class UnitManager : Singleton<UnitManager>
     {
         if (data == null)
         {
-            
+
             return null;
         }
         if (data.prefab == null)
         {
-            
+
             return null;
         }
         if (node == null)
         {
-            
+
             return null;
         }
 
@@ -82,17 +89,17 @@ public class UnitManager : Singleton<UnitManager>
             newUnit.gameObject.SetActive(true);
             newUnit.transform.SetParent(this.unitContainer);
 
-            
+
             bool isCore = data.category == UnitCategory.Core;
             if (isCore)
             {
                 Vector3 center = node.WorldPosition;
                 newUnit.transform.position = new Vector3(center.x, UnitConstants.UNIT_HEIGHT, center.z);
-                
+
             }
             else
             {
-                
+
                 float cellSize = GridManager.Instance?.Data?.cellSize ?? 1f;
                 Vector3? slotPos = node.TryOccupySlot(newUnit, cellSize);
                 Vector3 rawPos = slotPos ?? node.WorldPosition;
@@ -101,14 +108,14 @@ public class UnitManager : Singleton<UnitManager>
 
             newUnit.Initialize(data, node);
 
-            
+
             int interactionLayer = LayerMask.NameToLayer("Unit");
-            if (interactionLayer == -1) interactionLayer = LayerMask.NameToLayer("Allies"); 
-            if (interactionLayer == -1) interactionLayer = 0; 
+            if (interactionLayer == -1) interactionLayer = LayerMask.NameToLayer("Allies");
+            if (interactionLayer == -1) interactionLayer = 0;
 
             SetLayerRecursive(newUnit.gameObject, interactionLayer);
 
-            
+
             var col = newUnit.GetComponent<Collider>();
             if (col == null) col = newUnit.gameObject.AddComponent<BoxCollider>();
             if (col is BoxCollider box)
@@ -117,7 +124,7 @@ public class UnitManager : Singleton<UnitManager>
                 box.size = new Vector3(0.6f, 1f, 0.6f);
             }
 
-            
+
             if (newUnit.IsPlayerTeam && data.category != UnitCategory.Core)
             {
                 if (newUnit.GetComponent<GridUnitDragHandler>() == null)
@@ -144,13 +151,13 @@ public class UnitManager : Singleton<UnitManager>
         activeUnits.Add(unit);
         NotifyUnitCount();
 
-        
+
         if (unit.Data != null && unit.Data.category == UnitCategory.Core)
         {
-            
+
             NotifyCoreHp(unit.Combat.CurrentHp, unit.Data.maxHp);
 
-            
+
             unit.Combat.OnHpChanged -= OnCoreHpChangedCallback;
             unit.Combat.OnHpChanged += OnCoreHpChangedCallback;
         }
@@ -158,7 +165,7 @@ public class UnitManager : Singleton<UnitManager>
 
     private void OnCoreHpChangedCallback(float hp)
     {
-        
+
         var core = activeUnits.FirstOrDefault(u => u != null && u.Data != null && u.Data.category == UnitCategory.Core);
         if (core != null)
         {
@@ -203,7 +210,7 @@ public class UnitManager : Singleton<UnitManager>
         );
     }
 
-    
+
     public Unit GetRandomOpponentAt(Vector2Int coord, bool myTeam)
     {
         List<Unit> opponents = activeUnits.FindAll(u =>
@@ -225,7 +232,7 @@ public class UnitManager : Singleton<UnitManager>
 
     public void NotifyWaveClear()
     {
-        
+
         for (int i = activeUnits.Count - 1; i >= 0; i--)
         {
             var unit = activeUnits[i];
@@ -238,10 +245,10 @@ public class UnitManager : Singleton<UnitManager>
 
     public void MoveUnit(Unit unit, GridNode from, GridNode to)
     {
-        
+
         if (from != null)
             from.ReleaseSlot(unit);
-        
+
     }
 
     public List<Unit> GetUnitsOnNode(GridNode node)
@@ -283,18 +290,18 @@ public class UnitManager : Singleton<UnitManager>
         return 0f;
     }
 
-    
+
     public void DespawnUnit(Unit unit)
     {
         if (unit == null) return;
 
-        
+
         unit.CurrentNode?.ReleaseSlot(unit);
 
-        
+
         UnregisterUnit(unit);
 
-        
+
         if (PoolManager.Instance != null)
         {
             PoolManager.Instance.Despawn(unit);

@@ -6,7 +6,7 @@ using System;
 public class EconomyManager : Singleton<EconomyManager>
 {
     private Dictionary<CurrencyType, int> currencies = new Dictionary<CurrencyType, int>();
-    public event Action<CurrencyType, int, int> OnCurrencyChanged; 
+    public event Action<CurrencyType, int, int> OnCurrencyChanged;
 
     protected override void Awake()
     {
@@ -16,7 +16,7 @@ public class EconomyManager : Singleton<EconomyManager>
 
     private void Start()
     {
-        
+
     }
 
     private void Initialize()
@@ -25,6 +25,11 @@ public class EconomyManager : Singleton<EconomyManager>
         {
             currencies[type] = 0;
         }
+    }
+
+    public void Reset()
+    {
+        Initialize();
     }
 
     public int GetCurrencyAmount(CurrencyType type)

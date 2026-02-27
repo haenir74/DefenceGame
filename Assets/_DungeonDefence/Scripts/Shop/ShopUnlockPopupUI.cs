@@ -7,9 +7,8 @@ using System;
 
 public class ShopUnlockPopupUI : MonoBehaviour
 {
-    
     [SerializeField] private Transform cardContainer;
-    [SerializeField] private GameObject cardPrefab;  
+    [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Button skipButton;
     [SerializeField] private TextMeshProUGUI titleText;
 
@@ -25,19 +24,17 @@ public class ShopUnlockPopupUI : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        
         foreach (Transform child in cardContainer)
             Destroy(child.gameObject);
 
         if (candidates == null || candidates.Count == 0)
         {
-            
             Skip();
             return;
         }
 
         if (titleText != null)
-            titleText.text = "?⑥씠釉??대━??\n???좊떅/??쇱쓣 ?닿툑?섏꽭??";
+            titleText.text = "새로운 항목 발견!\n해금할 항목을 선택하세요.";
 
         foreach (var candidate in candidates)
         {
@@ -48,7 +45,6 @@ public class ShopUnlockPopupUI : MonoBehaviour
 
     private void SetupCard(GameObject card, ITradable item)
     {
-        
         var slotUI = card.GetComponent<ShopSlotUI>();
         if (slotUI != null)
         {
@@ -59,7 +55,6 @@ public class ShopUnlockPopupUI : MonoBehaviour
             return;
         }
 
-        
         var nameText = card.GetComponentInChildren<TextMeshProUGUI>();
         if (nameText != null) nameText.text = item.Name;
 
@@ -69,15 +64,12 @@ public class ShopUnlockPopupUI : MonoBehaviour
 
     private void SelectUnlock(ITradable item)
     {
-        ShopManager.Instance.UnlockItem(item);
-        
         Hide();
         OnUnlockConfirmed?.Invoke();
     }
 
     private void Skip()
     {
-        
         Hide();
         OnUnlockConfirmed?.Invoke();
     }
@@ -87,6 +79,3 @@ public class ShopUnlockPopupUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 }
-
-
-

@@ -9,23 +9,24 @@ public class DragPayload
 
     public SourceType Source;
 
-    
+
     public UnitDataSO UnitData;
     public TileDataSO TileData;
 
-    
+
     public Unit GridUnit;
 
-    
+
     public DispatchSlotUI FromSlot;
 
-    
+
     public GridNode OriginalNode;
 }
 
 public class DragDropManager : Singleton<DragDropManager>
 {
-    
+    protected override bool DontDestroy => true;
+
     [SerializeField] private Image ghostImage;
     [SerializeField] private Canvas rootCanvas;
 
@@ -36,10 +37,10 @@ public class DragDropManager : Singleton<DragDropManager>
     {
         base.Awake();
 
-        
+
         EnsureSceneRequirements();
 
-        
+
         if (ghostImage == null)
         {
             CreateDynamicGhostImage();
@@ -55,44 +56,51 @@ public class DragDropManager : Singleton<DragDropManager>
         {
             rootCanvas = ghostImage.GetComponentInParent<Canvas>()?.rootCanvas;
         }
+
+        UnityEngine.SceneManagement.SceneManager.sceneUnloaded += OnSceneUnloaded;
+    }
+
+    private void OnSceneUnloaded(UnityEngine.SceneManagement.Scene scene)
+    {
+        CancelDrag();
     }
 
     private void EnsureSceneRequirements()
     {
-        
+
         Camera mainCam = Camera.main;
         if (mainCam != null && mainCam.GetComponent<PhysicsRaycaster>() == null)
         {
             mainCam.gameObject.AddComponent<PhysicsRaycaster>();
-            
+
         }
 
-        
+
         if (FindObjectOfType<EventSystem>() == null)
         {
             GameObject esObj = new GameObject("EventSystem");
             esObj.AddComponent<EventSystem>();
             esObj.AddComponent<StandaloneInputModule>();
-            
+
         }
     }
 
     private void CreateDynamicGhostImage()
     {
-        
+
         GameObject canvasObj = new GameObject("DragDropCanvas");
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 999; 
+        canvas.sortingOrder = 999;
         canvasObj.AddComponent<CanvasScaler>();
         canvasObj.AddComponent<GraphicRaycaster>();
         DontDestroyOnLoad(canvasObj);
 
-        
+
         GameObject ghostObj = new GameObject("GhostImage");
         ghostObj.transform.SetParent(canvasObj.transform);
         ghostImage = ghostObj.AddComponent<Image>();
-        ghostImage.color = new Color(1, 1, 1, 0.6f); 
+        ghostImage.color = new Color(1, 1, 1, 0.6f);
         ghostImage.raycastTarget = false;
 
         rootCanvas = canvas;
@@ -100,17 +108,17 @@ public class DragDropManager : Singleton<DragDropManager>
 
     private void Update()
     {
-        
+
         if (IsDragging || (GameManager.Instance != null && (GameManager.Instance.SelectedUnitToPlace != null || GameManager.Instance.SelectedTileToPlace != null)))
         {
-            
+
             if (!IsDragging)
             {
                 if (GameManager.Instance.SelectedUnitToPlace != null)
                 {
                     if (InventoryManager.Instance != null && InventoryManager.Instance.GetItemAmount(GameManager.Instance.SelectedUnitToPlace) <= 0)
                     {
-                        
+
                         GameManager.Instance.ClearSelection();
                         return;
                     }
@@ -119,7 +127,7 @@ public class DragDropManager : Singleton<DragDropManager>
                 {
                     if (InventoryManager.Instance != null && InventoryManager.Instance.GetItemAmount(GameManager.Instance.SelectedTileToPlace) <= 0)
                     {
-                        
+
                         GameManager.Instance.ClearSelection();
                         return;
                     }
@@ -128,14 +136,14 @@ public class DragDropManager : Singleton<DragDropManager>
 
             UpdateGhostPosition(Input.mousePosition);
 
-            
+
             if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
             {
                 if (IsDragging) CancelDrag();
                 else GameManager.Instance.ClearSelection();
             }
 
-            
+
             if (!IsDragging)
             {
                 if (GameManager.Instance.SelectedUnitToPlace != null)
@@ -152,7 +160,7 @@ public class DragDropManager : Singleton<DragDropManager>
         }
         else
         {
-            
+
             if (ghostImage.gameObject.activeSelf && !IsDragging)
             {
                 ghostImage.gameObject.SetActive(false);
@@ -170,7 +178,7 @@ public class DragDropManager : Singleton<DragDropManager>
         ghostImage.color = new Color(1, 1, 1, 0.7f);
     }
 
-    
+
     public void BeginDrag(DragPayload payload, Sprite icon)
     {
         CurrentPayload = payload;
@@ -179,20 +187,20 @@ public class DragDropManager : Singleton<DragDropManager>
         {
             ghostImage.sprite = icon;
             ghostImage.gameObject.SetActive(true);
-            ghostImage.rectTransform.sizeDelta = new Vector2(100, 100); 
+            ghostImage.rectTransform.sizeDelta = new Vector2(100, 100);
             ghostImage.rectTransform.pivot = new Vector2(0.5f, 0.5f);
 
-            
+
             ghostImage.color = (icon == null) ? Color.clear : new Color(1, 1, 1, 0.7f);
         }
     }
 
-    
+
     public void UpdateGhostPosition(Vector2 screenPos)
     {
         if (ghostImage == null) return;
 
-        
+
         Vector3 targetScreenPos = screenPos;
         if (PlacementManager.Instance != null)
         {
@@ -212,14 +220,14 @@ public class DragDropManager : Singleton<DragDropManager>
         }
     }
 
-    
+
     public void EndDrag(bool skipWorldCheck = false)
     {
         if (!IsDragging) return;
 
         if (!skipWorldCheck)
         {
-            
+
             ResolveWorldDrop();
         }
         else
@@ -242,16 +250,16 @@ public class DragDropManager : Singleton<DragDropManager>
         {
             Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
 
-            
+
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
-                
-                
-                
+
+
+
             }
             else
             {
-                
+
                 RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
                 InputController ic = FindObjectOfType<InputController>();
                 LayerMask tLayer = (ic != null) ? ic.tileLayer : LayerMask.GetMask("Ground");
@@ -267,11 +275,11 @@ public class DragDropManager : Singleton<DragDropManager>
             }
         }
 
-        
+
         PlacementManager.Instance.ExecutePlacement(CurrentPayload, targetObj);
     }
 
-    
+
     public void CancelDrag()
     {
         if (IsDragging && PlacementManager.Instance != null)
@@ -289,9 +297,13 @@ public class DragDropManager : Singleton<DragDropManager>
         {
             ghostImage.gameObject.SetActive(false);
         }
-        
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        UnityEngine.SceneManagement.SceneManager.sceneUnloaded -= OnSceneUnloaded;
+    }
 }
 
 

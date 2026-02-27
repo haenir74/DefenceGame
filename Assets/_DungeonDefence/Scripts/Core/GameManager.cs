@@ -6,7 +6,6 @@ public class GameManager : Singleton<GameManager>
 {
     [SerializeField] UnitDataSO coreUnit;
 
-    
     [SerializeField] private ResultUI resultUI;
 
     private StateMachine<GameManager> stateMachine;
@@ -30,6 +29,27 @@ public class GameManager : Singleton<GameManager>
     {
         base.Awake();
         this.stateMachine = new StateMachine<GameManager>(this);
+        ResetPersistentSystems();
+    }
+
+    private void ResetPersistentSystems()
+    {
+        if (PoolManager.Instance != null) PoolManager.Instance.ClearPools();
+        if (EconomyManager.Instance != null) EconomyManager.Instance.Reset();
+        if (InventoryManager.Instance != null) InventoryManager.Instance.Reset();
+
+        TierProbabilities stage1Probs = (WaveManager.Instance != null) ? WaveManager.Instance.GetNextWaveTierProbs() : null;
+        if (ShopManager.Instance != null) ShopManager.Instance.ResetWithProbabilities(stage1Probs);
+
+        if (UnitManager.Instance != null) UnitManager.Instance.Reset();
+        if (WaveManager.Instance != null) WaveManager.Instance.Reset();
+        if (DragDropManager.Instance != null) DragDropManager.Instance.CancelDrag();
+        if (MetaManager.Instance != null) MetaManager.Instance.ResetRunResult();
+
+        TotalEnemiesKilled = 0;
+        TotalGoldEarned = 0;
+        TotalUnitsUsed = 0;
+        CurrentWave = 1;
     }
 
     private void Start()
@@ -53,7 +73,6 @@ public class GameManager : Singleton<GameManager>
         GridNode centerNode = GridManager.Instance.GetNode(centerX, centerY);
         if (centerNode != null)
         {
-
             FocusCamera(centerNode);
         }
 
@@ -62,10 +81,32 @@ public class GameManager : Singleton<GameManager>
         int startGold = 500;
         if (MetaManager.Instance != null)
         {
-            float bonus = MetaManager.Instance.GetPerkLevel("StartGold") * 100; 
+            float bonus = MetaManager.Instance.GetPerkLevel("StartGold") * 100;
             startGold += (int)bonus;
         }
+
         EconomyManager.Instance.AddCurrency(CurrencyType.Gold, startGold);
+
+        GrantInitialItems();
+    }
+
+    private void GrantInitialItems()
+    {
+        if (InventoryManager.Instance == null) return;
+
+
+        UnitDataSO normalSlime = Resources.Load<UnitDataSO>("Data/Units/Allies/Player_NormalSlime_Data");
+        if (normalSlime != null)
+        {
+            InventoryManager.Instance.AddItem(normalSlime, 3);
+        }
+
+
+        TileDataSO stoneRoad = Resources.Load<TileDataSO>("Data/Tiles/Tile_StoneRoad");
+        if (stoneRoad != null)
+        {
+            InventoryManager.Instance.AddItem(stoneRoad, 2);
+        }
     }
 
     private void Update()
@@ -85,7 +126,7 @@ public class GameManager : Singleton<GameManager>
             UnitManager.Instance.OnUnitSpawned += HandleUnitSpawned;
         }
 
-        if (EconomyManager.Instance != null)
+        if (EconomyManager.InstanceExists)
         {
             EconomyManager.Instance.OnCurrencyChanged += HandleCurrencyChanged;
         }
@@ -102,19 +143,19 @@ public class GameManager : Singleton<GameManager>
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        if (InputManager.Instance != null)
+        if (InputManager.InstanceExists)
         {
             InputManager.Instance.OnClickNode -= HandleNodeClick;
             InputManager.Instance.OnClickUnit -= HandleUnitClick;
             InputManager.Instance.OnCancel -= HandleCancel;
             InputManager.Instance.OnRightClickNode -= HandleRightClick;
         }
-        if (UnitManager.Instance != null)
+        if (UnitManager.InstanceExists)
         {
             UnitManager.Instance.OnUnitDead -= HandleUnitDead;
             UnitManager.Instance.OnUnitSpawned -= HandleUnitSpawned;
         }
-        if (EconomyManager.Instance != null)
+        if (EconomyManager.InstanceExists)
         {
             EconomyManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
         }
@@ -238,8 +279,6 @@ public class GameManager : Singleton<GameManager>
         CurrentSelectionSource = source;
         OriginalNode = originalNode;
         PickedUpUnit = originalUnit;
-
-        
     }
 
     public void SelectTileToPlace(TileDataSO tileData, SelectionSource source, GridNode originalNode = null)
@@ -251,16 +290,12 @@ public class GameManager : Singleton<GameManager>
         CurrentSelectionSource = source;
         OriginalNode = originalNode;
         PickedUpUnit = null;
-
-        
     }
 
     public void ClearSelection(bool useSafetyNet = true)
     {
-
         if (useSafetyNet && PickedUpUnit != null && OriginalNode != null)
         {
-            
             UnitManager.Instance?.SpawnUnit(PickedUpUnit.Data, OriginalNode);
         }
 
@@ -307,5 +342,3 @@ public class GameManager : Singleton<GameManager>
     public void ResetCamera() => CameraManager.Instance?.ResetPosition();
 
 }
-
-

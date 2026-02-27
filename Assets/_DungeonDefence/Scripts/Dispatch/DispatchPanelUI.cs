@@ -5,11 +5,11 @@ using TMPro;
 
 public class DispatchPanelUI : Singleton<DispatchPanelUI>
 {
-    
-    
 
-    
-    [SerializeField] private ScrollRect scrollRect; 
+
+
+
+    [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform slotsContainer;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private TextMeshProUGUI totalBonusText;
@@ -20,20 +20,20 @@ public class DispatchPanelUI : Singleton<DispatchPanelUI>
     protected override void Awake()
     {
         base.Awake();
-        
+
         slots.Clear();
 
-        
+
         if (GetComponent<DispatchDropHandler>() == null)
             gameObject.AddComponent<DispatchDropHandler>();
     }
 
     private void CreateSlots()
     {
-        
+
     }
 
-    
+
     public DispatchSlotUI CreateSlotAndAssign(DragPayload payload)
     {
         if (slotPrefab == null || slotsContainer == null) return null;
@@ -46,12 +46,12 @@ public class DispatchPanelUI : Singleton<DispatchPanelUI>
             slot.Initialize(this);
             slots.Add(slot);
 
-            
+
             if (slot.gameObject.GetComponent<DispatchDropHandler>() == null)
                 slot.gameObject.AddComponent<DispatchDropHandler>();
 
-            
-            
+
+
             bool assigned = false;
             if (payload.UnitData != null || payload.GridUnit != null)
             {
@@ -74,23 +74,23 @@ public class DispatchPanelUI : Singleton<DispatchPanelUI>
 
     private void UpdateScrollPosition()
     {
-        
+
         if (scrollRect == null || scrollRect.content == null) return;
 
-        
+
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
     }
 
-    
+
 
     public void OnSlotChanged()
     {
-        
+
         slots.RemoveAll(s => s == null);
 
-        
-        
+
+
         RefreshBonusDisplay();
     }
 
@@ -102,10 +102,10 @@ public class DispatchPanelUI : Singleton<DispatchPanelUI>
         {
             if (s != null) total += s.GetDispatchBonus();
         }
-        totalBonusText.text = $"?뚭껄 蹂대꼫?? +{total}G";
+        totalBonusText.text = $"파견 보너스: +{total}G";
     }
 
-    
+
     public void ClearAllSlots()
     {
         foreach (var slot in slots)
@@ -113,14 +113,14 @@ public class DispatchPanelUI : Singleton<DispatchPanelUI>
             if (slot != null)
             {
                 slot.ClearSlot();
-                Destroy(slot.transform.parent.gameObject); 
+                Destroy(slot.transform.parent.gameObject);
             }
         }
         slots.Clear();
         RefreshBonusDisplay();
     }
 
-    
+
     public int GetTotalDispatchBonus()
     {
         int total = 0;

@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7, type: 3}
-  m_Name: Skill_Boss_BanditKing
+  m_Script: {fileID: 11500000, guid: a91c36660b1decf4186d22d0fa5a6880, type: 3}
+  m_Name: Skill_Enemy_ArcherShot
   m_EditorClassIdentifier: 
-  skillName: 폭군의 광타
-  description: 거대한 철퇴를 휘둘러 타일 내 모든 적에게 광역 피해를 입힌다.
+  skillName: "화살 발사"
+  description: "적에게 화살을 쏘아 피해를 입힙니다."
   icon: {fileID: 0}
-  damageAmount: 60
+  damageAmount: 25

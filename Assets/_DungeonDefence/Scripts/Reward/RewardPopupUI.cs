@@ -5,7 +5,7 @@ using System;
 
 public class RewardPopupUI : MonoBehaviour
 {
-    
+
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI baseRewardText;
     [SerializeField] private TextMeshProUGUI bonusRewardText;
@@ -19,7 +19,7 @@ public class RewardPopupUI : MonoBehaviour
         if (confirmButton != null)
         {
             confirmButton.onClick.RemoveAllListeners();
-            confirmButton.onClick.AddListener(() => 
+            confirmButton.onClick.AddListener(() =>
             {
                 OnConfirm?.Invoke();
                 Close();
@@ -32,12 +32,12 @@ public class RewardPopupUI : MonoBehaviour
         int totalGold = baseGold + bonusGold;
 
         if (titleText != null) titleText.text = $"WAVE {wave} CLEAR";
-        if (baseRewardText != null) baseRewardText.text = $"湲곕낯 蹂댁긽 : {baseGold} G";
-        if (bonusRewardText != null) 
+        if (baseRewardText != null) baseRewardText.text = $"기본 보상 : {baseGold} G";
+        if (bonusRewardText != null)
         {
-            bonusRewardText.text = bonusGold > 0 ? $"?뚭껄 蹂대꼫??: +{bonusGold} G" : "?뚭껄 蹂대꼫??: ?놁쓬";
+            bonusRewardText.text = bonusGold > 0 ? $"파견 보너스: +{bonusGold} G" : "파견 보너스: 없음";
         }
-        if (totalRewardText != null) totalRewardText.text = $"珥??띾뱷 : <color=yellow>{totalGold} G</color>";
+        if (totalRewardText != null) totalRewardText.text = $"총 획득 : <color=yellow>{totalGold} G</color>";
         gameObject.SetActive(true);
     }
 

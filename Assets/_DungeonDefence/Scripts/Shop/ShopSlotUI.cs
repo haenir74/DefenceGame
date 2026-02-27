@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class ShopSlotUI : MonoBehaviour
 {
-    
+
     [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI costText;
@@ -59,7 +59,7 @@ public class ShopSlotUI : MonoBehaviour
 
     private string GetCostText(List<ResourceCost> costs)
     {
-        if (costs == null || costs.Count == 0) return "臾대즺";
+        if (costs == null || costs.Count == 0) return "무료";
         return $"{costs[0].amount} G";
     }
 

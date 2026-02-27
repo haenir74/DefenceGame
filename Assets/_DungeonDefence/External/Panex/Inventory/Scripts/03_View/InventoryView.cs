@@ -105,12 +105,10 @@ namespace Panex.Inventory.View
         {
             if (slotContainer == null) return;
 
-            
+
             var existingLayout = slotContainer.GetComponent<LayoutGroup>();
             if (existingLayout != null && !(existingLayout is GridLayoutGroup))
             {
-                
-                Debug.Log($"[InventoryView] {existingLayout.GetType().Name}이 이미 있습니다. GridLayoutGroup 추가를 건너뜁니다.");
                 return;
             }
 

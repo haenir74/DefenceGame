@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileIdNumber: 12
   tileId: mistforest
-  tileName: 안개 숲 (Misty Forest)
-  description: "시야를 방해하는 안개가 가득합니다. 적의 명중률(공격력)을 낮춥니다."
+  tileName: "\uc548\uac1c \ud568\uc815"
+  description: "시야를 가리고 속도를 늦추는 짙은 안개."
   icon: {fileID: 21300000, guid: 612a32ddac50ecd40a94a01e6b5163fa, type: 3}
   tileSprite: {fileID: 21300000, guid: 612a32ddac50ecd40a94a01e6b5163fa, type: 3}
   prefab: {fileID: 0}
   attractivenessBonus: 10
   MaxUnitCapacity: 1
   tileEffect: {fileID: 11400000, guid: 33bdd2e44854dc244b4debad9e5fe448, type: 2}
+  tier: 1
   IsDispatchTile: 0
   baseDispatchReward: 0
   EfficiencyMultiplier: 1
-  costs: []
-  sellPrice: 100
+  costs:
+  - type: 0
+    amount: 500
+  sellPrice: 250
   shopStock: 5

@@ -6,7 +6,7 @@ public class MetaManager : Singleton<MetaManager>
     private const string PERK_POINTS_KEY = "Meta_PerkPoints";
     private const string PERK_UPGRADE_PREFIX = "Meta_Perk_";
 
-    [SerializeField] private List<PerkDataSO> availablePerks;
+    [SerializeField] private List<PerkDataSO> availablePerks = new List<PerkDataSO>();
 
     public struct RunResult
     {
@@ -71,8 +71,14 @@ public class MetaManager : Singleton<MetaManager>
         AddPerkPoints(points);
     }
 
+    public void ResetRunResult()
+    {
+        LastRun = new RunResult();
+    }
+
     public void UpgradePerk(string perkId)
     {
+        if (availablePerks == null) return;
         PerkDataSO perk = availablePerks.Find(p => p.perkId == perkId);
         if (perk == null) return;
 

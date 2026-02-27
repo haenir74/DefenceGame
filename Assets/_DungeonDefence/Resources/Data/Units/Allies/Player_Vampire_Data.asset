@@ -15,11 +15,12 @@ MonoBehaviour:
   unitIdNumber: 112
   unitId: player_vampire
   unitName: "\ubc40\ud30c\uc774\uc5b4"
-  description: "\uc544\uad70 \uc720\ub2db \ubc40\ud30c\uc774\uc5b4."
+  description: "\uc5b4\ub460 \uc14d\uc758 \uace0\uadc0\ud55c \ud3ec\uc2dd\uc790."
   icon: {fileID: 21300000, guid: 194c7f594b3b0df4a9573e26c787c270, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000112, type: 3}
   isPlayerTeam: 1
   category: 7
+  tier: 2
   maxHp: 350
   maxMp: 0
   startMp: 0
@@ -30,6 +31,6 @@ MonoBehaviour:
   dispatchEfficiency: 0.8
   costs:
   - type: 0
-    amount: 400
+    amount: 800
   populationCost: 2
   shopStock: 3

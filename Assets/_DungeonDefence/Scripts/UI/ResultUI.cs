@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class ResultUI : MonoBehaviour
 {
-    
+
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI waveText;
     [SerializeField] private TextMeshProUGUI killText;
@@ -13,7 +13,7 @@ public class ResultUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI perkPointText;
 
-    
+
     [SerializeField] private Button restartButton;
     [SerializeField] private Button titleButton;
 
@@ -25,10 +25,14 @@ public class ResultUI : MonoBehaviour
 
     private void Start()
     {
-        if (MetaManager.Instance != null && MetaManager.Instance.LastRun.waves > 0)
+        if (MetaManager.Instance != null)
         {
             var result = MetaManager.Instance.LastRun;
-            Show(result.isVictory, result.waves, result.kills, result.gold);
+            // Show result if the run has actually ended (time > 0 or waves > 0 or score > 0)
+            if (result.score > 0 || result.waves > 0 || result.kills > 0)
+            {
+                Show(result.isVictory, result.waves, result.kills, result.gold);
+            }
         }
     }
 

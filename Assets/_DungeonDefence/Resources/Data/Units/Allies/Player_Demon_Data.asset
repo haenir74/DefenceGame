@@ -15,11 +15,12 @@ MonoBehaviour:
   unitIdNumber: 200
   unitId: player_demon
   unitName: "\ub370\ubaac"
-  description: "\uc9c0\uc625\uc5d0\uc11c \uc628 \uac15\ub825\ud55c \ucc28\uc0ac."
+  description: "\uc9c0\uc625\uc758 \uac15\ub825\ud55c \ud798\uc744 \uac00\uc9c4 \uc545\ub9c8."
   icon: {fileID: 21300000, guid: cc75a7d60777fc340802747d46c54006, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000101, type: 3}
   isPlayerTeam: 1
   category: 7
+  tier: 2
   maxHp: 1200
   maxMp: 0
   startMp: 0
@@ -30,6 +31,6 @@ MonoBehaviour:
   dispatchEfficiency: 0.8
   costs:
   - type: 0
-    amount: 1200
+    amount: 1000
   populationCost: 5
   shopStock: 3

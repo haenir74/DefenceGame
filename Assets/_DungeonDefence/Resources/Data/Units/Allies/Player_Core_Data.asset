@@ -25,8 +25,8 @@ MonoBehaviour:
   maxMp: 0
   startMp: 0
   moveSpeed: 0
-  basePower: 0
-  attackInterval: 99
+  basePower: 15
+  attackInterval: 2.0
   skill: {fileID: 0}
   dispatchEfficiency: 0
   costs: []

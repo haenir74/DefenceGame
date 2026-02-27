@@ -74,24 +74,30 @@ public class EnemyTurnState : UnitState
             List<GridNode> bestNodes = new List<GridNode>();
             float maxScore = float.MinValue;
 
-            
-            int penaltyPerVisit = 50;
+
+            int penaltyPerVisit = 100;
             float noiseRange = 5f;
 
             foreach (var n in neighbors)
             {
-                
+
                 float score = n.Attractiveness;
 
-                
+
                 int visitCount = 0;
                 foreach (var visitedCoord in Self.VisitedHistory)
                 {
                     if (visitedCoord == n.Coordinate) visitCount++;
                 }
-                score -= visitCount * penaltyPerVisit;
 
-                
+                if (visitCount > 0)
+                {
+                    // Exponential penalty: 100, 200, 400, 800...
+                    float penalty = penaltyPerVisit * Mathf.Pow(2, visitCount - 1);
+                    score -= penalty;
+                }
+
+
                 score += Random.Range(-noiseRange, noiseRange);
 
                 if (score > maxScore)
@@ -142,7 +148,7 @@ public class UnitCombatState : UnitState
             Self.EndCombat();
             return;
         }
-        
+
         Unit randomTarget = UnitManager.Instance.GetRandomOpponentAt(Self.Coordinate, Self.IsPlayerTeam);
         if (randomTarget != null)
             UnitManager.Instance.AttackUnit(Self, randomTarget);

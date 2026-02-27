@@ -15,11 +15,12 @@ MonoBehaviour:
   unitIdNumber: 104
   unitId: player_lich
   unitName: "\ub9ac\uce58"
-  description: "\uc544\uad70 \uc720\ub2db \ub9ac\uce58."
+  description: "\uc8fd\uc74c\uc744 \ucd08\uc6d4\ud55c \ubd88\uc0ac\uc758 \ub9c8\ubc95\uc0ac."
   icon: {fileID: 21300000, guid: ce8787e1a57d1a24fb5574683cfd4e22, type: 3}
   prefab: {fileID: 2573380989020623195, guid: 5e97eb03825dee720800000000000104, type: 3}
   isPlayerTeam: 1
   category: 6
+  tier: 3
   maxHp: 600
   maxMp: 100
   startMp: 0
@@ -30,6 +31,6 @@ MonoBehaviour:
   dispatchEfficiency: 0.9
   costs:
   - type: 0
-    amount: 2000
+    amount: 1800
   populationCost: 5
   shopStock: 3

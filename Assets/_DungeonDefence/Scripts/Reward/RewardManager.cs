@@ -2,7 +2,7 @@
 
 public class RewardManager : Singleton<RewardManager>
 {
-    
+
     [SerializeField] private RewardPopupUI rewardPopup;
     [SerializeField] private ShopUnlockPopupUI unlockPopup;
     [SerializeField] private int baseGoldPerWave = 100;
@@ -20,13 +20,13 @@ public class RewardManager : Singleton<RewardManager>
 
         else
         {
-            
+
         }
 
         int totalGold = baseGold + dispatchBonus;
 
         EconomyManager.Instance?.AddCurrency(CurrencyType.Gold, totalGold);
-        
+
 
         if (rewardPopup != null)
         {
@@ -37,8 +37,7 @@ public class RewardManager : Singleton<RewardManager>
         }
         else
         {
-            
-            StartUnlockPhase();
+            CompleteRewardPhase();
         }
     }
 
@@ -46,23 +45,6 @@ public class RewardManager : Singleton<RewardManager>
     {
         if (rewardPopup != null)
             rewardPopup.OnConfirm -= HandleRewardConfirm;
-
-        StartUnlockPhase();
-    }
-
-    private void StartUnlockPhase()
-    {
-        if (unlockPopup != null && ShopManager.Instance != null)
-        {
-            var candidates = ShopManager.Instance.GetUnlockCandidates(3);
-            if (candidates.Count > 0)
-            {
-                unlockPopup.OnUnlockConfirmed -= CompleteRewardPhase;
-                unlockPopup.OnUnlockConfirmed += CompleteRewardPhase;
-                unlockPopup.Show(candidates);
-                return;
-            }
-        }
 
         CompleteRewardPhase();
     }
@@ -77,7 +59,7 @@ public class RewardManager : Singleton<RewardManager>
         TierProbabilities tierProbs = GetNextWaveTierProbs();
         ShopManager.Instance?.RollShopItems(tierProbs);
 
-        
+
         GameManager.Instance.SwitchToMaintenancePhase();
     }
 
