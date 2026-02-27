@@ -17,10 +17,9 @@ public class InventoryManager : Singleton<InventoryManager>
     protected override void Awake()
     {
         base.Awake();
-        Initialize();
     }
 
-    private void Initialize()
+    public void Initialize()
     {
         if (unitInventoryController != null && unitSettings != null)
         {

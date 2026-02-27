@@ -16,7 +16,7 @@ public class TooltipManager : Singleton<TooltipManager>
     [SerializeField] private TextMeshProUGUI statText;
     [SerializeField] private TextMeshProUGUI tagText;
 
-    private void Start()
+    public void Initialize()
     {
         HideTooltip();
     }

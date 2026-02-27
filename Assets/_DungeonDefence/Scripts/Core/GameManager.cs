@@ -6,8 +6,6 @@ public class GameManager : Singleton<GameManager>
 {
     [SerializeField] UnitDataSO coreUnit;
 
-    [SerializeField] private ResultUI resultUI;
-
     private StateMachine<GameManager> stateMachine;
     public BaseState<GameManager> CurrentState => stateMachine?.CurrentState;
 
@@ -29,7 +27,6 @@ public class GameManager : Singleton<GameManager>
     {
         base.Awake();
         this.stateMachine = new StateMachine<GameManager>(this);
-        ResetPersistentSystems();
     }
 
     private void ResetPersistentSystems()
@@ -52,28 +49,21 @@ public class GameManager : Singleton<GameManager>
         CurrentWave = 1;
     }
 
-    private void Start()
+    public void Initialize()
     {
+        ResetPersistentSystems();
         InitializeSystems();
         ChangeState(new MaintenanceState(this));
 
-        StartCoroutine(StartCo());
-    }
-
-    private IEnumerator StartCo()
-    {
-        yield return null;
-        while (GridManager.Instance == null || GridManager.Instance.GetCoreNode() == null)
+        if (GridManager.Instance != null && GridManager.Instance.Data != null)
         {
-            yield return null;
-        }
-
-        int centerX = (GridManager.Instance.Data.width - 1) / 2;
-        int centerY = (GridManager.Instance.Data.height - 1) / 2;
-        GridNode centerNode = GridManager.Instance.GetNode(centerX, centerY);
-        if (centerNode != null)
-        {
-            FocusCamera(centerNode);
+            int centerX = (GridManager.Instance.Data.width - 1) / 2;
+            int centerY = (GridManager.Instance.Data.height - 1) / 2;
+            GridNode centerNode = GridManager.Instance.GetNode(centerX, centerY);
+            if (centerNode != null)
+            {
+                FocusCamera(centerNode);
+            }
         }
 
         SpawnCore();
@@ -85,8 +75,7 @@ public class GameManager : Singleton<GameManager>
             startGold += (int)bonus;
         }
 
-        EconomyManager.Instance.AddCurrency(CurrencyType.Gold, startGold);
-
+        EconomyManager.Instance?.AddCurrency(CurrencyType.Gold, startGold);
         GrantInitialItems();
     }
 
@@ -116,12 +105,8 @@ public class GameManager : Singleton<GameManager>
 
     private void InitializeSystems()
     {
-        if (GridManager.Instance != null)
-            GridManager.Instance.Initialize();
-
         if (UnitManager.Instance != null)
         {
-            UnitManager.Instance.Initialize();
             UnitManager.Instance.OnUnitDead += HandleUnitDead;
             UnitManager.Instance.OnUnitSpawned += HandleUnitSpawned;
         }
@@ -143,7 +128,7 @@ public class GameManager : Singleton<GameManager>
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        
+
         // Use direct null checks on Instance which respects applicationIsQuitting
         var input = InputManager.Instance;
         if (input != null)

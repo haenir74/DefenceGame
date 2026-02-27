@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class PerkTreeManager : Singleton<PerkTreeManager>
 {
-    
+
     [SerializeField] private PerkTreeSO perkTreeData;
 
-    
+
     [SerializeField] private RectTransform contentRoot;
     [SerializeField] private TextMeshProUGUI perkPointsText;
     [SerializeField] private Button startBattleButton;
@@ -19,7 +19,7 @@ public class PerkTreeManager : Singleton<PerkTreeManager>
 
     private List<PerkNodeUI> treeNodes = new List<PerkNodeUI>();
 
-    private void Start()
+    public void Initialize()
     {
         FindNodesInScene();
         DrawConnections();

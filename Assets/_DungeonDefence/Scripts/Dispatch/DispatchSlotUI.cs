@@ -5,118 +5,35 @@ using UnityEngine.EventSystems;
 
 public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-
     [SerializeField] private Image unitIconImage;
     [SerializeField] private TextMeshProUGUI unitNameText;
     [SerializeField] private TextMeshProUGUI bonusText;
     [SerializeField] private Button recallButton;
     [SerializeField] private Image emptyIndicator;
 
-    private Unit assignedUnit;
-    private UnitDataSO assignedData;
+    private int slotIndex = -1;
     private DispatchPanelUI panel;
+    private bool hasUnit = false;
 
-    public bool IsEmpty => assignedUnit == null && assignedData == null;
+    public bool IsEmpty => !hasUnit;
 
     public void Initialize(DispatchPanelUI panel)
     {
         this.panel = panel;
         if (recallButton != null)
+        {
+            recallButton.onClick.RemoveAllListeners();
             recallButton.onClick.AddListener(OnRecallClicked);
-
-        // Tooltip Integration
-        var tooltip = gameObject.GetComponent<UITooltipTrigger>();
-        if (tooltip == null) tooltip = gameObject.AddComponent<UITooltipTrigger>();
-        tooltip.DataProvider = () => assignedUnit?.Data ?? assignedData;
-
-        Refresh();
-    }
-
-
-
-    public bool TryAssignUnit(Unit unit)
-    {
-        if (unit == null || !unit.IsPlayerTeam || unit.Data.category == UnitCategory.Core) return false;
-        if (!IsEmpty) return false;
-
-        assignedUnit = unit;
-        assignedData = null;
-        unit.SetDispatchMode(true);
-        Refresh();
-        panel?.OnSlotChanged();
-        return true;
-    }
-
-
-
-    public void AssignUnitData(UnitDataSO data)
-    {
-        if (data == null) return;
-        assignedData = data;
-        assignedUnit = null;
-        Refresh();
-        panel?.OnSlotChanged();
-    }
-
-
-
-    private void OnRecallClicked()
-    {
-        if (assignedUnit != null)
-        {
-            assignedUnit.SetDispatchMode(false);
-            assignedUnit = null;
         }
-        else if (assignedData != null)
-        {
-            InventoryManager.Instance?.AddItem(assignedData, 1);
-            assignedData = null;
-        }
-
-        panel?.OnSlotChanged();
-
-
-        if (transform.parent != null)
-            Destroy(transform.parent.gameObject);
-        else
-            Destroy(gameObject);
     }
 
-    public void ClearSlot(bool returnToInventory = true)
+    public void Refresh(int index, DispatchManager.DispatchEntry entry)
     {
-        if (assignedUnit != null)
-        {
-            assignedUnit.SetDispatchMode(false);
-        }
-        else if (assignedData != null && returnToInventory)
-        {
-            InventoryManager.Instance?.AddItem(assignedData, 1);
-        }
+        this.slotIndex = index;
 
-        assignedUnit = null;
-        assignedData = null;
-
-
-        if (transform.parent != null)
-            Destroy(transform.parent.gameObject);
-        else
-            Destroy(gameObject);
-    }
-
-
-
-    public int GetDispatchBonus()
-    {
-        if (DispatchManager.Instance == null) return 0;
-        return DispatchManager.Instance.CalculateUnitBonus(assignedUnit, assignedData);
-    }
-
-
-
-    private void Refresh()
-    {
-        bool hasUnit = !IsEmpty;
-        UnitDataSO displayData = assignedUnit?.Data ?? assignedData;
+        hasUnit = entry != null && !entry.IsEmpty;
+        UnitDataSO displayData = entry?.Data;
+        if (entry?.Unit != null) displayData = entry.Unit.Data;
 
         if (unitIconImage != null)
         {
@@ -141,33 +58,59 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
 
         if (emptyIndicator != null)
             emptyIndicator.gameObject.SetActive(!hasUnit);
+
+        var tooltip = gameObject.GetComponent<UITooltipTrigger>();
+        if (tooltip == null) tooltip = gameObject.AddComponent<UITooltipTrigger>();
+        tooltip.DataProvider = () => displayData;
+    }
+
+    public bool TryAssignUnit(Unit unit)
+    {
+        return DispatchManager.Instance.RequestAssignUnit(slotIndex, unit);
+    }
+
+    public void AssignUnitData(UnitDataSO data)
+    {
+        DispatchManager.Instance.RequestAssignData(slotIndex, data);
+    }
+
+    private void OnRecallClicked()
+    {
+        DispatchManager.Instance.RequestRecall(slotIndex);
+    }
+
+    public void ClearSlot(bool returnToInventory = true)
+    {
+        DispatchManager.Instance.RequestRecall(slotIndex, returnToInventory);
+    }
+
+    public int GetDispatchBonus()
+    {
+        return 0;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (IsEmpty) return;
+        if (slotIndex < 0 || !hasUnit || DispatchManager.Instance == null) return;
+        var entries = DispatchManager.Instance.DispatchSlots;
+        if (slotIndex >= entries.Count) return;
 
-        UnitDataSO data = assignedUnit?.Data ?? assignedData;
+        var entry = entries[slotIndex];
+        UnitDataSO data = entry.Unit?.Data ?? entry.Data;
+
         if (data != null && DragDropManager.Instance != null)
         {
-
-
             var payload = new DragPayload();
             payload.Source = DragPayload.SourceType.Dispatch;
             payload.UnitData = data;
             payload.FromSlot = this;
 
             DragDropManager.Instance.BeginDrag(payload, unitIconImage.sprite);
-
-
             SetVisualVisible(false);
-
-
             GameManager.Instance?.SelectUnitToPlace(data, GameManager.SelectionSource.Dispatch);
         }
     }
@@ -177,19 +120,14 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
         if (unitIconImage != null) unitIconImage.gameObject.SetActive(visible);
         if (unitNameText != null) unitNameText.gameObject.SetActive(visible);
         if (bonusText != null) bonusText.gameObject.SetActive(visible);
-        if (recallButton != null) recallButton.gameObject.SetActive(visible && !IsEmpty);
-        if (emptyIndicator != null) emptyIndicator.gameObject.SetActive(visible && IsEmpty);
-
-
-
+        if (recallButton != null) recallButton.gameObject.SetActive(visible && hasUnit);
+        if (emptyIndicator != null) emptyIndicator.gameObject.SetActive(visible && !hasUnit);
         if (unitIconImage != null) unitIconImage.raycastTarget = visible;
     }
-
 
     public void RestoreSlot()
     {
         SetVisualVisible(true);
-        Refresh();
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -200,8 +138,6 @@ public class DispatchSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHan
 
     public void OnEndDrag(PointerEventData eventData)
     {
-
-
         if (DragDropManager.Instance != null)
             DragDropManager.Instance.EndDrag();
     }

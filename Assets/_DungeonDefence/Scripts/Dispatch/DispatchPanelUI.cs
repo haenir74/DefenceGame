@@ -5,10 +5,6 @@ using TMPro;
 
 public class DispatchPanelUI : Singleton<DispatchPanelUI>
 {
-
-
-
-
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform slotsContainer;
     [SerializeField] private GameObject slotPrefab;
@@ -20,112 +16,96 @@ public class DispatchPanelUI : Singleton<DispatchPanelUI>
     protected override void Awake()
     {
         base.Awake();
-
         slots.Clear();
-
 
         if (GetComponent<DispatchDropHandler>() == null)
             gameObject.AddComponent<DispatchDropHandler>();
     }
 
-    private void CreateSlots()
+    private void Start()
     {
-
+        if (DispatchManager.Instance != null)
+        {
+            DispatchManager.Instance.OnDispatchStateChanged += Refresh;
+            Refresh();
+        }
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        if (DispatchManager.Instance != null)
+        {
+            DispatchManager.Instance.OnDispatchStateChanged -= Refresh;
+        }
+    }
+
+    public void Refresh()
+    {
+        if (DispatchManager.Instance == null) return;
+        var entries = DispatchManager.Instance.DispatchSlots;
+
+        while(slots.Count < entries.Count)
+        {
+            GameObject obj = Instantiate(slotPrefab, slotsContainer);
+            var slot = obj.GetComponentInChildren<DispatchSlotUI>();
+            if (slot.gameObject.GetComponent<DispatchDropHandler>() == null)
+                slot.gameObject.AddComponent<DispatchDropHandler>();
+            slot.Initialize(this);
+            slots.Add(slot);
+        }
+        while(slots.Count > entries.Count)
+        {
+            var s = slots[slots.Count - 1];
+            slots.RemoveAt(slots.Count - 1);
+            if(s != null && s.gameObject != null) Destroy(s.gameObject);
+        }
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            slots[i].Refresh(i, entries[i]);
+        }
+
+        RefreshBonusDisplay();
+        UpdateScrollPosition();
+    }
 
     public DispatchSlotUI CreateSlotAndAssign(DragPayload payload)
     {
-        if (slotPrefab == null || slotsContainer == null) return null;
+        if (payload.UnitData != null)
+            DispatchManager.Instance.RequestAssignData(-1, payload.UnitData);
+        else if (payload.GridUnit != null)
+            DispatchManager.Instance.RequestAssignUnit(-1, payload.GridUnit);
 
-        GameObject obj = Instantiate(slotPrefab, slotsContainer);
-        var slot = obj.GetComponentInChildren<DispatchSlotUI>();
-
-        if (slot != null)
-        {
-            slot.Initialize(this);
-            slots.Add(slot);
-
-
-            if (slot.gameObject.GetComponent<DispatchDropHandler>() == null)
-                slot.gameObject.AddComponent<DispatchDropHandler>();
-
-
-
-            bool assigned = false;
-            if (payload.UnitData != null || payload.GridUnit != null)
-            {
-                UnitDataSO data = payload.UnitData ?? payload.GridUnit?.Data;
-                slot.AssignUnitData(data);
-                assigned = true;
-            }
-
-            if (assigned)
-            {
-                RefreshBonusDisplay();
-                UpdateScrollPosition();
-                return slot;
-            }
-        }
-
-        Destroy(obj);
+        if (slots.Count > 0) return slots[slots.Count - 1];
         return null;
     }
 
     private void UpdateScrollPosition()
     {
-
         if (scrollRect == null || scrollRect.content == null) return;
-
-
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
     }
 
-
-
-    public void OnSlotChanged()
-    {
-
-        slots.RemoveAll(s => s == null);
-
-
-
-        RefreshBonusDisplay();
-    }
+    public void OnSlotChanged() { }
 
     private void RefreshBonusDisplay()
     {
         if (totalBonusText == null) return;
-        int total = 0;
-        foreach (var s in slots)
-        {
-            if (s != null) total += s.GetDispatchBonus();
-        }
+        int total = DispatchManager.Instance.CalculateTotalBonus();
         totalBonusText.text = $"파견 보너스: +{total}G";
     }
 
-
     public void ClearAllSlots()
     {
-        foreach (var slot in slots)
-        {
-            if (slot != null)
-            {
-                slot.ClearSlot();
-                Destroy(slot.transform.parent.gameObject);
-            }
-        }
-        slots.Clear();
-        RefreshBonusDisplay();
+        for (int i = slots.Count - 1; i >= 0; i--)
+            DispatchManager.Instance.RequestRecall(i);
     }
-
 
     public int GetTotalDispatchBonus()
     {
-        int total = 0;
-        foreach (var s in slots) total += s.GetDispatchBonus();
-        return total;
+        return DispatchManager.Instance.CalculateTotalBonus();
     }
 }
 

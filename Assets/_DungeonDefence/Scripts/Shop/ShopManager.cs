@@ -21,7 +21,7 @@ public class ShopManager : Singleton<ShopManager>
 
     private Dictionary<UnitTier, List<ITradable>> categoricalPool = new Dictionary<UnitTier, List<ITradable>>();
 
-    private void Start()
+    public void Initialize()
     {
         InitializeCategoricalPool();
         InitializeStocks();

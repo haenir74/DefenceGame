@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6013522449161169932
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6517674839023302094}
+  - component: {fileID: 1508681193440887248}
+  m_Layer: 0
+  m_Name: WaveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6517674839023302094
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013522449161169932}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1508681193440887248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013522449161169932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 941353dacc6316d499e8e1d8b7344c03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waves:
+  - waveDatas:
+    - {fileID: 11400000, guid: e8b47daa6d4de834e9df9f2f7fbcdbf0, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 266182bda7cae2741b1f6ced08913bf1, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 7ae2b7166113a4c46897353f21d97f7c, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: c884718d70bcaba4a9333f04387d4f32, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 2ef273dec9c22be46b75f132aeee2eed, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 1a37c302f1e379a4b98b1f71689ab8d1, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 3acbd0d4e25d6e34c8a44feb52e96f90, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 6b8579247a03a9640af3102a1e07565e, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 584f6d0f8d0d90a429d07e6dda109543, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 2332556c788224842b5e689371b85f42, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: c2b5731f0ab1dcd4389033c9607fe952, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: d0b8253bf14ee7d409f6973e75e9f5a9, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: bbde0fcd4ba9e5a41bfd1c8775059389, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 64d032b6743140248b97c03780649eb9, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: ff141887f7a87cb499d8a53df624fc2f, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 0926f8281ae5aa541836c45061834b8a, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 6c05fad36300eb945ac5a3ae96492219, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: d28af8093a975b645a541e35773003d9, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 5381e47e65539a347886f849f88fe4be, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: ebf2936c0cdc9c744b13c2657c30d4d9, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 172d088eecb812449ad622f52b8f974f, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: b2db3fd16a08e2a43beca298b9af6fe6, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: c3614c799cee9934bbcf11d7ed47ab10, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 0a6a714697a8bb4488b5b37aecb27e72, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: b806ae53ea835d7488651b16c5abe48a, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: df651e7ccc100e242a54692e608f9f0c, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: b8f806f534bab9c4dbc9dbdc2ccdb863, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 06d03344a3f5cde4bb1d8e95da3447b6, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: b07885a010f6baa4d8aaf771f42cb22d, type: 2}
+  - waveDatas:
+    - {fileID: 11400000, guid: 05c1d8baa23604746840a747f726310c, type: 2}

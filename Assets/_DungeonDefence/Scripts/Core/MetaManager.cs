@@ -28,6 +28,10 @@ public class MetaManager : Singleton<MetaManager>
     protected override void Awake()
     {
         base.Awake();
+    }
+
+    public void Initialize()
+    {
         LoadData();
     }
 

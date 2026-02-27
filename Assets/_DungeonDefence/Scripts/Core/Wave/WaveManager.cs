@@ -24,7 +24,7 @@ public class WaveManager : Singleton<WaveManager>
     private bool isWaveInProgress;
     private List<Coroutine> spawnCoroutines = new List<Coroutine>();
 
-    private void Start()
+    public void Initialize()
     {
         if (UnitManager.Instance != null)
         {

@@ -11,15 +11,9 @@ public class EconomyManager : Singleton<EconomyManager>
     protected override void Awake()
     {
         base.Awake();
-        Initialize();
     }
 
-    private void Start()
-    {
-
-    }
-
-    private void Initialize()
+    public void Initialize()
     {
         foreach (CurrencyType type in Enum.GetValues(typeof(CurrencyType)))
         {

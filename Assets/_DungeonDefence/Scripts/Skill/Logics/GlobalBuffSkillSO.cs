@@ -5,34 +5,48 @@ using System.Linq;
 [CreateAssetMenu(fileName = "Skill_GlobalBuff", menuName = "DungeonDefence/Skills/Global Buff")]
 public class GlobalBuffSkillSO : SkillDataSO
 {
-    [UnityEngine.Serialization.FormerlySerializedAs("targetCategory")]
     public UnitTag targetTag = UnitTag.Spider;
-    
-    [UnityEngine.Serialization.FormerlySerializedAs("attackPowerMultiplier")]
     public float attackPowerBonusPercent = 0.2f;
 
-    private Dictionary<Unit, HashSet<Unit>> appliedBuffs = new Dictionary<Unit, HashSet<Unit>>();
+    private HashSet<Unit> activeOwners = new HashSet<Unit>();
+
+    private void OnEnable()
+    {
+        activeOwners.Clear();
+    }
+
+    private void OnDisable()
+    {
+        if (UnitManager.InstanceExists)
+        {
+            UnitManager.Instance.OnUnitSpawned -= HandleUnitSpawned;
+            UnitManager.Instance.OnUnitDespawned -= HandleUnitDespawned;
+        }
+        activeOwners.Clear();
+    }
 
     public override void Cast(Unit caster, Unit target) { }
 
     public override void OnUnitUpdate(Unit owner)
     {
-        if (UnitManager.Instance == null) return;
-
-        if (!appliedBuffs.ContainsKey(owner)) 
-            appliedBuffs[owner] = new HashSet<Unit>();
-            
-        var ownerBuffs = appliedBuffs[owner];
-        var allUnits = UnitManager.Instance.GetAllUnits();
-        
-        foreach (var unit in allUnits)
+        if (!activeOwners.Contains(owner))
         {
-            if (unit.IsPlayerTeam == owner.IsPlayerTeam && unit.Data != null && unit.Data.HasTag(targetTag))
+            if (activeOwners.Count == 0 && UnitManager.Instance != null)
             {
-                if (!ownerBuffs.Contains(unit) && unit.Combat != null && unit.Combat.AttackPower != null)
+                UnitManager.Instance.OnUnitSpawned += HandleUnitSpawned;
+                UnitManager.Instance.OnUnitDespawned += HandleUnitDespawned;
+            }
+            activeOwners.Add(owner);
+
+            if (UnitManager.Instance != null)
+            {
+                var existingUnits = UnitManager.Instance.GetUnitsByTag(targetTag);
+                foreach (var unit in existingUnits)
                 {
-                    unit.Combat.AttackPower.AddModifier(new StatModifier(attackPowerBonusPercent, StatModType.PercentMultiply, owner));
-                    ownerBuffs.Add(unit);
+                    if (unit.IsPlayerTeam == owner.IsPlayerTeam && unit.Combat != null && unit.Combat.AttackPower != null)
+                    {
+                        unit.Combat.AttackPower.AddModifier(new StatModifier(attackPowerBonusPercent, StatModType.PercentMultiply, owner));
+                    }
                 }
             }
         }
@@ -40,16 +54,58 @@ public class GlobalBuffSkillSO : SkillDataSO
 
     public override void OnUnitDie(Unit owner)
     {
-        if (appliedBuffs.ContainsKey(owner))
+        if (activeOwners.Contains(owner))
         {
-            foreach (var unit in appliedBuffs[owner])
+            activeOwners.Remove(owner);
+
+            if (UnitManager.Instance != null)
             {
-                if (unit != null && unit.Combat != null && unit.Combat.AttackPower != null)
+                var existingUnits = UnitManager.Instance.GetUnitsByTag(targetTag);
+                foreach (var unit in existingUnits)
+                {
+                    if (unit != null && unit.Combat != null && unit.Combat.AttackPower != null)
+                    {
+                        unit.Combat.AttackPower.RemoveAllModifiersFromSource(owner);
+                    }
+                }
+
+                if (activeOwners.Count == 0)
+                {
+                    UnitManager.Instance.OnUnitSpawned -= HandleUnitSpawned;
+                    UnitManager.Instance.OnUnitDespawned -= HandleUnitDespawned;
+                }
+            }
+        }
+    }
+
+    private void HandleUnitSpawned(Unit unit)
+    {
+        if (unit.Data != null && unit.Data.HasTag(targetTag))
+        {
+            foreach (var owner in activeOwners)
+            {
+                if (owner != null && !owner.IsDead && unit.IsPlayerTeam == owner.IsPlayerTeam)
+                {
+                    if (unit.Combat != null && unit.Combat.AttackPower != null)
+                    {
+                        unit.Combat.AttackPower.AddModifier(new StatModifier(attackPowerBonusPercent, StatModType.PercentMultiply, owner));
+                    }
+                }
+            }
+        }
+    }
+
+    private void HandleUnitDespawned(Unit unit)
+    {
+        if (unit.Data != null && unit.Data.HasTag(targetTag))
+        {
+            foreach (var owner in activeOwners)
+            {
+                if (owner != null && unit.Combat != null && unit.Combat.AttackPower != null)
                 {
                     unit.Combat.AttackPower.RemoveAllModifiersFromSource(owner);
                 }
             }
-            appliedBuffs.Remove(owner);
         }
     }
 }

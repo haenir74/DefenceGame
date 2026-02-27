@@ -1,9 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Jobs;
+using Unity.Collections;
+using Unity.Burst;
 
 public class GridSystem
 {
+    private JobHandle flowFieldJobHandle;
+    private NativeArray<int> nodeDistances;
+    private NativeArray<int> nodeObstacles;
+    private bool isJobRunning = false;
+    private GridMap currentMap;
     public void Generate(GridMap map, GridDataSO data)
     {
         map.Initialize(data.width, data.height);
@@ -67,34 +75,135 @@ public class GridSystem
         return neighbors;
     }
 
+    [BurstCompile]
+    private struct FlowFieldJob : IJob
+    {
+        public int width;
+        public int height;
+        public int coreIndex;
+        public NativeArray<int> distances;
+        [ReadOnly] public NativeArray<int> obstacles;
+
+        public void Execute()
+        {
+            for (int i = 0; i < distances.Length; i++)
+            {
+                distances[i] = int.MaxValue;
+            }
+
+            NativeQueue<int> queue = new NativeQueue<int>(Allocator.Temp);
+            queue.Enqueue(coreIndex);
+            distances[coreIndex] = 0;
+
+            while (queue.TryDequeue(out int currentIndex))
+            {
+                int cx = currentIndex % width;
+                int cy = currentIndex / width;
+                int currentDist = distances[currentIndex];
+
+                for (int i = 0; i < 4; i++)
+                {
+                    int nx = cx;
+                    int ny = cy;
+                    if (i == 0) ny += 1;
+                    else if (i == 1) ny -= 1;
+                    else if (i == 2) nx -= 1;
+                    else if (i == 3) nx += 1;
+
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                    {
+                        int neighborIndex = ny * width + nx;
+
+                        if (obstacles[neighborIndex] == 1) continue;
+
+                        if (distances[neighborIndex] > currentDist + 1)
+                        {
+                            distances[neighborIndex] = currentDist + 1;
+                            queue.Enqueue(neighborIndex);
+                        }
+                    }
+                }
+            }
+            queue.Dispose();
+        }
+    }
+
     public void CalculateFlowField(GridMap map, GridNode coreNode)
     {
         if (map == null || coreNode == null) return;
 
-        foreach (var node in map.Nodes)
+        if (isJobRunning)
         {
-            node.DistanceToCore = int.MaxValue;
+            flowFieldJobHandle.Complete();
+            isJobRunning = false;
         }
 
-        Queue<GridNode> queue = new Queue<GridNode>();
-        coreNode.DistanceToCore = 0;
-        queue.Enqueue(coreNode);
+        currentMap = map;
+        int width = map.Nodes.GetLength(0);
+        int height = map.Nodes.GetLength(1);
+        int totalNodes = width * height;
 
-        while (queue.Count > 0)
+        if (!nodeDistances.IsCreated || nodeDistances.Length != totalNodes)
         {
-            GridNode current = queue.Dequeue();
-            int currentDist = current.DistanceToCore;
+            if (nodeDistances.IsCreated) nodeDistances.Dispose();
+            if (nodeObstacles.IsCreated) nodeObstacles.Dispose();
 
-            List<GridNode> neighbors = GetNeighbors(map, current);
-            foreach (var neighbor in neighbors)
+            nodeDistances = new NativeArray<int>(totalNodes, Allocator.Persistent);
+            nodeObstacles = new NativeArray<int>(totalNodes, Allocator.Persistent);
+        }
+
+        for (int i = 0; i < totalNodes; i++)
+        {
+            nodeObstacles[i] = 0;
+        }
+
+        int coreIndex = coreNode.Y * width + coreNode.X;
+
+        FlowFieldJob job = new FlowFieldJob
+        {
+            width = width,
+            height = height,
+            coreIndex = coreIndex,
+            distances = nodeDistances,
+            obstacles = nodeObstacles
+        };
+
+        flowFieldJobHandle = job.Schedule();
+        isJobRunning = true;
+    }
+
+    public void LateUpdate()
+    {
+        if (isJobRunning)
+        {
+            flowFieldJobHandle.Complete();
+            isJobRunning = false;
+
+            if (currentMap != null && nodeDistances.IsCreated)
             {
-                if (neighbor.DistanceToCore > currentDist + 1)
+                int width = currentMap.Nodes.GetLength(0);
+                int height = currentMap.Nodes.GetLength(1);
+
+                for (int x = 0; x < width; x++)
                 {
-                    neighbor.DistanceToCore = currentDist + 1;
-                    queue.Enqueue(neighbor);
+                    for (int y = 0; y < height; y++)
+                    {
+                        int index = y * width + x;
+                        currentMap.Nodes[x, y].DistanceToCore = nodeDistances[index];
+                    }
                 }
             }
         }
+    }
+
+    public void OnDestroy()
+    {
+        if (isJobRunning)
+        {
+            flowFieldJobHandle.Complete();
+        }
+        if (nodeDistances.IsCreated) nodeDistances.Dispose();
+        if (nodeObstacles.IsCreated) nodeObstacles.Dispose();
     }
 
     public void CalculateAttractivenessInfluence(GridMap map)

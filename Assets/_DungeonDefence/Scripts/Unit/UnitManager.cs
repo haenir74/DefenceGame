@@ -10,10 +10,12 @@ public class UnitManager : Singleton<UnitManager>
     [SerializeField] private Transform unitContainer;
 
     private List<Unit> activeUnits = new List<Unit>();
+    private Dictionary<UnitTag, HashSet<Unit>> unitTagRegistry = new Dictionary<UnitTag, HashSet<Unit>>();
 
     public event Action<int, int> OnUnitCountChanged;
     public event Action<Unit> OnUnitSpawned;
     public event Action<Unit> OnUnitDead;
+    public event Action<Unit> OnUnitDespawned;
     public event Action<float, float> OnCoreHpChanged;
 
     public void Initialize()
@@ -36,19 +38,13 @@ public class UnitManager : Singleton<UnitManager>
 
     private void Update()
     {
+    }
 
-
-        var unitsToUpdate = new List<Unit>(activeUnits);
-        for (int i = unitsToUpdate.Count - 1; i >= 0; i--)
-        {
-            var unit = unitsToUpdate[i];
-
-
-            if (unit != null && unit.gameObject.activeSelf && !unit.IsDead && activeUnits.Contains(unit))
-            {
-                unit.OnUpdate();
-            }
-        }
+    public IReadOnlyCollection<Unit> GetUnitsByTag(UnitTag tag)
+    {
+        if (unitTagRegistry.TryGetValue(tag, out var set))
+            return set;
+        return Array.Empty<Unit>();
     }
 
     public Unit SpawnUnit(UnitDataSO data, GridNode node)
@@ -149,6 +145,20 @@ public class UnitManager : Singleton<UnitManager>
         if (unit == null || activeUnits.Contains(unit)) return;
 
         activeUnits.Add(unit);
+        
+        if (unit.Data != null)
+        {
+            foreach (UnitTag tag in Enum.GetValues(typeof(UnitTag)))
+            {
+                if (tag != UnitTag.None && unit.Data.HasTag(tag))
+                {
+                    if (!unitTagRegistry.ContainsKey(tag))
+                        unitTagRegistry[tag] = new HashSet<Unit>();
+                    unitTagRegistry[tag].Add(unit);
+                }
+            }
+        }
+        
         NotifyUnitCount();
 
 
@@ -178,12 +188,26 @@ public class UnitManager : Singleton<UnitManager>
         if (activeUnits.Contains(unit))
         {
             activeUnits.Remove(unit);
+            
+            if (unit.Data != null)
+            {
+                foreach (UnitTag tag in Enum.GetValues(typeof(UnitTag)))
+                {
+                    if (tag != UnitTag.None && unit.Data.HasTag(tag))
+                    {
+                        if (unitTagRegistry.ContainsKey(tag))
+                            unitTagRegistry[tag].Remove(unit);
+                    }
+                }
+            }
+            
             NotifyUnitCount();
 
             if (unit.IsDead)
             {
                 OnUnitDead?.Invoke(unit);
             }
+            OnUnitDespawned?.Invoke(unit);
         }
     }
 

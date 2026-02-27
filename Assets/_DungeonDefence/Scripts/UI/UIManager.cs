@@ -15,7 +15,7 @@ public class UIManager : Singleton<UIManager>
 
     private float timeScale = 1.0f;
 
-    private void Start()
+    public void Initialize()
     {
         ConnectEvents();
         InitializeUI();
@@ -63,7 +63,7 @@ public class UIManager : Singleton<UIManager>
             hudView.SpeedButton?.onClick.AddListener(ToggleGameSpeed);
             hudView.StartWaveButton?.onClick.AddListener(() =>
             {
-                
+
                 CloseAllPopups();
                 GameManager.Instance.StartBattlePhase();
             });

@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class CameraManager : Singleton<CameraManager>
 {
-    
+
     [SerializeField] private float zoomSpeed = 2f;
     [SerializeField] private float minZoom = 2f;
     [SerializeField] private float maxZoom = 20f;
 
-    
+
     [SerializeField] private float panSpeed = 0.5f;
     [SerializeField] private Vector2 panLimit = new Vector2(20f, 25f);
     [SerializeField] private float smoothTime = 0.2f;
@@ -26,12 +26,12 @@ public class CameraManager : Singleton<CameraManager>
         if (this.cam == null) this.cam = Camera.main;
     }
 
-    private void Start()
+    public void Initialize()
     {
         this.initialPos = transform.position;
         this.targetPosition = transform.position;
     }
-    
+
     private void Update()
     {
         if (this.cam == null) return;
@@ -42,13 +42,13 @@ public class CameraManager : Singleton<CameraManager>
 
     private void HandleInput()
     {
-        
-        if (UnityEngine.EventSystems.EventSystem.current != null && 
+
+        if (UnityEngine.EventSystems.EventSystem.current != null &&
             UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
         {
-            
-            
-            
+
+
+
         }
         else
         {
@@ -90,7 +90,7 @@ public class CameraManager : Singleton<CameraManager>
     public void FocusOn(Vector3 worldPos)
     {
         Vector3 newPos = worldPos;
-        newPos.y = transform.position.y; 
+        newPos.y = transform.position.y;
         this.targetPosition = GetClampedPosition(newPos);
     }
 
